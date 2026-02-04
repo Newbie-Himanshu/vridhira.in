@@ -229,7 +229,7 @@ export function Navbar() {
                   {user ? (
                     <div className="flex flex-col gap-3">
                       <Link href="/account" className="w-full">
-                        <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold gap-3 shadow-lg hover:opacity-90 transition-all active:scale-95">
+                        <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold gap-3 shadow-[0_0_20px_hsl(var(--primary)/0.4)] hover:opacity-90 transition-all active:scale-95">
                           <User className="h-5 w-5" />
                           My Account
                         </Button>
@@ -240,7 +240,7 @@ export function Navbar() {
                     </div>
                   ) : (
                     <Link href="/login">
-                      <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold shadow-[0_0_20px_hsl(var(--primary)/0.4)] hover:opacity-90 transition-all active:scale-95 shine-effect animate-pulse-glow">
+                      <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold shadow-[0_0_30px_5px_hsl(var(--primary)/0.6)] hover:opacity-90 transition-all active:scale-95 shine-effect animate-pulse-glow">
                         Sign In
                       </Button>
                     </Link>
