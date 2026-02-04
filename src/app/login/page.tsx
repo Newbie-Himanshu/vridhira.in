@@ -99,171 +99,157 @@ export default function LoginPage() {
   return (
     <div className="container mx-auto px-4 py-20 min-h-[calc(100vh-80px)] flex items-center justify-center">
       <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-6">
           <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
             <div className="absolute inset-0 bg-primary/10 rounded-2xl animate-artisanal-rotation" />
             <span className="relative font-headline font-bold text-4xl text-primary">V</span>
           </div>
-          <h1 className="text-3xl font-headline font-bold text-secondary">Join the Heritage</h1>
-          <p className="text-muted-foreground">Direct access to the heart of Indian craftsmanship.</p>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-headline font-bold text-secondary">Join the Heritage</h1>
+            <p className="text-muted-foreground">Direct access to the heart of Indian craftsmanship.</p>
+          </div>
         </div>
 
-        <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8 bg-muted/50 p-1 rounded-full h-12">
-            <TabsTrigger value="login" className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold">Login</TabsTrigger>
-            <TabsTrigger value="signup" className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold">Sign Up</TabsTrigger>
-          </TabsList>
+        <div className="space-y-6">
+          {/* Featured One-Tap Google Button */}
+          <Button 
+            variant="outline" 
+            className="w-full h-14 rounded-2xl border-2 font-bold hover:bg-white hover:shadow-lg transition-all duration-300 bg-white shadow-sm flex items-center justify-center text-lg" 
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+          >
+            <GoogleIcon />
+            Continue with Google
+          </Button>
 
-          <TabsContent value="login">
-            <Card className="border-none shadow-2xl bg-white/70 backdrop-blur-md rounded-3xl overflow-hidden">
-              <CardHeader className="pb-4">
-                <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
-                <CardDescription>Enter your credentials to access your collection.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        id="email" 
-                        type="email" 
-                        placeholder="weaver@heritage.com" 
-                        className="pl-10 h-12 rounded-xl"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                      />
+          <div className="relative py-2">
+            <div className="absolute inset-0 flex items-center">
+              <Separator className="w-full" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase tracking-[0.2em] font-bold">
+              <span className="bg-background px-4 text-muted-foreground/60">Or use email</span>
+            </div>
+          </div>
+
+          <Tabs defaultValue="login" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 p-1 rounded-full h-12">
+              <TabsTrigger value="login" className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold">Login</TabsTrigger>
+              <TabsTrigger value="signup" className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold">Sign Up</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="login">
+              <Card className="border-none shadow-2xl bg-white/70 backdrop-blur-md rounded-3xl overflow-hidden">
+                <CardHeader className="pb-4">
+                  <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
+                  <CardDescription>Enter your credentials to access your collection.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="email" 
+                          type="email" 
+                          placeholder="weaver@heritage.com" 
+                          className="pl-10 h-12 rounded-xl"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password">Password</Label>
-                      <Button variant="link" size="sm" className="px-0 text-primary h-auto">Forgot password?</Button>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="password">Password</Label>
+                        <Button variant="link" size="sm" className="px-0 text-primary h-auto">Forgot password?</Button>
+                      </div>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="password" 
+                          type="password" 
+                          className="pl-10 h-12 rounded-xl"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                        />
+                      </div>
                     </div>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        id="password" 
-                        type="password" 
-                        className="pl-10 h-12 rounded-xl"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <Button className="w-full h-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-lg shadow-primary/20 transition-all active:scale-95" disabled={loading}>
-                    {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
+                    <Button className="w-full h-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-lg shadow-primary/20 transition-all active:scale-95" disabled={loading}>
+                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
+                    </Button>
+                  </form>
+                </CardContent>
+                <CardFooter className="flex flex-col gap-2">
+                  <Button variant="ghost" type="button" className="w-full text-muted-foreground hover:text-primary" onClick={handleGuestLogin} disabled={loading}>
+                    Continue as Guest
                   </Button>
-                </form>
+                </CardFooter>
+              </Card>
+            </TabsContent>
 
-                <div className="relative py-2">
-                  <div className="absolute inset-0 flex items-center">
-                    <Separator className="w-full" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-                  </div>
-                </div>
-
-                <Button 
-                  variant="outline" 
-                  className="w-full h-12 rounded-2xl border-2 font-bold hover:bg-muted/50 transition-all" 
-                  onClick={handleGoogleSignIn}
-                  disabled={loading}
-                >
-                  <GoogleIcon />
-                  Continue with Google
-                </Button>
-              </CardContent>
-              <CardFooter className="flex flex-col gap-2">
-                <Button variant="ghost" type="button" className="w-full text-muted-foreground hover:text-primary" onClick={handleGuestLogin} disabled={loading}>
-                  Continue as Guest
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="signup">
-            <Card className="border-none shadow-2xl bg-white/70 backdrop-blur-md rounded-3xl overflow-hidden">
-              <CardHeader className="pb-4">
-                <CardTitle className="font-headline text-2xl">Create Account</CardTitle>
-                <CardDescription>Join our community of artisanal enthusiasts.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Display Name</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        id="name" 
-                        placeholder="Aarav Sharma" 
-                        className="pl-10 h-12 rounded-xl"
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                        required
-                      />
+            <TabsContent value="signup">
+              <Card className="border-none shadow-2xl bg-white/70 backdrop-blur-md rounded-3xl overflow-hidden">
+                <CardHeader className="pb-4">
+                  <CardTitle className="font-headline text-2xl">Create Account</CardTitle>
+                  <CardDescription>Join our community of artisanal enthusiasts.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <form onSubmit={handleSignUp} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Display Name</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="name" 
+                          placeholder="Aarav Sharma" 
+                          className="pl-10 h-12 rounded-xl"
+                          value={displayName}
+                          onChange={(e) => setDisplayName(e.target.value)}
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email-signup">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        id="email-signup" 
-                        type="email" 
-                        placeholder="weaver@heritage.com" 
-                        className="pl-10 h-12 rounded-xl"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                      />
+                    <div className="space-y-2">
+                      <Label htmlFor="email-signup">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="email-signup" 
+                          type="email" 
+                          placeholder="weaver@heritage.com" 
+                          className="pl-10 h-12 rounded-xl"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password-signup">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        id="password-signup" 
-                        type="password" 
-                        className="pl-10 h-12 rounded-xl"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                      />
+                    <div className="space-y-2">
+                      <Label htmlFor="password-signup">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="password-signup" 
+                          type="password" 
+                          className="pl-10 h-12 rounded-xl"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <Button className="w-full h-12 rounded-2xl bg-secondary text-white font-bold text-lg shadow-lg transition-all active:scale-95" disabled={loading}>
-                    {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Start Journey"}
-                  </Button>
-                </form>
-
-                <div className="relative py-2">
-                  <div className="absolute inset-0 flex items-center">
-                    <Separator className="w-full" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-                  </div>
-                </div>
-
-                <Button 
-                  variant="outline" 
-                  className="w-full h-12 rounded-2xl border-2 font-bold hover:bg-muted/50 transition-all" 
-                  onClick={handleGoogleSignIn}
-                  disabled={loading}
-                >
-                  <GoogleIcon />
-                  Continue with Google
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                    <Button className="w-full h-12 rounded-2xl bg-secondary text-white font-bold text-lg shadow-lg transition-all active:scale-95" disabled={loading}>
+                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Start Journey"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
 
         <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground px-8 text-center leading-relaxed">
           <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
