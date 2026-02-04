@@ -13,7 +13,7 @@ export default function LandingPage() {
     <div className="flex flex-col gap-24 md:gap-32 pb-32">
       {/* Hero Section */}
       <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden py-24 px-4">
-        <div className="absolute inset-0 z-0">
+        <div className="fixed inset-0 z-0 pointer-events-none">
           {/* Desktop Image */}
           {heroDesktop && (
             <div className="hidden md:block absolute inset-0">
@@ -78,7 +78,7 @@ export default function LandingPage() {
       </section>
 
       {/* Trust Markers */}
-      <section className="container mx-auto px-4 py-12">
+      <section className="container mx-auto px-4 py-12 relative z-10 bg-background/80 backdrop-blur-sm rounded-[3rem] shadow-2xl border border-white/10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16 text-center">
           {[
             { icon: ShieldCheck, title: "100% Authentic", text: "Certified products directly sourced from verified master craftsmen." },
@@ -97,7 +97,7 @@ export default function LandingPage() {
       </section>
 
       {/* Featured Collections Preview */}
-      <section className="container mx-auto px-4 space-y-12">
+      <section className="container mx-auto px-4 space-y-12 relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
           <div className="space-y-2">
             <h2 className="text-3xl md:text-5xl font-headline font-bold text-secondary">Featured Collections</h2>
@@ -141,7 +141,7 @@ export default function LandingPage() {
       </section>
 
       {/* Impact Story */}
-      <section id="our-story" className="bg-secondary text-secondary-foreground py-20 md:py-32 artisan-pattern overflow-hidden relative">
+      <section id="our-story" className="bg-secondary text-secondary-foreground py-20 md:py-32 artisan-pattern overflow-hidden relative z-10">
         <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-24 items-center">
           <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl group order-2 lg:order-1">
             <Image
@@ -183,7 +183,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="container mx-auto px-4 mb-20">
+      <section className="container mx-auto px-4 mb-20 relative z-10">
         <div className="bg-primary/5 border border-primary/20 rounded-[3rem] p-12 md:p-24 text-center space-y-8 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-[30rem] h-[30rem] bg-primary/10 rounded-full blur-[100px] -mr-60 -mt-60 transition-transform duration-1000 group-hover:scale-150" />
           <div className="absolute bottom-0 left-0 w-[30rem] h-[30rem] bg-secondary/5 rounded-full blur-[100px] -ml-60 -mb-60 transition-transform duration-1000 group-hover:scale-150" />
