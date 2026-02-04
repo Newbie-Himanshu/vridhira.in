@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -183,12 +182,12 @@ export function Navbar() {
                 </SheetTrigger>
                 <SheetContent side="right" className="w-full sm:max-w-md p-0 overflow-hidden border-none flex flex-col">
                   <SheetHeader className="p-8 pb-4 text-left border-b bg-muted/30">
-                    <SheetTitle className="font-headline text-3xl text-secondary flex items-center gap-4">
-                      <div className="relative w-10 h-10 flex items-center justify-center">
+                    <SheetTitle className="font-headline text-3xl text-secondary flex items-center gap-4 group cursor-pointer transition-all duration-300">
+                      <div className="relative w-10 h-10 flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
                           <div className="absolute inset-0 bg-primary rounded-lg animate-artisanal-rotation" />
                           <span className="relative text-white font-bold text-xl">V</span>
                       </div>
-                      Vridhira
+                      <span className="transition-colors duration-300 group-hover:text-primary">Vridhira</span>
                     </SheetTitle>
                   </SheetHeader>
                   <div className="flex-1 px-8 py-10 space-y-8 overflow-y-auto">
