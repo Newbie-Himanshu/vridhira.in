@@ -13,7 +13,7 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col gap-12 md:gap-24 pb-20">
       {/* Hero Section */}
-      <section className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden py-20">
+      <section className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden py-20 px-4">
         <div className="absolute inset-0 z-0">
           {/* Desktop Image */}
           {heroDesktop && (
@@ -43,24 +43,29 @@ export default function LandingPage() {
           )}
         </div>
         
-        <div className="container relative z-10 mx-auto px-4 text-center text-white space-y-8">
-          <Badge className="bg-primary hover:bg-primary text-white border-none px-6 py-2 text-xs md:text-sm uppercase tracking-[0.3em] animate-in fade-in slide-in-from-top-4 duration-700">
-            Handcrafted Heritage
-          </Badge>
-          <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-headline font-bold drop-shadow-2xl max-w-6xl mx-auto leading-[1] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+        <div className="container relative z-10 mx-auto text-center text-white space-y-6 md:space-y-8">
+          <div className="animate-in fade-in slide-in-from-top-4 duration-700">
+            <Badge className="bg-primary hover:bg-primary text-white border-none px-4 py-1.5 md:px-6 md:py-2 text-[10px] md:text-sm uppercase tracking-[0.3em]">
+              Handcrafted Heritage
+            </Badge>
+          </div>
+          
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-headline font-bold drop-shadow-2xl max-w-5xl mx-auto leading-[1.1] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
             Preserving Souls in Every Stitch
           </h1>
-          <p className="text-lg md:text-2xl max-w-3xl mx-auto opacity-90 font-body animate-in fade-in duration-1000 delay-500 leading-relaxed">
+          
+          <p className="text-base md:text-xl lg:text-2xl max-w-2xl mx-auto opacity-90 font-body animate-in fade-in duration-1000 delay-500 leading-relaxed px-4">
             Directly support authentic Indian artisans. Discover timeless treasures that carry the heartbeat of centuries-old traditions.
           </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700 w-full max-w-lg sm:max-w-none mx-auto">
+          
+          <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center pt-6 md:pt-10 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700 w-full max-w-xs sm:max-w-none mx-auto">
             <Link href="/shop" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 px-12 h-16 md:h-20 text-xl font-bold rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect">
+              <Button size="lg" className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 px-8 md:px-12 h-14 md:h-16 text-lg md:text-xl font-bold rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect">
                 Shop the Collection
               </Button>
             </Link>
             <Link href="#our-story" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto text-white border-white/40 hover:bg-white/10 px-12 h-16 md:h-20 text-xl rounded-full backdrop-blur-md transition-all duration-300">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto text-white border-white/40 hover:bg-white/10 px-8 md:px-12 h-14 md:h-16 text-lg md:text-xl rounded-full backdrop-blur-md transition-all duration-300">
                 Our Story
               </Button>
             </Link>
