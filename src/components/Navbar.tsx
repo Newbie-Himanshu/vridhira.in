@@ -76,7 +76,6 @@ export function Navbar() {
 
   useEffect(() => {
     if (isSearchOpen && searchInputRef.current) {
-      // Small delay to ensure the element is painted before focusing
       const timer = setTimeout(() => {
         searchInputRef.current?.focus();
       }, 50);
@@ -133,7 +132,6 @@ export function Navbar() {
     }
   };
 
-  // Real-time suggestions logic
   const normalizedQuery = searchQuery.toLowerCase().trim();
   const hasMinQuery = normalizedQuery.length > 1;
 
@@ -170,7 +168,6 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop Search Center Area */}
           <div className="hidden lg:flex flex-[2_0_0] justify-center relative px-8" ref={desktopSearchContainerRef}>
             {isSearchOpen ? (
               <div className="w-full max-w-lg animate-in fade-in zoom-in-95 duration-300 relative">
@@ -195,7 +192,6 @@ export function Navbar() {
                   </Button>
                 </form>
 
-                {/* Desktop Results Dropdown */}
                 {(matchedCategories.length > 0 || suggestions.length > 0) && (
                   <div className="absolute top-14 left-0 w-full bg-white/95 backdrop-blur-xl rounded-[2.5rem] border border-border/50 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300 z-50">
                     {matchedCategories.length > 0 && (
@@ -275,7 +271,6 @@ export function Navbar() {
           </div>
 
           <div className="flex-[1_0_0] flex justify-end items-center gap-1 sm:gap-4">
-            {/* Desktop Search Toggle (only if not already open) */}
             <div className="hidden lg:block pointer-events-auto">
               {!isSearchOpen && (
                 <Button 
@@ -287,18 +282,6 @@ export function Navbar() {
                   <Search className="h-5 w-5" />
                 </Button>
               )}
-            </div>
-
-            {/* Mobile Search Button */}
-            <div className="lg:hidden pointer-events-auto">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="text-muted-foreground hover:text-primary transition-all rounded-full"
-                onClick={() => setIsMobileSearchActive(true)}
-              >
-                <Search className="h-5 w-5" />
-              </Button>
             </div>
 
             <Button variant="ghost" size="icon" className="relative group text-muted-foreground hover:text-primary transition-all rounded-full pointer-events-auto" asChild>
@@ -388,11 +371,8 @@ export function Navbar() {
                                   </Button>
                                 </form>
 
-                                {/* Mobile Real-time Suggestions Dropdown with Categories */}
                                 {(matchedCategories.length > 0 || suggestions.length > 0) && (
                                   <div className="bg-white rounded-3xl border border-border/50 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-                                    
-                                    {/* Categories Section */}
                                     {matchedCategories.length > 0 && (
                                       <div className="p-4 border-b bg-primary/5">
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Matching Categories</p>
@@ -412,7 +392,6 @@ export function Navbar() {
                                       </div>
                                     )}
 
-                                    {/* Products Section */}
                                     {suggestions.length > 0 && (
                                       <>
                                         <div className="p-4 border-b bg-muted/20">
