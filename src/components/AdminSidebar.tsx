@@ -22,7 +22,8 @@ import {
   Store,
   Bell,
   LogOut,
-  Menu
+  Menu,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -30,9 +31,10 @@ import { useState, useEffect } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const mainNavItems = [
-  { label: 'Home', icon: Home, href: '/admin/dashboard' },
+  { label: 'Dashboard', icon: Home, href: '/admin/dashboard' },
   { label: 'Orders', icon: ShoppingCart, href: '/admin/orders' },
   { label: 'Products', icon: Package, href: '/admin/products' },
+  { label: 'Fee Optimizer', icon: Sparkles, href: '/admin/fee-optimization' },
   { label: 'Collections', icon: Layers, href: '/admin/collections' },
   { label: 'Categories', icon: Tag, href: '/admin/categories' },
   { label: 'Coupons', icon: Ticket, href: '/admin/coupons' },
@@ -45,7 +47,7 @@ const secondaryNavItems = [
   { label: 'Billing', icon: FileText, href: '/admin/billing' },
   { label: 'Delivery Charges', icon: Truck, href: '/admin/delivery' },
   { label: 'Shipping Partners', icon: Ship, href: '/admin/shipping' },
-  { label: 'Store', icon: Store, href: '/admin/customization' },
+  { label: 'Store Appearance', icon: Store, href: '/admin/customization' },
   { label: 'Notifications', icon: Bell, href: '/admin/notifications' },
   { label: 'Settings', icon: Settings, href: '/admin/settings' },
 ];
@@ -92,7 +94,7 @@ export function AdminSidebar() {
                   </div>
                 </Link>
               </TooltipTrigger>
-              {isCollapsed && (
+              {isCollapsed && !isMobile && (
                 <TooltipContent side="right" className="font-bold">
                   {item.label}
                 </TooltipContent>
@@ -105,61 +107,64 @@ export function AdminSidebar() {
   );
 
   return (
-    <aside 
-      className={cn(
-        "fixed lg:sticky top-16 left-0 h-[calc(100vh-64px)] bg-white border-r transition-all duration-300 ease-in-out z-40 flex flex-col",
-        isCollapsed ? (isMobile ? "w-0 -translate-x-full lg:w-16 lg:translate-x-0" : "w-16") : "w-64 translate-x-0"
-      )}
-    >
-      {/* Mobile Toggle Trigger (when fully hidden) */}
+    <>
+      {/* Sidebar Aside */}
+      <aside 
+        className={cn(
+          "sticky top-20 left-0 h-[calc(100vh-80px)] bg-white border-r transition-all duration-300 ease-in-out z-40 flex flex-col shrink-0",
+          isCollapsed ? (isMobile ? "w-0 -translate-x-full border-none" : "w-16") : "w-64 translate-x-0"
+        )}
+      >
+        <div className="flex-1 py-6 px-4 space-y-4 overflow-y-auto scrollbar-hide overflow-x-hidden">
+          {renderNavItems(mainNavItems)}
+          <div className="pt-4 border-t">
+            {renderNavItems(secondaryNavItems)}
+          </div>
+        </div>
+
+        <div className="p-4 border-t bg-muted/10 space-y-2">
+          {/* Collapse Toggle Arrow Button */}
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={toggleSidebar}
+            className="w-full h-10 flex items-center justify-center hover:bg-primary/5 text-muted-foreground hover:text-primary transition-colors border-t border-muted-foreground/10 pt-4"
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-5 w-5" />
+            ) : (
+              <div className="flex items-center gap-2">
+                <ChevronLeft className="h-5 w-5" />
+                <span className="text-[10px] font-bold uppercase tracking-widest">Collapse Menu</span>
+              </div>
+            )}
+          </Button>
+
+          <Button 
+            variant="ghost" 
+            className={cn(
+              "w-full justify-start gap-3 text-muted-foreground hover:text-destructive transition-colors",
+              isCollapsed && "justify-center px-0"
+            )}
+            onClick={() => console.log('Logout')}
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            {!isCollapsed && <span className="truncate">Logout</span>}
+          </Button>
+        </div>
+      </aside>
+
+      {/* Floating Mobile Toggle (Visible only when sidebar is hidden on mobile) */}
       {isMobile && isCollapsed && (
         <Button 
           variant="secondary" 
           size="icon" 
           onClick={toggleSidebar}
-          className="fixed bottom-6 left-6 rounded-full shadow-2xl z-50 h-12 w-12 lg:hidden bg-primary text-white hover:bg-primary/90"
+          className="fixed bottom-6 left-6 rounded-full shadow-2xl z-50 h-14 w-14 lg:hidden bg-primary text-white hover:bg-primary/90 transition-transform active:scale-90"
         >
-          <Menu className="h-6 w-6" />
+          <Menu className="h-7 w-7" />
         </Button>
       )}
-
-      <div className="flex-1 py-6 px-4 space-y-4 overflow-y-auto scrollbar-hide overflow-x-hidden">
-        {renderNavItems(mainNavItems)}
-        <div className="pt-4 border-t">
-          {renderNavItems(secondaryNavItems)}
-        </div>
-      </div>
-
-      <div className="p-4 border-t bg-muted/10 space-y-2">
-        <Button 
-          variant="ghost" 
-          className={cn(
-            "w-full justify-start gap-3 text-muted-foreground hover:text-destructive transition-colors",
-            isCollapsed && "justify-center px-0"
-          )}
-          onClick={() => console.log('Logout clicked')}
-        >
-          <LogOut className="h-4 w-4 shrink-0" />
-          {!isCollapsed && <span className="truncate">Logout</span>}
-        </Button>
-
-        {/* The Arrow Toggle at the bottom */}
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={toggleSidebar}
-          className="w-full h-10 flex items-center justify-center hover:bg-primary/5 text-muted-foreground hover:text-primary transition-colors border-t border-muted-foreground/10 pt-4"
-        >
-          {isCollapsed ? (
-            <ChevronRight className="h-5 w-5 animate-pulse" />
-          ) : (
-            <div className="flex items-center gap-2">
-              <ChevronLeft className="h-5 w-5" />
-              <span className="text-xs font-bold uppercase tracking-widest">Collapse Menu</span>
-            </div>
-          )}
-        </Button>
-      </div>
-    </aside>
+    </>
   );
 }
