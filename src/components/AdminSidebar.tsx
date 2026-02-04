@@ -79,10 +79,10 @@ export function AdminSidebar() {
       {!isFloating && <div className="hidden lg:block h-20 shrink-0" />}
       
       <div className={cn(
-        "flex-1 py-6 px-4 space-y-6 overflow-y-auto",
+        "flex-1 py-4 px-4 space-y-4 overflow-y-auto",
         isFloating ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : "scrollbar-hide"
       )}>
-        <div className="space-y-2">
+        <div className="space-y-1">
           {mainNavItems.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -92,7 +92,7 @@ export function AdminSidebar() {
                     <Link href={item.href}>
                       <div
                         className={cn(
-                          "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all group",
+                          "flex items-center gap-4 px-4 py-3 rounded-2xl text-sm font-bold transition-all group",
                           isActive 
                             ? "bg-primary text-white shadow-xl scale-[1.02]" 
                             : isFloating 
@@ -118,7 +118,7 @@ export function AdminSidebar() {
           })}
         </div>
         
-        <div className={cn("pt-6 border-t space-y-2", isFloating ? "border-white/10" : "border-border")}>
+        <div className={cn("pt-4 border-t space-y-1", isFloating ? "border-white/10" : "border-border")}>
           {secondaryNavItems.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -128,7 +128,7 @@ export function AdminSidebar() {
                     <Link href={item.href}>
                       <div
                         className={cn(
-                          "flex items-center gap-4 px-4 py-3 rounded-2xl text-sm font-medium transition-all group",
+                          "flex items-center gap-4 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all group",
                           isActive 
                             ? "bg-primary text-white shadow-lg" 
                             : isFloating 
@@ -154,12 +154,12 @@ export function AdminSidebar() {
         </div>
       </div>
 
-      <div className={cn("p-6 border-t space-y-2", isFloating ? "border-white/10 bg-white/5" : "bg-muted/10")}>
+      <div className={cn("p-4 border-t space-y-2", isFloating ? "border-white/10 bg-white/5" : "bg-muted/10")}>
         <Button 
           variant="ghost" 
           onClick={handleSignOut}
           className={cn(
-            "w-full justify-start gap-4 transition-all rounded-2xl h-14 font-bold",
+            "w-full justify-start gap-4 transition-all rounded-2xl h-11 font-bold",
             isFloating 
               ? "text-white/60 hover:text-red-400 hover:bg-white/10" 
               : "text-muted-foreground hover:text-destructive",
