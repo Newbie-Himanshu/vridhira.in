@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, LayoutDashboard, Store, Menu, X, Home } from 'lucide-react';
+import { ShoppingBag, LayoutDashboard, Store, Menu, X, Home, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,7 @@ export function Navbar() {
     { href: '/', label: 'Home', icon: Home },
     { href: '/shop', label: 'Shop', icon: Store },
     { href: '/admin/dashboard', label: 'Admin', icon: LayoutDashboard },
+    { href: '/admin/customization', label: 'Customize', icon: Palette },
   ];
 
   return (

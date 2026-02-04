@@ -1,5 +1,13 @@
 
 export type Category = 'Pottery' | 'Textiles' | 'Decor' | 'Art' | 'Fashion';
+export type ProductType = 'single' | 'variable' | 'group';
+
+export interface ProductVariant {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+}
 
 export interface Product {
   id: string;
@@ -9,6 +17,10 @@ export interface Product {
   category: Category;
   description: string;
   imageUrl: string;
+  type: ProductType;
+  variants?: ProductVariant[];
+  relatedProducts?: string[];
+  specs?: Record<string, string>;
 }
 
 export interface Order {
@@ -21,6 +33,14 @@ export interface Order {
   platformFee: number;
 }
 
+export interface PageSettings {
+  template: 'v0' | 'modern';
+  showBreadcrumbs: boolean;
+  showRelatedProducts: boolean;
+  enableZoom: boolean;
+  accentColor: string;
+}
+
 export const CATEGORIES: Category[] = ['Pottery', 'Textiles', 'Decor', 'Art', 'Fashion'];
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -31,16 +51,24 @@ export const MOCK_PRODUCTS: Product[] = [
     stock: 12,
     category: 'Pottery',
     description: 'Beautiful hand-painted pot using traditional earthy pigments. Perfect for indoor decor.',
-    imageUrl: 'https://picsum.photos/seed/pot1/600/400'
+    imageUrl: 'https://picsum.photos/seed/pot1/600/400',
+    type: 'single',
+    specs: { Material: 'Clay', Origin: 'Rajasthan', Weight: '1.2kg' }
   },
   {
     id: '2',
-    title: 'Banarasi Silk Saree - Crimson',
+    title: 'Banarasi Silk Saree',
     price: 250.0,
     stock: 5,
     category: 'Textiles',
     description: 'A masterpiece of Banarasi weaving, featuring pure silk and intricate zari work.',
-    imageUrl: 'https://picsum.photos/seed/saree1/600/400'
+    imageUrl: 'https://picsum.photos/seed/saree1/600/400',
+    type: 'variable',
+    variants: [
+      { id: 'v1', name: 'Crimson Red', price: 250, stock: 2 },
+      { id: 'v2', name: 'Midnight Blue', price: 275, stock: 3 }
+    ],
+    specs: { Fabric: '100% Silk', Care: 'Dry Clean Only' }
   },
   {
     id: '3',
@@ -49,16 +77,18 @@ export const MOCK_PRODUCTS: Product[] = [
     stock: 8,
     category: 'Decor',
     description: 'Hand-carved sandalwood elephant representing wisdom and strength.',
-    imageUrl: 'https://picsum.photos/seed/elephant1/600/400'
+    imageUrl: 'https://picsum.photos/seed/elephant1/600/400',
+    type: 'single'
   },
   {
     id: '4',
-    title: 'Peacock Brass Diya',
+    title: 'Peacock Brass Diya Set',
     price: 32.0,
     stock: 25,
     category: 'Decor',
-    description: 'Traditional solid brass lamp with a majestic peacock motif.',
-    imageUrl: 'https://picsum.photos/seed/lamp1/600/400'
+    description: 'Traditional solid brass lamp with a majestic peacock motif. Sold as a set of two.',
+    imageUrl: 'https://picsum.photos/seed/lamp1/600/400',
+    type: 'group'
   },
   {
     id: '5',
@@ -67,7 +97,8 @@ export const MOCK_PRODUCTS: Product[] = [
     stock: 3,
     category: 'Art',
     description: 'Authentic Madhubani folk art on stretched canvas, signed by the artist.',
-    imageUrl: 'https://picsum.photos/seed/mural1/600/400'
+    imageUrl: 'https://picsum.photos/seed/mural1/600/400',
+    type: 'single'
   },
   {
     id: '6',
@@ -76,7 +107,12 @@ export const MOCK_PRODUCTS: Product[] = [
     stock: 15,
     category: 'Fashion',
     description: 'Comfortable hand-stitched leather footwear with colorful Zardosi embroidery.',
-    imageUrl: 'https://picsum.photos/seed/shoes1/600/400'
+    imageUrl: 'https://picsum.photos/seed/shoes1/600/400',
+    type: 'variable',
+    variants: [
+      { id: 's1', name: 'UK 7', price: 55, stock: 5 },
+      { id: 's2', name: 'UK 8', price: 55, stock: 10 }
+    ]
   }
 ];
 
