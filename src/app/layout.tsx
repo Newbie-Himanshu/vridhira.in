@@ -3,6 +3,7 @@ import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Vridhira Marketplace',
@@ -23,7 +24,9 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased artisan-pattern min-h-screen">
         <FirebaseClientProvider>
-          <Navbar />
+          <Suspense fallback={null}>
+            <Navbar />
+          </Suspense>
           <main>{children}</main>
           <Toaster />
         </FirebaseClientProvider>

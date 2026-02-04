@@ -1,7 +1,6 @@
+'use client';
 
-"use client";
-
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { MOCK_PRODUCTS, CATEGORIES, Category } from '@/lib/mock-data';
 import { ProductCard } from '@/components/ProductCard';
@@ -9,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, SlidersHorizontal, Sparkles } from 'lucide-react';
 
-export default function ShopPage() {
+function ShopContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
@@ -39,7 +38,6 @@ export default function ShopPage() {
 
   const handleSearchChange = (val: string) => {
     setSearchQuery(val);
-    // Optional: update URL as user types for shareability
     const params = new URLSearchParams(window.location.search);
     if (val) {
       params.set('q', val);
@@ -50,7 +48,7 @@ export default function ShopPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 pt-32 pb-12">
       {/* Hero Section */}
       <section className="text-center mb-12 space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-2">
@@ -122,5 +120,17 @@ export default function ShopPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 pt-32 flex justify-center">
+        <Sparkles className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <ShopContent />
+    </Suspense>
   );
 }

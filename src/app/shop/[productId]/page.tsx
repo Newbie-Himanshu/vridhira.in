@@ -39,7 +39,7 @@ export default function ProductPage(props: {
 
   if (loading || settingsLoading) {
     return (
-      <div className="container mx-auto px-4 py-20 flex justify-center">
+      <div className="container mx-auto px-4 py-32 flex justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
@@ -47,7 +47,7 @@ export default function ProductPage(props: {
 
   if (!product) {
     return (
-      <div className="container mx-auto px-4 py-20 text-center space-y-4">
+      <div className="container mx-auto px-4 py-32 text-center space-y-4">
         <h2 className="text-3xl font-headline font-bold">Treasure Not Found</h2>
         <p className="text-muted-foreground">This handcrafted piece might have found a home already.</p>
         <Link href="/shop">
@@ -61,7 +61,7 @@ export default function ProductPage(props: {
   const template = settings?.template || 'v0';
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 pt-32 pb-12">
       <Link href="/shop" className="inline-flex items-center gap-2 text-primary hover:underline mb-8 font-bold">
         <ArrowLeft className="h-4 w-4" />
         Back to Marketplace
