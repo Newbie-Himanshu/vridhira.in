@@ -1,4 +1,3 @@
-
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -74,8 +73,7 @@ export default function LandingPage() {
           </div>
         </div>
         
-        {/* Subtle Bottom Fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-background via-background/40 to-transparent z-10" />
+        {/* Subtle Bottom Fade Removed as requested earlier */}
       </section>
 
       {/* Trust Markers */}
