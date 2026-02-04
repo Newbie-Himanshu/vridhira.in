@@ -61,6 +61,17 @@
       },
       "required": ["id", "email", "role"]
     },
+    "UserPreferences": {
+      "title": "UserPreferences",
+      "type": "object",
+      "description": "User-specific settings and customization options.",
+      "properties": {
+        "theme": { "type": "string", "enum": ["light", "dark", "sepia"] },
+        "currency": { "type": "string", "enum": ["USD", "INR"] },
+        "emailNotifications": { "type": "boolean" },
+        "smsNotifications": { "type": "boolean" }
+      }
+    },
     "Cart": {
       "title": "Cart",
       "type": "object",
@@ -108,6 +119,10 @@
     "/customers/{userId}": {
       "schema": { "$ref": "#/backend/entities/Customer" },
       "description": "Stores extended user profile, role info, and verification status."
+    },
+    "/user_preferences/{userId}": {
+      "schema": { "$ref": "#/backend/entities/UserPreferences" },
+      "description": "Stores individual user application preferences."
     },
     "/page_customizations/{settingsId}": {
       "schema": { "$ref": "#/backend/entities/PageCustomization" },

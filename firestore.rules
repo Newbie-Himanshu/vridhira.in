@@ -29,7 +29,8 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow get, list: if isOwner(userId) || isAdmin();
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
       allow create: if isOwner(userId);
       allow update: if isOwner(userId);
     }
@@ -37,11 +38,12 @@ service cloud.firestore {
     match /customers/{userId} {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
-      // Public can create as 'user', or the special admin can create themselves as owner
       allow create: if isOwner(userId) && (request.resource.data.role == 'user' || isSpecialAdmin());
-      // Only platform owner or the special admin (for their own record) can change roles.
-      // Users can update their own profile but not their role unless they are the special admin.
       allow update: if isPlatformOwner() || (isOwner(userId) && (request.resource.data.role == resource.data.role || isSpecialAdmin()));
+    }
+
+    match /user_preferences/{userId} {
+      allow read, write: if isOwner(userId);
     }
 
     match /page_customizations/{document} {
