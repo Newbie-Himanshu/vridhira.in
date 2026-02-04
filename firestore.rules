@@ -13,7 +13,6 @@ service cloud.firestore {
     }
 
     function getRole(userId) {
-      // Use exists() to prevent errors if the document hasn't been created yet
       return exists(/databases/$(database)/documents/customers/$(userId)) 
         ? get(/databases/$(database)/documents/customers/$(userId)).data.role 
         : 'user';
@@ -67,6 +66,16 @@ service cloud.firestore {
 
     match /carts/{userId} {
       allow read, write: if isOwner(userId) || isSpecialAdmin();
+    }
+
+    match /platform_settings/{document} {
+      allow read: if true;
+      allow write: if isPlatformOwner() || isSpecialAdmin();
+    }
+
+    match /categories/{document} {
+      allow read: if true;
+      allow write: if isAdmin() || isSpecialAdmin();
     }
   }
 }

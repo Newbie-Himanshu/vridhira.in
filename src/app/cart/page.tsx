@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,10 +9,11 @@ import { updateCartItemQuantityAction, removeCartItemAction, getLocalCart, CartD
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, Loader2, Sparkles, ShieldAlert } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function CartPage() {
   const { user, isUserLoading } = useUser();
@@ -31,6 +33,10 @@ export default function CartPage() {
   );
   
   const { data: cloudCart, isLoading: isCartLoading } = useDoc<CartData>(cartRef);
+
+  // Global Platform Settings for dynamic Fee and Maintenance Mode
+  const settingsRef = useMemoFirebase(() => doc(db, 'platform_settings', 'global'), [db]);
+  const { data: platformSettings } = useDoc<any>(settingsRef);
 
   if (isUserLoading || (user && isCartLoading)) {
     return (
@@ -54,8 +60,13 @@ export default function CartPage() {
   });
 
   const subtotal = cartDetailedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const platformFee = subtotal * 0.10;
+  
+  // Use dynamic fee from platform settings (default to 10% if not found)
+  const feePercentage = platformSettings?.platformFeePercentage ?? 0.10;
+  const platformFee = subtotal * feePercentage;
   const total = subtotal + platformFee;
+
+  const isMaintenance = platformSettings?.maintenanceMode === true;
 
   if (items.length === 0) {
     return (
@@ -83,6 +94,16 @@ export default function CartPage() {
 
   return (
     <div className="container mx-auto px-4 pt-32 pb-12 max-w-7xl">
+      {isMaintenance && (
+        <Alert variant="destructive" className="mb-8 rounded-[2rem] border-2 bg-destructive/5 py-6">
+          <ShieldAlert className="h-6 w-6" />
+          <AlertTitle className="text-xl font-bold">Marketplace Maintenance</AlertTitle>
+          <AlertDescription className="text-lg opacity-90">
+            We are currently performing heritage catalog updates. Checkout is temporarily suspended.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8 animate-in slide-in-from-top-4 duration-700">
         <div className="space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest">
@@ -124,11 +145,21 @@ export default function CartPage() {
                     </div>
                     <div className="flex items-center justify-between mt-8 pt-6 border-t border-border/30">
                       <div className="flex items-center gap-4 bg-muted/30 rounded-2xl px-4 py-2 border border-border/20">
-                        <Button variant="ghost" size="icon" onClick={() => updateCartItemQuantityAction(db, user?.uid || null, item.productId, item.variantId, item.quantity - 1)}>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => updateCartItemQuantityAction(db, user?.uid || null, item.productId, item.variantId, item.quantity - 1)}
+                          disabled={isMaintenance}
+                        >
                           <Minus className="h-4 w-4" />
                         </Button>
                         <span className="font-bold text-lg min-w-[30px] text-center">{item.quantity}</span>
-                        <Button variant="ghost" size="icon" onClick={() => updateCartItemQuantityAction(db, user?.uid || null, item.productId, item.variantId, item.quantity + 1)}>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => updateCartItemQuantityAction(db, user?.uid || null, item.productId, item.variantId, item.quantity + 1)}
+                          disabled={isMaintenance}
+                        >
                           <Plus className="h-4 w-4" />
                         </Button>
                       </div>
@@ -159,7 +190,7 @@ export default function CartPage() {
                     <span className="text-2xl font-black">${subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between items-center text-white">
-                    <span className="text-lg font-bold">Heritage Platform Fee</span>
+                    <span className="text-lg font-bold">Heritage Platform Fee ({(feePercentage * 100).toFixed(1)}%)</span>
                     <span className="text-2xl font-black">${platformFee.toFixed(2)}</span>
                   </div>
                   <Separator className="bg-white/30 h-[1.5px]" />
@@ -171,8 +202,11 @@ export default function CartPage() {
                     <span className="text-5xl font-black text-primary drop-shadow-2xl filter brightness-110">${total.toFixed(2)}</span>
                   </div>
                 </div>
-                <Button className="w-full h-20 rounded-3xl bg-primary hover:bg-primary/90 text-white font-bold text-xl shadow-2xl animate-pulse-glow shine-effect overflow-hidden border-none">
-                  Complete Purchase <ArrowRight className="ml-3 h-6 w-6" />
+                <Button 
+                  className="w-full h-20 rounded-3xl bg-primary hover:bg-primary/90 text-white font-bold text-xl shadow-2xl animate-pulse-glow shine-effect overflow-hidden border-none"
+                  disabled={isMaintenance}
+                >
+                  {isMaintenance ? "Service Locked" : "Complete Purchase"} <ArrowRight className="ml-3 h-6 w-6" />
                 </Button>
               </div>
             </Card>

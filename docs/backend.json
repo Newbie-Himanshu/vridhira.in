@@ -165,6 +165,28 @@
         "enableZoom": { "type": "boolean" },
         "accentColor": { "type": "string" }
       }
+    },
+    "PlatformSettings": {
+      "title": "PlatformSettings",
+      "type": "object",
+      "description": "Global operational settings for the Vridhira Marketplace.",
+      "properties": {
+        "maintenanceMode": { "type": "boolean" },
+        "platformFeePercentage": { "type": "number", "description": "Global fee as a decimal (e.g. 0.1 for 10%)" },
+        "showAnnouncement": { "type": "boolean" },
+        "announcementMessage": { "type": "string" },
+        "announcementType": { "type": "string", "enum": ["info", "success", "warning", "destructive"] }
+      }
+    },
+    "Category": {
+      "title": "Category",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "isActive": { "type": "boolean" }
+      }
     }
   },
   "auth": {
@@ -201,6 +223,14 @@
     "/carts/{userId}": {
       "schema": { "$ref": "#/backend/entities/Cart" },
       "description": "User shopping carts."
+    },
+    "/platform_settings/{docId}": {
+      "schema": { "$ref": "#/backend/entities/PlatformSettings" },
+      "description": "Global operational toggles and variables."
+    },
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/backend/entities/Category" },
+      "description": "Dynamic product categories."
     }
   }
 }
