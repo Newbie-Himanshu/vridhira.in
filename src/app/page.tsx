@@ -1,4 +1,3 @@
-
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -19,30 +18,30 @@ export default function LandingPage() {
             alt={heroImage.description}
             fill
             priority
-            className="object-cover brightness-50"
+            className="object-cover brightness-50 scale-105 animate-in zoom-in-125 duration-1000"
             data-ai-hint={heroImage.imageHint}
           />
         ) : (
           <div className="absolute inset-0 bg-secondary/20" />
         )}
         <div className="container relative z-10 mx-auto px-4 text-center text-white space-y-6">
-          <Badge className="bg-primary hover:bg-primary text-white border-none px-4 py-1.5 text-sm uppercase tracking-widest">
+          <Badge className="bg-primary hover:bg-primary text-white border-none px-4 py-1.5 text-sm uppercase tracking-widest animate-in fade-in slide-in-from-top-4 duration-700">
             Handcrafted Heritage
           </Badge>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline font-bold drop-shadow-lg max-w-4xl mx-auto leading-tight">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline font-bold drop-shadow-lg max-w-4xl mx-auto leading-tight animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
             Preserving Souls in Every Stitch
           </h1>
-          <p className="text-lg md:text-xl max-w-2xl mx-auto opacity-90 font-body">
+          <p className="text-lg md:text-xl max-w-2xl mx-auto opacity-90 font-body animate-in fade-in duration-1000 delay-500">
             Directly support authentic Indian artisans. Discover timeless treasures that carry the heartbeat of centuries-old traditions.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700">
             <Link href="/shop">
-              <Button size="lg" className="bg-primary text-white hover:bg-primary/90 px-8 text-lg font-bold">
+              <Button size="lg" className="bg-primary text-white hover:bg-primary/90 px-8 text-lg font-bold rounded-full shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect">
                 Shop the Collection
               </Button>
             </Link>
             <Link href="#our-story">
-              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10 px-8 text-lg">
+              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10 px-8 text-lg rounded-full backdrop-blur-sm transition-all duration-300">
                 Our Story
               </Button>
             </Link>
@@ -53,27 +52,19 @@ export default function LandingPage() {
       {/* Trust Markers */}
       <section className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-          <div className="space-y-3">
-            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-              <ShieldCheck className="h-8 w-8" />
+          {[
+            { icon: ShieldCheck, title: "100% Authentic", text: "Certified products directly sourced from verified master craftsmen." },
+            { icon: Heart, title: "Fair Trade", text: "85%+ of the sale value goes directly back to the artisan community." },
+            { icon: Sparkles, title: "Heirloom Quality", text: "Slow-made pieces designed to last generations, not just seasons." }
+          ].map((item, idx) => (
+            <div key={idx} className="space-y-3 group hover:scale-105 transition-transform duration-300 p-6 rounded-3xl hover:bg-white hover:shadow-xl">
+              <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-500">
+                <item.icon className="h-8 w-8" />
+              </div>
+              <h3 className="text-xl font-headline font-bold text-secondary">{item.title}</h3>
+              <p className="text-muted-foreground">{item.text}</p>
             </div>
-            <h3 className="text-xl font-headline font-bold text-secondary">100% Authentic</h3>
-            <p className="text-muted-foreground">Certified products directly sourced from verified master craftsmen.</p>
-          </div>
-          <div className="space-y-3">
-            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-              <Heart className="h-8 w-8" />
-            </div>
-            <h3 className="text-xl font-headline font-bold text-secondary">Fair Trade</h3>
-            <p className="text-muted-foreground">85%+ of the sale value goes directly back to the artisan community.</p>
-          </div>
-          <div className="space-y-3">
-            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-              <Sparkles className="h-8 w-8" />
-            </div>
-            <h3 className="text-xl font-headline font-bold text-secondary">Heirloom Quality</h3>
-            <p className="text-muted-foreground">Slow-made pieces designed to last generations, not just seasons.</p>
-          </div>
+          ))}
         </div>
       </section>
 
@@ -84,7 +75,7 @@ export default function LandingPage() {
             <h2 className="text-3xl md:text-4xl font-headline font-bold text-secondary">Featured Collections</h2>
             <p className="text-muted-foreground">Handpicked selections from our diverse craft categories.</p>
           </div>
-          <Link href="/shop" className="hidden md:flex items-center gap-2 text-primary font-bold hover:underline">
+          <Link href="/shop" className="hidden md:flex items-center gap-2 text-primary font-bold hover:gap-4 transition-all duration-300 hover:underline">
             View All <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -94,10 +85,10 @@ export default function LandingPage() {
             { id: 'silk-saree', name: 'Royal Textiles', desc: 'Hand-woven silks from Varanasi' },
             { id: 'terracotta-pot', name: 'Earth & Clay', desc: 'Terracotta from the Gangetic plains' },
             { id: 'mural-painting', name: 'Sacred Art', desc: 'Madhubani & Pattachitra originals' }
-          ].map((cat) => {
+          ].map((cat, idx) => {
             const img = PlaceHolderImages.find(i => i.id === cat.id);
             return (
-              <Link key={cat.id} href={`/shop?category=${cat.name}`} className="group relative aspect-[4/5] overflow-hidden rounded-2xl shadow-lg">
+              <Link key={cat.id} href={`/shop?category=${cat.name}`} className="group relative aspect-[4/5] overflow-hidden rounded-3xl shadow-lg transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
                 {img?.imageUrl ? (
                   <Image
                     src={img.imageUrl}
@@ -111,9 +102,9 @@ export default function LandingPage() {
                     <Sparkles className="h-12 w-12 text-muted-foreground/20" />
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-transparent to-transparent flex flex-col justify-end p-8">
-                  <h3 className="text-2xl font-headline font-bold text-white">{cat.name}</h3>
-                  <p className="text-white/80 text-sm mt-2">{cat.desc}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-secondary/90 via-secondary/20 to-transparent flex flex-col justify-end p-8 transition-opacity duration-300">
+                  <h3 className="text-2xl font-headline font-bold text-white group-hover:translate-x-2 transition-transform duration-300">{cat.name}</h3>
+                  <p className="text-white/80 text-sm mt-2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">{cat.desc}</p>
                 </div>
               </Link>
             )
@@ -122,39 +113,40 @@ export default function LandingPage() {
       </section>
 
       {/* Impact Story */}
-      <section id="our-story" className="bg-secondary text-secondary-foreground py-20 artisan-pattern">
+      <section id="our-story" className="bg-secondary text-secondary-foreground py-24 artisan-pattern overflow-hidden relative">
         <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl">
+          <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl group">
             <Image
               src="https://picsum.photos/seed/artisan-portrait/800/800"
               alt="Artisan Story"
               fill
-              className="object-cover"
+              className="object-cover transition-transform duration-1000 group-hover:scale-105"
               data-ai-hint="artisan portrait"
             />
+            <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </div>
           <div className="space-y-8">
-            <Badge variant="outline" className="border-primary text-primary">Our Mission</Badge>
+            <Badge variant="outline" className="border-primary text-primary px-4 py-1 animate-pulse">Our Mission</Badge>
             <h2 className="text-4xl md:text-5xl font-headline font-bold leading-tight">
               Empowering the Hands that Create.
             </h2>
-            <p className="text-lg opacity-80 leading-relaxed">
+            <p className="text-lg opacity-80 leading-relaxed font-light">
               At Vridhira, we believe that luxury isn't found in mass production, but in the deliberate, rhythmic motion of a weaver's loom or the steady hand of a sculptor. 
               We bridge the gap between global homes and local villages, ensuring that traditional skills remain economically viable for the next generation.
             </p>
-            <div className="flex gap-8">
-              <div>
-                <div className="text-4xl font-bold text-primary">500+</div>
-                <div className="text-sm opacity-60">Artisans Supported</div>
+            <div className="flex gap-12">
+              <div className="group">
+                <div className="text-5xl font-bold text-primary group-hover:scale-110 transition-transform">500+</div>
+                <div className="text-sm opacity-60 font-bold uppercase tracking-widest mt-1">Artisans Supported</div>
               </div>
-              <div className="w-px bg-white/10" />
-              <div>
-                <div className="text-4xl font-bold text-primary">24+</div>
-                <div className="text-sm opacity-60">States Represented</div>
+              <div className="w-px bg-white/20" />
+              <div className="group">
+                <div className="text-5xl font-bold text-primary group-hover:scale-110 transition-transform">24+</div>
+                <div className="text-sm opacity-60 font-bold uppercase tracking-widest mt-1">States Represented</div>
               </div>
             </div>
-            <Link href="/shop">
-              <Button className="bg-primary hover:bg-primary/90 text-white font-bold">
+            <Link href="/shop" className="inline-block">
+              <Button className="bg-primary hover:bg-primary/90 text-white font-bold rounded-full px-10 h-14 shadow-xl hover:scale-105 active:scale-95 transition-all shine-effect">
                 Experience the Craft
               </Button>
             </Link>
@@ -164,16 +156,21 @@ export default function LandingPage() {
 
       {/* CTA Section */}
       <section className="container mx-auto px-4">
-        <div className="bg-primary/5 border border-primary/20 rounded-3xl p-12 text-center space-y-6">
-          <h2 className="text-3xl md:text-4xl font-headline font-bold text-secondary">Bring Heritage Home</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
+        <div className="bg-primary/5 border border-primary/20 rounded-3xl p-16 text-center space-y-8 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-32 -mt-32 transition-transform duration-1000 group-hover:scale-150" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl -ml-32 -mb-32 transition-transform duration-1000 group-hover:scale-150" />
+          
+          <h2 className="text-3xl md:text-5xl font-headline font-bold text-secondary relative z-10">Bring Heritage Home</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg relative z-10">
             Join thousands of collectors who are transforming their spaces with items that tell a story.
           </p>
-          <Link href="/shop">
-            <Button size="lg" className="rounded-full px-12 bg-secondary hover:bg-secondary/90">
-              Go to Marketplace
-            </Button>
-          </Link>
+          <div className="relative z-10">
+            <Link href="/shop">
+              <Button size="lg" className="rounded-full px-16 h-14 bg-secondary hover:bg-secondary/90 text-lg font-bold shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect">
+                Go to Marketplace
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
     </div>
