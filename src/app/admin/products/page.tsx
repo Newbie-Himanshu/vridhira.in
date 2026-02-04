@@ -44,7 +44,8 @@ import {
   PlusCircle,
   XCircle,
   Percent,
-  DollarSign
+  DollarSign,
+  ImagePlus
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -53,6 +54,7 @@ export default function ProductsManagementPage() {
   const db = useFirestore();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageUploadRef = useRef<HTMLInputElement>(null);
 
   const productsQuery = useMemoFirebase(() => query(collection(db, 'products'), orderBy('title', 'asc')), [db]);
   const { data: products, isLoading } = useCollection<Product>(productsQuery);
@@ -69,24 +71,6 @@ export default function ProductsManagementPage() {
       p.sku?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [products, searchQuery]);
-
-  // Logic to calculate discount or sale price
-  useEffect(() => {
-    if (editingProduct) {
-      const price = Number(editingProduct.price || 0);
-      const salePrice = Number(editingProduct.salePrice || 0);
-      const discount = Number(editingProduct.discountPercentage || 0);
-
-      // If price and salePrice are set, update discount
-      if (price > 0 && salePrice > 0 && salePrice < price) {
-        const calculatedDiscount = Math.round(((price - salePrice) / price) * 100);
-        if (calculatedDiscount !== discount) {
-          // setEditingProduct(prev => ({ ...prev, discountPercentage: calculatedDiscount }));
-          // Avoiding recursive state updates in useEffect without care
-        }
-      }
-    }
-  }, [editingProduct?.price, editingProduct?.salePrice]);
 
   const handlePriceChange = (field: 'price' | 'salePrice' | 'discountPercentage', value: number) => {
     if (!editingProduct) return;
@@ -106,6 +90,25 @@ export default function ProductsManagementPage() {
     }
 
     setEditingProduct({ ...editingProduct, ...updates });
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 800000) {
+        toast({
+          variant: "destructive",
+          title: "File too large",
+          description: "Please upload an image smaller than 800KB for the prototype."
+        });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditingProduct({ ...editingProduct, imageUrl: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSaveProduct = (e: React.FormEvent) => {
@@ -315,7 +318,7 @@ export default function ProductsManagementPage() {
             <DialogTrigger asChild>
               <Button 
                 className="rounded-full bg-primary text-white hover:bg-primary/90 shadow-lg gap-2"
-                onClick={() => setEditingProduct({ type: 'single', category: 'Decor', stock: 0, price: 0, specs: {}, variants: [], tags: [] })}
+                onClick={() => setEditingProduct({ type: 'single', category: 'Decor', stock: 0, price: 0, specs: {}, variants: [], tags: [], imageUrl: '' })}
               >
                 <Plus className="h-4 w-4" />
                 Add New Piece
@@ -403,14 +406,50 @@ export default function ProductsManagementPage() {
                     {/* Pricing & Media */}
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="imageUrl" className="text-xs font-bold uppercase tracking-wider">Hero Image URL</Label>
-                        <Input 
-                          id="imageUrl" 
-                          value={editingProduct?.imageUrl || ''} 
-                          onChange={(e) => setEditingProduct({ ...editingProduct, imageUrl: e.target.value })}
-                          placeholder="https://picsum.photos/..."
-                          required
-                        />
+                        <Label className="text-xs font-bold uppercase tracking-wider">Product Image</Label>
+                        <div className="flex flex-col gap-4">
+                          {editingProduct?.imageUrl ? (
+                            <div className="relative aspect-video rounded-xl overflow-hidden border bg-muted group">
+                              <Image 
+                                src={editingProduct.imageUrl} 
+                                alt="Preview" 
+                                fill 
+                                className="object-cover"
+                              />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <Button 
+                                  type="button" 
+                                  variant="destructive" 
+                                  size="sm"
+                                  className="rounded-full"
+                                  onClick={() => setEditingProduct({ ...editingProduct, imageUrl: '' })}
+                                >
+                                  Remove Image
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div 
+                              className="aspect-video rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-muted/50 transition-colors border-primary/20"
+                              onClick={() => imageUploadRef.current?.click()}
+                            >
+                              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                <ImagePlus className="h-5 w-5" />
+                              </div>
+                              <div className="text-center">
+                                <p className="text-xs font-bold text-secondary">Upload Masterpiece</p>
+                                <p className="text-[10px] text-muted-foreground">PNG, JPG up to 800KB</p>
+                              </div>
+                            </div>
+                          )}
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            ref={imageUploadRef} 
+                            className="hidden" 
+                            onChange={handleImageUpload}
+                          />
+                        </div>
                       </div>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -450,7 +489,7 @@ export default function ProductsManagementPage() {
                             step="0.01"
                             value={editingProduct?.salePrice || ''} 
                             onChange={(e) => handlePriceChange('salePrice', Number(e.target.value))}
-                            className="border-primary/20 focus:border-primary"
+                            className="border-primary/20 focus:border-primary bg-white"
                             placeholder="Optional"
                           />
                         </div>
@@ -463,7 +502,7 @@ export default function ProductsManagementPage() {
                             type="number" 
                             value={editingProduct?.discountPercentage || ''} 
                             onChange={(e) => handlePriceChange('discountPercentage', Number(e.target.value))}
-                            className="border-primary/20 focus:border-primary"
+                            className="border-primary/20 focus:border-primary bg-white"
                             placeholder="Auto-calc"
                           />
                         </div>
@@ -622,8 +661,14 @@ export default function ProductsManagementPage() {
                   <TableRow key={product.id} className="hover:bg-muted/10 group transition-colors">
                     <TableCell className="px-8 py-4">
                       <div className="flex items-center gap-4">
-                        <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-sm border shrink-0">
-                          <Image src={product.imageUrl} alt={product.title} fill className="object-cover" />
+                        <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-sm border shrink-0 bg-muted">
+                          {product.imageUrl ? (
+                            <Image src={product.imageUrl} alt={product.title} fill className="object-cover" />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                              <Package className="h-6 w-6 opacity-20" />
+                            </div>
+                          )}
                         </div>
                         <div className="min-w-0">
                           <p className="font-bold text-secondary truncate">{product.title}</p>
