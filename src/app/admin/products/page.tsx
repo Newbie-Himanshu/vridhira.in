@@ -274,15 +274,15 @@ export default function ProductsManagementPage() {
                 Add New Piece
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[800px] h-[90vh] rounded-[2rem] overflow-hidden flex flex-col p-0">
-              <DialogHeader className="p-8 pb-0">
+            <DialogContent className="w-[95vw] sm:max-w-[800px] max-h-[90vh] rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden flex flex-col p-0">
+              <DialogHeader className="p-6 sm:p-8 pb-0 shrink-0">
                 <DialogTitle className="font-headline text-2xl">
                   {editingProduct?.id ? 'Edit Heritage Piece' : 'Catalogue New Masterpiece'}
                 </DialogTitle>
                 <p className="text-sm text-muted-foreground italic">Comprehensive marketplace listing details.</p>
               </DialogHeader>
               
-              <ScrollArea className="flex-1 px-8 py-4">
+              <ScrollArea className="flex-1 px-6 sm:px-8 py-4">
                 <form id="product-form" onSubmit={handleSaveProduct} className="space-y-8 pb-10">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Core Info */}
@@ -297,7 +297,7 @@ export default function ProductsManagementPage() {
                           required
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="sku" className="text-xs font-bold uppercase tracking-wider">SKU</Label>
                           <Input 
@@ -317,7 +317,7 @@ export default function ProductsManagementPage() {
                           />
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="category" className="text-xs font-bold uppercase tracking-wider">Category</Label>
                           <Select 
@@ -365,7 +365,7 @@ export default function ProductsManagementPage() {
                           required
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="price" className="text-xs font-bold uppercase tracking-wider">Base Price ($)</Label>
                           <Input 
@@ -420,7 +420,7 @@ export default function ProductsManagementPage() {
                         <div className="flex items-center justify-between">
                           <Label className="text-sm font-bold flex items-center gap-2">
                             <PlusCircle className="h-4 w-4 text-primary" />
-                            Product Variants (Sizes / Colors)
+                            Product Variants
                           </Label>
                           <Button type="button" variant="ghost" size="sm" onClick={handleAddVariant} className="text-primary hover:text-primary/80">
                             Add Variant
@@ -428,21 +428,21 @@ export default function ProductsManagementPage() {
                         </div>
                         <div className="grid gap-4">
                           {editingProduct.variants?.map((v) => (
-                            <div key={v.id} className="grid grid-cols-12 gap-3 items-end bg-muted/30 p-4 rounded-xl">
-                              <div className="col-span-5 space-y-1">
+                            <div key={v.id} className="flex flex-col sm:grid sm:grid-cols-12 gap-4 sm:gap-3 items-start sm:items-end bg-muted/30 p-4 rounded-xl">
+                              <div className="w-full sm:col-span-5 space-y-1">
                                 <Label className="text-[10px] font-bold">Variant Name</Label>
                                 <Input value={v.name} onChange={(e) => handleUpdateVariant(v.id, { name: e.target.value })} placeholder="Large / Blue" />
                               </div>
-                              <div className="col-span-3 space-y-1">
+                              <div className="w-full sm:col-span-3 space-y-1">
                                 <Label className="text-[10px] font-bold">Price ($)</Label>
                                 <Input type="number" value={v.price} onChange={(e) => handleUpdateVariant(v.id, { price: Number(e.target.value) })} />
                               </div>
-                              <div className="col-span-3 space-y-1">
+                              <div className="w-full sm:col-span-3 space-y-1">
                                 <Label className="text-[10px] font-bold">Stock</Label>
                                 <Input type="number" value={v.stock} onChange={(e) => handleUpdateVariant(v.id, { stock: Number(e.target.value) })} />
                               </div>
-                              <div className="col-span-1 flex justify-center">
-                                <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(v.id)} className="text-destructive">
+                              <div className="w-full sm:col-span-1 flex justify-end">
+                                <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(v.id)} className="text-destructive h-10 w-10">
                                   <XCircle className="h-5 w-5" />
                                 </Button>
                               </div>
@@ -467,18 +467,18 @@ export default function ProductsManagementPage() {
                         {Object.entries(editingProduct?.specs || {}).map(([key, value], idx) => (
                           <div key={idx} className="flex gap-2 items-center bg-muted/20 p-2 rounded-lg border">
                             <Input 
-                              className="h-8 text-xs font-bold" 
+                              className="h-9 text-xs font-bold bg-white" 
                               value={key} 
                               onChange={(e) => handleUpdateSpec(key, e.target.value, value)} 
                               placeholder="e.g., Material"
                             />
                             <Input 
-                              className="h-8 text-xs" 
+                              className="h-9 text-xs bg-white" 
                               value={value} 
                               onChange={(e) => handleUpdateSpec(key, key, e.target.value)} 
                               placeholder="e.g., Silk"
                             />
-                            <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveSpec(key)} className="h-8 w-8 text-destructive">
+                            <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveSpec(key)} className="h-9 w-9 text-destructive shrink-0">
                               <XCircle className="h-4 w-4" />
                             </Button>
                           </div>
@@ -489,12 +489,12 @@ export default function ProductsManagementPage() {
                 </form>
               </ScrollArea>
 
-              <DialogFooter className="p-8 bg-muted/30 border-t">
+              <DialogFooter className="p-6 sm:p-8 bg-muted/30 border-t shrink-0 flex-row gap-2 sm:gap-4">
                 <DialogClose asChild>
-                  <Button type="button" variant="ghost" className="rounded-xl">Cancel</Button>
+                  <Button type="button" variant="ghost" className="flex-1 sm:flex-none rounded-xl">Cancel</Button>
                 </DialogClose>
-                <Button form="product-form" type="submit" className="bg-secondary text-white rounded-xl px-12 shadow-lg hover:scale-[1.02] transition-all">
-                  Save Heritage Listing
+                <Button form="product-form" type="submit" className="flex-1 sm:flex-none bg-secondary text-white rounded-xl px-8 sm:px-12 shadow-lg hover:scale-[1.02] transition-all">
+                  Save Listing
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -502,8 +502,8 @@ export default function ProductsManagementPage() {
         </div>
       </div>
 
-      <div className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm">
-        <div className="relative flex-1">
+      <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-2xl shadow-sm">
+        <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
             placeholder="Search catalog by SKU, name or category..." 
@@ -512,7 +512,7 @@ export default function ProductsManagementPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="flex gap-2 items-center text-sm font-medium text-muted-foreground">
+        <div className="flex gap-2 items-center text-sm font-medium text-muted-foreground whitespace-nowrap">
           <FileSpreadsheet className="h-4 w-4" />
           {filteredProducts.length} Pieces found
         </div>
