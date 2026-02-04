@@ -80,12 +80,21 @@
   to { left: 100%; }
 }
 
+@keyframes artisanal-rotation {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .animate-subtle-float {
   animation: subtle-float 3s ease-in-out infinite;
 }
 
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-artisanal-rotation {
+  animation: artisanal-rotation 4s linear infinite;
 }
 
 .shine-effect {
