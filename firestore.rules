@@ -1,0 +1,132 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * Vridhira Marketplace Security Rules
+     * 
+     * Core Philosophy:
+     * This ruleset implements a strict user-ownership model for customer data and orders 
+     * while maintaining a public-read catalog for products and categories. It follows 
+     * a "Prototyping Mode" approach: authorization is strictly enforced based on 
+     * identity and path-based ownership, but data schemas are kept flexible to 
+     * facilitate rapid development.
+     * 
+     * Data Structure:
+     * - Public Catalog: /products and /categories are publicly readable.
+     * - User Data: All customer-specific data is rooted under /customers/{customerId}.
+     * - Order Hierarchy: Orders and their line items are nested under the customer 
+     *   to establish clear, hierarchical ownership.
+     * - Configuration: Page customization settings are stored in a top-level collection.
+     * 
+     * Key Security Decisions:
+     * - Ownership-Based Access: Writing to customer profiles or orders requires 
+     *   the requester's UID to match the customerId in the path.
+     * - Read-Only Catalog: Products and categories are currently read-only for 
+     *   all users. Admin-level write access is explicitly flagged for future 
+     *   implementation as the IR does not define specific admin roles.
+     * - Relational Integrity: On creation of customer-owned documents, the rules 
+     *   enforce that internal ID fields match the resource path to ensure data 
+     *   consistency.
+     */
+
+    // --- Helper Functions ---
+
+    /** @description Checks if the request is from an authenticated user. */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** @description Checks if the authenticated user matches the provided userId. */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** @description Checks if the authenticated user is the owner of an existing document. */
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    // --- Collection Rules ---
+
+    /**
+     * @description Publicly readable product catalog. Writes are currently restricted.
+     * @path /products/{productId}
+     * @allow get, list: if true;
+     * @deny create, update, delete: if !isAdmin;
+     * @principle Public consumption with protected administrative writes.
+     */
+    match /products/{productId} {
+      allow get, list: if true;
+      // CRITICAL: Cannot implement owner-only writes. The 'Product' entity is missing an ownership field.
+      allow create, update, delete: if false; // TODO: Implement admin role check for product management.
+    }
+
+    /**
+     * @description Publicly readable categories for product filtering.
+     * @path /categories/{categoryId}
+     * @allow get, list: if true;
+     * @deny create, update, delete: if !isAdmin;
+     * @principle Restricts structural marketplace changes to admins.
+     */
+    match /categories/{categoryId} {
+      allow get, list: if true;
+      allow create, update, delete: if false; // TODO: Implement admin role check for category management.
+    }
+
+    /**
+     * @description Stores sensitive customer profile information.
+     * @path /customers/{customerId}
+     * @allow create: if isOwner(customerId) && request.resource.data.id == customerId;
+     * @deny update: if request.resource.data.id != resource.data.id;
+     * @principle Enforces path-based ownership and relational integrity for user profiles.
+     */
+    match /customers/{customerId} {
+      allow get, list: if isOwner(customerId);
+      allow create: if isOwner(customerId) && request.resource.data.id == customerId;
+      allow update: if isExistingOwner(customerId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(customerId);
+    }
+
+    /**
+     * @description Customer-owned orders. Nested for clear hierarchical authorization.
+     * @path /customers/{customerId}/orders/{orderId}
+     * @allow create: if isOwner(customerId) && request.resource.data.customerId == customerId;
+     * @deny update: if request.resource.data.customerId != resource.data.customerId;
+     * @principle Protects transaction history via strict hierarchical ownership.
+     */
+    match /customers/{customerId}/orders/{orderId} {
+      allow get, list: if isOwner(customerId);
+      allow create: if isOwner(customerId) && request.resource.data.customerId == customerId;
+      allow update: if isExistingOwner(customerId) && request.resource.data.customerId == resource.data.customerId;
+      allow delete: if isExistingOwner(customerId);
+
+      /**
+       * @description Line items associated with a specific order.
+       * @path /customers/{customerId}/orders/{orderId}/order_items/{orderItemId}
+       * @allow list: if isOwner(customerId);
+       * @deny create: if !isOwner(customerId);
+       * @principle Secures nested sub-resources using the parent's ownership context.
+       */
+      match /order_items/{orderItemId} {
+        allow get, list: if isOwner(customerId);
+        allow create: if isOwner(customerId);
+        allow update: if isExistingOwner(customerId);
+        allow delete: if isExistingOwner(customerId);
+      }
+    }
+
+    /**
+     * @description Admin configuration for marketplace appearance and template versions.
+     * @path /page_customizations/{pageCustomizationId}
+     * @allow get, list: if true;
+     * @deny update: if !isAdmin;
+     * @principle Public read access for frontend rendering with locked administrative writes.
+     */
+    match /page_customizations/{pageCustomizationId} {
+      allow get, list: if true;
+      // CRITICAL: Administrative settings should only be modified by authorized staff.
+      allow create, update, delete: if false; // TODO: Add admin validation once roles are defined in the IR.
+    }
+  }
+}

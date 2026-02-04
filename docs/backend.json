@@ -1,0 +1,321 @@
+{
+  "entities": {
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
+      "type": "object",
+      "description": "Represents a product listed on the Vridhira Marketplace.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Product entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the product."
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the product."
+        },
+        "stock": {
+          "type": "number",
+          "description": "Number of units currently in stock."
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to Category. (Relationship: Category 1:N Product)"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the product image.",
+          "format": "uri"
+        },
+        "description": {
+          "type": "string",
+          "description": "Full description of the product."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "price",
+        "stock",
+        "categoryId",
+        "imageUrl",
+        "description"
+      ]
+    },
+    "Category": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Category",
+      "type": "object",
+      "description": "Represents a category of products.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Category entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the category."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Order": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Order",
+      "type": "object",
+      "description": "Represents an order placed by a customer.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Order entity."
+        },
+        "customerId": {
+          "type": "string",
+          "description": "Reference to Customer. (Relationship: Customer 1:N Order)"
+        },
+        "orderDate": {
+          "type": "string",
+          "description": "Date when the order was placed.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the order (e.g., pending, processing, shipped, delivered)."
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "Total amount of the order."
+        }
+      },
+      "required": [
+        "id",
+        "customerId",
+        "orderDate",
+        "status",
+        "totalAmount"
+      ]
+    },
+    "OrderItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "OrderItem",
+      "type": "object",
+      "description": "Represents an item within an order.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the OrderItem entity."
+        },
+        "orderId": {
+          "type": "string",
+          "description": "Reference to Order. (Relationship: Order 1:N OrderItem)"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to Product. (Relationship: Product 1:N OrderItem)"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Quantity of the product in the order item."
+        },
+        "itemPrice": {
+          "type": "number",
+          "description": "Price of the individual product in the order item."
+        }
+      },
+      "required": [
+        "id",
+        "orderId",
+        "productId",
+        "quantity",
+        "itemPrice"
+      ]
+    },
+    "Customer": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Customer",
+      "type": "object",
+      "description": "Represents a customer of the marketplace.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Customer entity."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the customer."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the customer."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the customer.",
+          "format": "email"
+        },
+        "address": {
+          "type": "string",
+          "description": "Shipping address of the customer."
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "address"
+      ]
+    },
+    "PageCustomization": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PageCustomization",
+      "type": "object",
+      "description": "Stores customization options for product pages, allowing admins to select templates and configurations.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the PageCustomization entity."
+        },
+        "templateVersion": {
+          "type": "string",
+          "description": "The version of the product page template selected (e.g., 'v0', 'modern')."
+        },
+        "options": {
+          "type": "string",
+          "description": "JSON string containing various display options for the template."
+        }
+      },
+      "required": [
+        "id",
+        "templateVersion",
+        "options"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/products/{productId}",
+        "definition": {
+          "entityName": "Product",
+          "schema": {
+            "$ref": "#/backend/entities/Product"
+          },
+          "description": "Stores product information. The 'productId' is the unique identifier for each product.",
+          "params": [
+            {
+              "name": "productId",
+              "description": "The unique identifier of the product."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/categories/{categoryId}",
+        "definition": {
+          "entityName": "Category",
+          "schema": {
+            "$ref": "#/backend/entities/Category"
+          },
+          "description": "Stores product category information. The 'categoryId' is the unique identifier for each category.",
+          "params": [
+            {
+              "name": "categoryId",
+              "description": "The unique identifier of the category."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/customers/{customerId}/orders/{orderId}",
+        "definition": {
+          "entityName": "Order",
+          "schema": {
+            "$ref": "#/backend/entities/Order"
+          },
+          "description": "Stores order information for each customer.  Nested under /customers/{customerId} to clearly establish ownership. Includes 'customerId' in the order document itself for denormalized access.",
+          "params": [
+            {
+              "name": "customerId",
+              "description": "The unique identifier of the customer."
+            },
+            {
+              "name": "orderId",
+              "description": "The unique identifier of the order."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/customers/{customerId}/orders/{orderId}/order_items/{orderItemId}",
+        "definition": {
+          "entityName": "OrderItem",
+          "schema": {
+            "$ref": "#/backend/entities/OrderItem"
+          },
+          "description": "Stores order item information for each order. Nested under /customers/{customerId}/orders/{orderId} to maintain hierarchical ownership.",
+          "params": [
+            {
+              "name": "customerId",
+              "description": "The unique identifier of the customer."
+            },
+            {
+              "name": "orderId",
+              "description": "The unique identifier of the order."
+            },
+            {
+              "name": "orderItemId",
+              "description": "The unique identifier of the order item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/customers/{customerId}",
+        "definition": {
+          "entityName": "Customer",
+          "schema": {
+            "$ref": "#/backend/entities/Customer"
+          },
+          "description": "Stores customer information.  The 'customerId' is the unique identifier for each customer.",
+          "params": [
+            {
+              "name": "customerId",
+              "description": "The unique identifier of the customer."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/page_customizations/{pageCustomizationId}",
+        "definition": {
+          "entityName": "PageCustomization",
+          "schema": {
+            "$ref": "#/backend/entities/PageCustomization"
+          },
+          "description": "Stores page customization options, allowing admins to select product page templates and configurations. The 'pageCustomizationId' is the unique identifier.",
+          "params": [
+            {
+              "name": "pageCustomizationId",
+              "description": "The unique identifier for the page customization settings."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to support the Vridhira Marketplace application, focusing on product listing, shop functionality, order management, and admin customization of product page templates. The design adheres to the core principles of Authorization Independence, Clarity of Intent, DBAC, and QAPs.  Authorization independence is achieved by avoiding `get()` calls in the security rules and denormalizing data where necessary. Hierarchical paths are used for user-owned data (orders), while membership maps are used for collaborative data (though not explicitly required in this design). Segregation is implemented by storing configuration data in a dedicated `page_customizations` collection. The design supports listing operations by ensuring that all documents within a collection share the same security requirements."
+  }
+}
