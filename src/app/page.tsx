@@ -59,14 +59,14 @@ export default function LandingPage() {
             Directly support authentic Indian artisans. Discover timeless treasures that carry the heartbeat of centuries-old traditions.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700 w-full max-w-xs sm:max-w-none mx-auto">
-            <Link href="/shop" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 px-10 h-12 text-base font-bold rounded-full shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect border-none">
+          <div className="flex flex-row gap-4 justify-center items-center pt-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700 w-full mx-auto">
+            <Link href="/shop" className="w-auto">
+              <Button size="lg" className="bg-primary text-white hover:bg-primary/90 px-8 md:px-12 h-12 text-sm md:text-base font-bold rounded-full shadow-xl hover:scale-105 hover:shadow-primary/20 active:scale-95 transition-all duration-300 shine-effect border-none">
                 Shop
               </Button>
             </Link>
-            <Link href="#our-story" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto text-white border-white/80 hover:bg-white/10 px-10 h-12 text-base font-medium rounded-full backdrop-blur-md transition-all duration-300">
+            <Link href="#our-story" className="w-auto">
+              <Button size="lg" variant="outline" className="text-white border-white/80 hover:bg-white/10 px-6 md:px-10 h-12 text-sm md:text-base font-medium rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95">
                 Our Story
               </Button>
             </Link>
