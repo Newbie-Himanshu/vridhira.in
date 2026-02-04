@@ -96,12 +96,12 @@ export function AdminSidebar() {
                           isActive 
                             ? "bg-primary text-white shadow-xl scale-[1.02]" 
                             : isFloating 
-                              ? "text-white/80 hover:bg-white/10 hover:text-white" 
+                              ? "text-white hover:bg-white/10" 
                               : "text-muted-foreground hover:bg-muted hover:text-foreground",
                           collapsed && "justify-center px-0"
                         )}
                       >
-                        <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-white" : isFloating ? "text-white/60 group-hover:text-white" : "text-muted-foreground group-hover:text-foreground")} />
+                        <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-white" : isFloating ? "text-white group-hover:text-white" : "text-muted-foreground group-hover:text-foreground")} />
                         {!collapsed && <span className="flex-1 truncate tracking-tight">{item.label}</span>}
                         {isActive && !collapsed && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
                       </div>
@@ -132,12 +132,12 @@ export function AdminSidebar() {
                           isActive 
                             ? "bg-primary text-white shadow-lg" 
                             : isFloating 
-                              ? "text-white/60 hover:bg-white/10 hover:text-white" 
+                              ? "text-white/80 hover:bg-white/10 hover:text-white" 
                               : "text-muted-foreground hover:bg-muted hover:text-foreground",
                           collapsed && "justify-center px-0"
                         )}
                       >
-                        <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-white" : isFloating ? "text-white/40 group-hover:text-white" : "text-muted-foreground group-hover:text-foreground")} />
+                        <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-white" : isFloating ? "text-white/60 group-hover:text-white" : "text-muted-foreground group-hover:text-foreground")} />
                         {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
                       </div>
                     </Link>
@@ -209,13 +209,13 @@ export function AdminSidebar() {
           <>
             {/* Click-outside listener (backdrop) */}
             <div 
-              className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm" 
+              className="fixed inset-0 z-40 bg-black/20" 
               onClick={() => setIsMobileMenuOpen(false)} 
             />
             
             <div className={cn(
-              "fixed bottom-4 left-4 right-4 h-[55vh] z-50 rounded-[3rem] overflow-hidden border border-white/30 bg-white/10 backdrop-blur-[40px] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] flex flex-col animate-in slide-in-from-bottom-8 fade-in duration-500 ease-out",
-              "ring-1 ring-white/20"
+              "fixed bottom-4 left-4 right-4 h-[55vh] z-50 rounded-[3rem] overflow-hidden border border-white/20 bg-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] flex flex-col animate-in slide-in-from-bottom-8 fade-in duration-500 ease-out",
+              "ring-1 ring-white/10"
             )}>
               {/* Header inside floating window */}
               <div className="p-8 pb-4 border-b border-white/10 bg-white/5 shrink-0 flex items-center justify-between">
