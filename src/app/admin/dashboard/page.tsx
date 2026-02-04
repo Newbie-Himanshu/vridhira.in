@@ -4,7 +4,7 @@
 import { useMemo, useState } from 'react';
 import { useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, useUser, useDoc } from '@/firebase';
 import { collection, query, limit, orderBy, doc } from 'firebase/firestore';
-import { MOCK_ORDERS, MOCK_PRODUCTS, Product, Order, Customer } from '@/lib/mock-data';
+import { MOCK_ORDERS, MOCK_PRODUCTS, MOCK_CUSTOMERS, Product, Order, Customer } from '@/lib/mock-data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { 
   Table, 
@@ -37,6 +37,7 @@ import {
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 const chartData = [
   { month: "Jan", sales: 4500 },
@@ -92,9 +93,24 @@ export default function AdminDashboard() {
         setDocumentNonBlocking(oRef, o, { merge: true });
       });
 
+      // Seed Customers & Users
+      MOCK_CUSTOMERS.forEach(c => {
+        const cRef = doc(db, 'customers', c.id);
+        setDocumentNonBlocking(cRef, c, { merge: true });
+        
+        const uRef = doc(db, 'users', c.id);
+        setDocumentNonBlocking(uRef, {
+          id: c.id,
+          email: c.email,
+          displayName: `${c.firstName} ${c.lastName}`,
+          photoURL: `https://picsum.photos/seed/${c.id}/200`,
+          creationTime: new Date().toISOString()
+        }, { merge: true });
+      });
+
       toast({
         title: "Database Seeded",
-        description: "Heritage catalog and demo transactions have been added to your Firestore.",
+        description: "Heritage catalog, demo transactions, and mock users have been added to your Firestore.",
       });
     } catch (err) {
       toast({
@@ -332,4 +348,3 @@ export default function AdminDashboard() {
     </div>
   );
 }
-import Link from 'next/link';

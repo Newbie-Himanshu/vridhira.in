@@ -192,3 +192,46 @@ export const MOCK_ORDERS: Order[] = [
     platformFee: 9.6
   }
 ];
+
+export const MOCK_CUSTOMERS: Customer[] = [
+  {
+    id: 'mock-user-1',
+    email: 'aarav.sharma@example.com',
+    firstName: 'Aarav',
+    lastName: 'Sharma',
+    username: 'aarav_crafts',
+    role: 'user',
+    isVerified: true,
+    address: '123 Heritage Lane, Jaipur, Rajasthan'
+  },
+  {
+    id: 'mock-user-2',
+    email: 'ananya.iyer@example.com',
+    firstName: 'Ananya',
+    lastName: 'Iyer',
+    username: 'ananya_silk',
+    role: 'user',
+    isVerified: true,
+    address: '45 Silk Road, Kanchipuram, Tamil Nadu'
+  },
+  {
+    id: 'mock-user-3',
+    email: 'kabir.das@example.com',
+    firstName: 'Kabir',
+    lastName: 'Das',
+    username: 'kabir_potter',
+    role: 'user',
+    isVerified: false,
+    address: '88 Earth Avenue, Varanasi, Uttar Pradesh'
+  },
+  {
+    id: 'mock-admin-1',
+    email: 'staff@vridhira.com',
+    firstName: 'Marketplace',
+    lastName: 'Admin',
+    username: 'admin_vridhira',
+    role: 'store admin',
+    isVerified: true,
+    address: 'Vridhira HQ, Mumbai'
+  }
+];
