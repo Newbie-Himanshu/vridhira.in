@@ -46,12 +46,12 @@ export default function LandingPage() {
         
         <div className="container relative z-10 mx-auto text-center text-white space-y-8 md:space-y-10">
           <div className="animate-in fade-in slide-in-from-top-4 duration-700">
-            <Badge className="bg-primary hover:bg-primary text-white border-none px-6 py-2 text-xs md:text-sm uppercase tracking-[0.3em] shadow-lg animate-subtle-float">
+            <Badge className="bg-primary hover:bg-primary text-white border-none px-6 py-2 text-[10px] md:text-sm uppercase tracking-[0.3em] shadow-lg animate-subtle-float">
               Handcrafted Heritage
             </Badge>
           </div>
           
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-headline font-bold drop-shadow-2xl max-w-5xl mx-auto leading-[1.1] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-headline font-bold drop-shadow-2xl max-w-5xl mx-auto leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
             Preserving Souls in Every Stitch
           </h1>
           
