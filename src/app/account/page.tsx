@@ -11,6 +11,7 @@ import { User, Mail, Shield, Calendar, Loader2, LogOut, Package, CheckCircle2, A
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function AccountPage() {
   const { user, isUserLoading } = useUser();
@@ -25,6 +26,13 @@ export default function AccountPage() {
   
   const { data: customer, isLoading: isCustomerLoading } = useDoc<Customer>(customerRef);
 
+  // Use useEffect for redirection to avoid "Cannot update a component while rendering a different component"
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
   if (isUserLoading || isCustomerLoading) {
     return (
       <div className="container mx-auto px-4 py-32 flex justify-center">
@@ -34,7 +42,6 @@ export default function AccountPage() {
   }
 
   if (!user) {
-    router.push('/login');
     return null;
   }
 
