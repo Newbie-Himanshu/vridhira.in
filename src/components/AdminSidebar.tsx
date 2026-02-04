@@ -78,7 +78,10 @@ export function AdminSidebar() {
       {/* Spacer for Navbar on Desktop fixed sidebar */}
       {!isFloating && <div className="hidden lg:block h-20 shrink-0" />}
       
-      <div className="flex-1 py-6 px-4 space-y-6 overflow-y-auto scrollbar-hide">
+      <div className={cn(
+        "flex-1 py-6 px-4 space-y-6 overflow-y-auto",
+        isFloating ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : "scrollbar-hide"
+      )}>
         <div className="space-y-2">
           {mainNavItems.map((item) => {
             const isActive = pathname === item.href;
@@ -211,7 +214,7 @@ export function AdminSidebar() {
             />
             
             <div className={cn(
-              "fixed bottom-24 left-4 right-4 h-[55vh] z-50 rounded-[3rem] overflow-hidden border border-white/30 bg-white/10 backdrop-blur-[40px] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] flex flex-col animate-in slide-in-from-bottom-8 fade-in duration-500 ease-out",
+              "fixed bottom-4 left-4 right-4 h-[55vh] z-50 rounded-[3rem] overflow-hidden border border-white/30 bg-white/10 backdrop-blur-[40px] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] flex flex-col animate-in slide-in-from-bottom-8 fade-in duration-500 ease-out",
               "ring-1 ring-white/20"
             )}>
               {/* Header inside floating window */}
@@ -244,21 +247,16 @@ export function AdminSidebar() {
           </>
         )}
 
-        {/* The FAB */}
-        <Button 
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className={cn(
-            "fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl z-50 bg-secondary text-white hover:bg-secondary/90 border border-white/20 transition-all duration-500 ease-in-out",
-            isMobileMenuOpen ? "rotate-90 scale-90 bg-primary border-primary shadow-primary/40" : "animate-pulse-glow"
-          )}
-          size="icon"
-        >
-          {isMobileMenuOpen ? (
-            <X className="h-8 w-8" />
-          ) : (
+        {/* The FAB - Only visible when menu is closed */}
+        {!isMobileMenuOpen && (
+          <Button 
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl z-50 bg-secondary text-white hover:bg-secondary/90 border border-white/20 transition-all duration-500 ease-in-out animate-pulse-glow"
+            size="icon"
+          >
             <Menu className="h-8 w-8" />
-          )}
-        </Button>
+          </Button>
+        )}
       </div>
     </>
   );
