@@ -10,7 +10,7 @@ export default function LandingPage() {
   const heroMobile = PlaceHolderImages.find(img => img.id === 'hero-artisan-mobile');
 
   return (
-    <div className="flex flex-col gap-20 md:gap-32 pb-32">
+    <div className="flex flex-col gap-24 md:gap-32 pb-32">
       {/* Hero Section */}
       <section className="relative w-full min-h-[95vh] flex items-center justify-center overflow-hidden py-24 px-4">
         <div className="absolute inset-0 z-0">
@@ -40,26 +40,26 @@ export default function LandingPage() {
               />
             </div>
           )}
-          {/* Overlay to ensure text readability without haziness */}
+          {/* Overlay to ensure text readability */}
           <div className="absolute inset-0 bg-black/20" />
         </div>
         
         <div className="container relative z-10 mx-auto text-center text-white space-y-8 md:space-y-10">
           <div className="animate-in fade-in slide-in-from-top-4 duration-700">
-            <Badge className="bg-primary hover:bg-primary text-white border-none px-6 py-2 text-xs md:text-sm uppercase tracking-[0.3em] shadow-lg">
+            <Badge className="bg-primary hover:bg-primary text-white border-none px-6 py-2 text-xs md:text-sm uppercase tracking-[0.3em] shadow-lg animate-subtle-float">
               Handcrafted Heritage
             </Badge>
           </div>
           
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-headline font-bold drop-shadow-2xl max-w-5xl mx-auto leading-[1.1] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-headline font-bold drop-shadow-2xl max-w-5xl mx-auto leading-[1.1] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
             Preserving Souls in Every Stitch
           </h1>
           
-          <p className="text-base md:text-xl lg:text-2xl max-w-2xl mx-auto opacity-95 font-body animate-in fade-in duration-1000 delay-500 leading-relaxed px-4 drop-shadow-md">
+          <p className="text-sm md:text-lg lg:text-xl max-w-2xl mx-auto opacity-95 font-body animate-in fade-in duration-1000 delay-500 leading-relaxed px-4 drop-shadow-md">
             Directly support authentic Indian artisans. Discover timeless treasures that carry the heartbeat of centuries-old traditions.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center pt-10 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700 w-full max-w-xs sm:max-w-none mx-auto">
+          <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center pt-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700 w-full max-w-xs sm:max-w-none mx-auto">
             <Link href="/shop" className="w-full sm:w-auto">
               <Button size="lg" className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 px-8 md:px-12 h-14 md:h-16 text-lg md:text-xl font-bold rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect border-none">
                 Shop the Collection
@@ -72,42 +72,40 @@ export default function LandingPage() {
             </Link>
           </div>
         </div>
-        
-        {/* Subtle Bottom Fade Removed as requested earlier */}
       </section>
 
       {/* Trust Markers */}
       <section className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-20 text-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16 text-center">
           {[
             { icon: ShieldCheck, title: "100% Authentic", text: "Certified products directly sourced from verified master craftsmen." },
             { icon: Heart, title: "Fair Trade", text: "85%+ of the sale value goes directly back to the artisan community." },
             { icon: Sparkles, title: "Heirloom Quality", text: "Slow-made pieces designed to last generations, not just seasons." }
           ].map((item, idx) => (
-            <div key={idx} className="space-y-6 group hover:scale-105 transition-transform duration-300 p-10 rounded-[2.5rem] hover:bg-white hover:shadow-2xl">
-              <div className="mx-auto w-16 h-16 md:w-24 md:h-24 bg-primary/10 rounded-full flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-500 shadow-inner">
-                <item.icon className="h-8 w-8 md:h-12 md:w-12" />
+            <div key={idx} className="space-y-4 group hover:scale-105 transition-transform duration-300 p-8 rounded-[2rem] hover:bg-white hover:shadow-2xl">
+              <div className="mx-auto w-16 h-16 md:w-20 md:h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-500 shadow-inner">
+                <item.icon className="h-8 w-8 md:h-10 md:w-10" />
               </div>
-              <h3 className="text-2xl md:text-3xl font-headline font-bold text-secondary">{item.title}</h3>
-              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">{item.text}</p>
+              <h3 className="text-xl md:text-2xl font-headline font-bold text-secondary">{item.title}</h3>
+              <p className="text-sm md:text-base text-muted-foreground leading-relaxed">{item.text}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Featured Collections Preview */}
-      <section className="container mx-auto px-4 space-y-16">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-          <div className="space-y-4">
-            <h2 className="text-4xl md:text-6xl font-headline font-bold text-secondary">Featured Collections</h2>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-xl">Handpicked selections from our diverse craft categories.</p>
+      <section className="container mx-auto px-4 space-y-12">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+          <div className="space-y-2">
+            <h2 className="text-3xl md:text-5xl font-headline font-bold text-secondary">Featured Collections</h2>
+            <p className="text-base md:text-lg text-muted-foreground max-w-xl">Handpicked selections from our diverse craft categories.</p>
           </div>
-          <Link href="/shop" className="flex items-center gap-2 text-primary text-xl font-bold hover:gap-4 transition-all duration-300 hover:underline">
-            View All <ArrowRight className="h-6 w-6" />
+          <Link href="/shop" className="flex items-center gap-2 text-primary text-lg font-bold hover:gap-4 transition-all duration-300 hover:underline">
+            View All <ArrowRight className="h-5 w-5" />
           </Link>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
           {[
             { id: 'silk-saree', name: 'Royal Textiles', desc: 'Hand-woven silks from Varanasi' },
             { id: 'terracotta-pot', name: 'Earth & Clay', desc: 'Terracotta from the Gangetic plains' },
@@ -115,7 +113,7 @@ export default function LandingPage() {
           ].map((cat) => {
             const img = PlaceHolderImages.find(i => i.id === cat.id);
             return (
-              <Link key={cat.id} href={`/shop?category=${cat.name}`} className="group relative aspect-[3/4] overflow-hidden rounded-[3rem] shadow-2xl transition-all duration-500 hover:shadow-primary/20 hover:-translate-y-4">
+              <Link key={cat.id} href={`/shop?category=${cat.name}`} className="group relative aspect-[3/4] overflow-hidden rounded-[2.5rem] shadow-2xl transition-all duration-500 hover:shadow-primary/20 hover:-translate-y-4">
                 {img?.imageUrl ? (
                   <Image
                     src={img.imageUrl}
@@ -126,12 +124,12 @@ export default function LandingPage() {
                   />
                 ) : (
                   <div className="absolute inset-0 bg-muted flex items-center justify-center">
-                    <Sparkles className="h-12 w-12 text-muted-foreground/20" />
+                    <Sparkles className="h-10 w-10 text-muted-foreground/20" />
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-secondary/95 via-secondary/20 to-transparent flex flex-col justify-end p-10 md:p-12 transition-opacity duration-300">
-                  <h3 className="text-3xl md:text-4xl font-headline font-bold text-white group-hover:translate-x-2 transition-transform duration-300">{cat.name}</h3>
-                  <p className="text-white/90 text-sm md:text-lg mt-4 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 font-light">{cat.desc}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-secondary/95 via-secondary/20 to-transparent flex flex-col justify-end p-8 transition-opacity duration-300">
+                  <h3 className="text-2xl md:text-3xl font-headline font-bold text-white group-hover:translate-x-2 transition-transform duration-300">{cat.name}</h3>
+                  <p className="text-white/90 text-xs md:text-base mt-3 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 font-light">{cat.desc}</p>
                 </div>
               </Link>
             )
@@ -140,9 +138,9 @@ export default function LandingPage() {
       </section>
 
       {/* Impact Story */}
-      <section id="our-story" className="bg-secondary text-secondary-foreground py-24 md:py-40 artisan-pattern overflow-hidden relative">
-        <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-20 md:gap-32 items-center">
-          <div className="relative aspect-square rounded-[4rem] overflow-hidden shadow-2xl group order-2 lg:order-1">
+      <section id="our-story" className="bg-secondary text-secondary-foreground py-20 md:py-32 artisan-pattern overflow-hidden relative">
+        <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-24 items-center">
+          <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl group order-2 lg:order-1">
             <Image
               src="https://picsum.photos/seed/artisan-portrait/1200/1200"
               alt="Artisan Story"
@@ -152,28 +150,28 @@ export default function LandingPage() {
             />
             <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </div>
-          <div className="space-y-10 md:space-y-12 order-1 lg:order-2">
-            <Badge variant="outline" className="border-primary text-primary px-8 py-2 animate-pulse uppercase tracking-[0.3em] text-[10px] md:text-xs">Our Mission</Badge>
-            <h2 className="text-4xl md:text-7xl lg:text-8xl font-headline font-bold leading-[1.05]">
+          <div className="space-y-8 order-1 lg:order-2">
+            <Badge variant="outline" className="border-primary text-primary px-6 py-2 animate-pulse uppercase tracking-[0.3em] text-[10px]">Our Mission</Badge>
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-headline font-bold leading-[1.1]">
               Empowering the Hands that Create.
             </h2>
-            <p className="text-lg md:text-2xl opacity-90 leading-relaxed font-light max-w-2xl">
+            <p className="text-base md:text-lg opacity-90 leading-relaxed font-light max-w-xl">
               At Vridhira, we believe that luxury isn't found in mass production, but in the deliberate, rhythmic motion of a weaver's loom or the steady hand of a sculptor. 
-              We bridge the gap between global homes and local villages, ensuring that traditional skills remain economically viable for the next generation.
+              We bridge the gap between global homes and local villages.
             </p>
-            <div className="flex gap-16 md:gap-24">
+            <div className="flex gap-12 md:gap-16">
               <div className="group">
-                <div className="text-5xl md:text-8xl font-bold text-primary group-hover:scale-110 transition-transform">500+</div>
-                <div className="text-xs md:text-sm opacity-60 font-bold uppercase tracking-[0.3em] mt-3">Artisans</div>
+                <div className="text-4xl md:text-6xl font-bold text-primary group-hover:scale-110 transition-transform">500+</div>
+                <div className="text-[10px] md:text-xs opacity-60 font-bold uppercase tracking-[0.2em] mt-2">Artisans</div>
               </div>
               <div className="w-px bg-white/20" />
               <div className="group">
-                <div className="text-5xl md:text-8xl font-bold text-primary group-hover:scale-110 transition-transform">24+</div>
-                <div className="text-xs md:text-sm opacity-60 font-bold uppercase tracking-[0.3em] mt-3">States</div>
+                <div className="text-4xl md:text-6xl font-bold text-primary group-hover:scale-110 transition-transform">24+</div>
+                <div className="text-[10px] md:text-xs opacity-60 font-bold uppercase tracking-[0.2em] mt-2">States</div>
               </div>
             </div>
-            <Link href="/shop" className="inline-block pt-8">
-              <Button className="bg-primary hover:bg-primary/90 text-white font-bold rounded-full px-16 h-16 md:h-24 text-xl md:text-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all shine-effect w-full sm:w-auto">
+            <Link href="/shop" className="inline-block pt-4">
+              <Button className="bg-primary hover:bg-primary/90 text-white font-bold rounded-full px-12 h-14 md:h-20 text-lg md:text-xl shadow-2xl hover:scale-105 active:scale-95 transition-all shine-effect w-full sm:w-auto">
                 Experience the Craft
               </Button>
             </Link>
@@ -183,17 +181,17 @@ export default function LandingPage() {
 
       {/* CTA Section */}
       <section className="container mx-auto px-4 mb-20">
-        <div className="bg-primary/5 border border-primary/20 rounded-[4rem] p-16 md:p-32 text-center space-y-10 md:space-y-12 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-primary/10 rounded-full blur-[120px] -mr-80 -mt-80 transition-transform duration-1000 group-hover:scale-150" />
-          <div className="absolute bottom-0 left-0 w-[40rem] h-[40rem] bg-secondary/5 rounded-full blur-[120px] -ml-80 -mb-80 transition-transform duration-1000 group-hover:scale-150" />
+        <div className="bg-primary/5 border border-primary/20 rounded-[3rem] p-12 md:p-24 text-center space-y-8 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-[30rem] h-[30rem] bg-primary/10 rounded-full blur-[100px] -mr-60 -mt-60 transition-transform duration-1000 group-hover:scale-150" />
+          <div className="absolute bottom-0 left-0 w-[30rem] h-[30rem] bg-secondary/5 rounded-full blur-[100px] -ml-60 -mb-60 transition-transform duration-1000 group-hover:scale-150" />
           
-          <h2 className="text-5xl md:text-8xl font-headline font-bold text-secondary relative z-10 leading-tight">Bring Heritage Home</h2>
-          <p className="text-muted-foreground max-w-4xl mx-auto text-xl md:text-2xl relative z-10 leading-relaxed font-light">
-            Join thousands of collectors who are transforming their spaces with unique, hand-made items that tell a story of beauty and resilience.
+          <h2 className="text-4xl md:text-6xl font-headline font-bold text-secondary relative z-10 leading-tight">Bring Heritage Home</h2>
+          <p className="text-muted-foreground max-w-3xl mx-auto text-lg md:text-xl relative z-10 leading-relaxed font-light">
+            Join thousands of collectors who are transforming their spaces with unique, hand-made items.
           </p>
-          <div className="relative z-10 pt-6">
+          <div className="relative z-10 pt-4">
             <Link href="/shop" className="w-full sm:w-auto inline-block">
-              <Button size="lg" className="w-full sm:w-auto rounded-full px-24 h-16 md:h-24 bg-secondary hover:bg-secondary/90 text-xl md:text-3xl font-bold shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect">
+              <Button size="lg" className="w-full sm:w-auto rounded-full px-16 h-14 md:h-20 bg-secondary hover:bg-secondary/90 text-lg md:text-2xl font-bold shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect">
                 Go to Marketplace
               </Button>
             </Link>
