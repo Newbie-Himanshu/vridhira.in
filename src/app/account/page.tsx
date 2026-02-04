@@ -8,15 +8,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   User, Mail, Shield, Calendar, Loader2, LogOut, Package, 
   CheckCircle2, AlertTriangle, PhoneIncoming, Info, Clock, 
-  LayoutDashboard, ChevronRight, Settings, Palette, Bell, Save
+  LayoutDashboard, ChevronRight, Settings, Palette, Bell, Save,
+  Sparkles, MapPin, Phone, Hash, AtSign, Fingerprint
 } from 'lucide-react';
 import { useAuth } from '@/firebase';
 import { signOut, updateProfile } from 'firebase/auth';
@@ -24,6 +27,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 export default function AccountPage() {
   const { user, isUserLoading } = useUser();
@@ -39,8 +43,17 @@ export default function AccountPage() {
   const [timeLeft, setTimeLeft] = useState<string | null>(null);
   
   // Profile Editing State
-  const [displayName, setDisplayName] = useState('');
+  const [profileData, setProfileData] = useState({
+    displayName: '',
+    username: '',
+    bio: '',
+    address: '',
+    phoneNumber: ''
+  });
   const [savingProfile, setSavingProfile] = useState(false);
+  const [showPhoneVerify, setShowPhoneVerify] = useState(false);
+  const [phoneOtp, setPhoneOtp] = useState('');
+  const [verifyingPhone, setVerifyingPhone] = useState(false);
 
   const customerRef = useMemoFirebase(() => 
     user ? doc(db, 'customers', user.uid) : null, 
@@ -60,10 +73,16 @@ export default function AccountPage() {
       const currentPath = window.location.pathname;
       router.push(`/login?returnTo=${encodeURIComponent(currentPath)}`);
     }
-    if (user?.displayName) {
-      setDisplayName(user.displayName);
+    if (user && customer) {
+      setProfileData({
+        displayName: user.displayName || '',
+        username: customer.username || '',
+        bio: customer.bio || '',
+        address: customer.address || '',
+        phoneNumber: customer.phoneNumber || ''
+      });
     }
-  }, [user, isUserLoading, router]);
+  }, [user, customer, isUserLoading, router]);
 
   // Timer for ban status
   useEffect(() => {
@@ -98,14 +117,43 @@ export default function AccountPage() {
     if (!user) return;
     setSavingProfile(true);
     try {
-      await updateProfile(user, { displayName });
+      await updateProfile(user, { displayName: profileData.displayName });
+      
       const userRef = doc(db, 'users', user.uid);
-      updateDocumentNonBlocking(userRef, { displayName });
-      toast({ title: "Profile Updated", description: "Your display name has been saved." });
+      updateDocumentNonBlocking(userRef, { displayName: profileData.displayName });
+      
+      const customerRef = doc(db, 'customers', user.uid);
+      updateDocumentNonBlocking(customerRef, { 
+        username: profileData.username,
+        bio: profileData.bio,
+        address: profileData.address,
+        phoneNumber: profileData.phoneNumber
+      });
+      
+      toast({ title: "Profile Updated", description: "Your changes have been successfully saved." });
     } catch (err) {
       toast({ variant: "destructive", title: "Update Failed", description: "Could not save profile changes." });
     } finally {
       setSavingProfile(false);
+    }
+  };
+
+  const handleVerifyPhone = (e: React.FormEvent) => {
+    e.preventDefault();
+    setVerifyingPhone(true);
+    
+    // Test code for phone verification
+    if (phoneOtp === '123456') {
+      setTimeout(() => {
+        const customerRef = doc(db, 'customers', user!.uid);
+        updateDocumentNonBlocking(customerRef, { phoneNumberVerified: true });
+        setVerifyingPhone(false);
+        setShowPhoneVerify(false);
+        toast({ title: "Phone Verified", description: "Your phone number has been confirmed." });
+      }, 1000);
+    } else {
+      setVerifyingPhone(false);
+      toast({ variant: "destructive", title: "Invalid Code", description: "Please enter the correct verification code." });
     }
   };
 
@@ -190,6 +238,7 @@ export default function AccountPage() {
 
   const isBanned = timeLeft !== null;
   const isAdmin = customer?.role === 'owner' || customer?.role === 'store admin';
+  const userInitials = (profileData.displayName || user.email || 'A').charAt(0).toUpperCase();
 
   return (
     <div className="container mx-auto px-4 py-32 max-w-5xl">
@@ -197,7 +246,7 @@ export default function AccountPage() {
         <div className="space-y-2">
           <Badge className="bg-primary/10 text-primary border-none uppercase tracking-widest px-4 py-1">Member Profile</Badge>
           <h1 className="text-4xl md:text-5xl font-headline font-bold text-secondary">Your Heritage</h1>
-          <p className="text-muted-foreground italic">Manage your profile, preferences, and collections.</p>
+          <p className="text-muted-foreground italic">Manage your identity and preferences on the marketplace.</p>
         </div>
         <div className="flex gap-4">
           {isAdmin && (
@@ -264,7 +313,7 @@ export default function AccountPage() {
         </Alert>
       )}
 
-      <Tabs defaultValue="overview" className="w-full">
+      <Tabs defaultValue="profile" className="w-full">
         <TabsList className="bg-white/50 backdrop-blur border rounded-full p-1 mb-8 h-14">
           <TabsTrigger value="overview" className="rounded-full px-8 h-full font-bold data-[state=active]:bg-primary data-[state=active]:text-white">Overview</TabsTrigger>
           <TabsTrigger value="profile" className="rounded-full px-8 h-full font-bold data-[state=active]:bg-primary data-[state=active]:text-white">Profile</TabsTrigger>
@@ -277,11 +326,11 @@ export default function AccountPage() {
               <CardHeader className="bg-secondary text-secondary-foreground p-8">
                 <div className="flex items-center gap-6">
                   <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center text-3xl font-bold shadow-2xl animate-subtle-float">
-                    {user.displayName?.[0] || 'A'}
+                    {userInitials}
                   </div>
                   <div>
-                    <CardTitle className="text-3xl font-headline">{user.displayName || 'Artisan Enthusiast'}</CardTitle>
-                    <CardDescription className="text-secondary-foreground/70">{user.email}</CardDescription>
+                    <CardTitle className="text-3xl font-headline">{profileData.displayName || 'Artisan Enthusiast'}</CardTitle>
+                    <CardDescription className="text-secondary-foreground/70">{profileData.username ? `@${profileData.username}` : user.email}</CardDescription>
                   </div>
                 </div>
               </CardHeader>
@@ -295,7 +344,7 @@ export default function AccountPage() {
                     </div>
                   </div>
                   <div className="bg-white rounded-2xl p-6 border shadow-sm space-y-2">
-                    <span className="text-[10px] font-bold uppercase text-primary">Status</span>
+                    <span className="text-[10px] font-bold uppercase text-primary">Identity Status</span>
                     <div className="flex items-center justify-between">
                       {customer?.isVerified ? (
                         <Badge className="bg-green-100 text-green-700">Verified</Badge>
@@ -305,25 +354,36 @@ export default function AccountPage() {
                       <CheckCircle2 className="h-4 w-4 text-green-600" />
                     </div>
                   </div>
+                  <div className="bg-white rounded-2xl p-6 border shadow-sm space-y-2 sm:col-span-2">
+                    <span className="text-[10px] font-bold uppercase text-primary">Address</span>
+                    <div className="flex items-center gap-3">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">{profileData.address || 'No address set'}</span>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
             <div className="space-y-6">
               <Card className="border-none shadow-lg bg-white rounded-3xl p-6">
-                <h3 className="font-headline font-bold text-xl mb-4">Quick Links</h3>
-                <div className="grid gap-3">
-                  <Button variant="outline" className="justify-start gap-3 rounded-xl h-12" asChild>
-                    <Link href="/cart"><Package className="h-4 w-4" /> My Orders</Link>
-                  </Button>
-                  <Button variant="outline" className="justify-start gap-3 rounded-xl h-12" asChild>
-                    <Link href="/shop"><User className="h-4 w-4" /> Shop New</Link>
-                  </Button>
+                <h3 className="font-headline font-bold text-xl mb-4 text-secondary flex items-center gap-2">
+                    <Fingerprint className="h-5 w-5 text-primary" />
+                    User ID
+                </h3>
+                <div className="bg-muted p-4 rounded-xl flex items-center justify-between group">
+                    <code className="text-xs font-code truncate max-w-[150px]">{user.uid}</code>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => {
+                        navigator.clipboard.writeText(user.uid);
+                        toast({ title: "ID Copied", description: "Your UID has been copied to clipboard." });
+                    }}>
+                        <Package className="h-4 w-4" />
+                    </Button>
                 </div>
               </Card>
               <Card className="border-none shadow-lg bg-secondary text-white rounded-3xl p-6">
                 <h3 className="font-headline font-bold text-xl mb-2">Heritage Rewards</h3>
-                <p className="text-xs opacity-80">You've supported 3 artisans this month.</p>
+                <p className="text-xs opacity-80">Support 5 artisans to reach the next tier.</p>
                 <div className="mt-4 h-2 bg-white/20 rounded-full overflow-hidden">
                   <div className="w-1/3 h-full bg-primary" />
                 </div>
@@ -333,32 +393,137 @@ export default function AccountPage() {
         </TabsContent>
 
         <TabsContent value="profile">
-          <Card className="border-none shadow-xl bg-white rounded-[2.5rem] p-8 max-w-2xl">
-            <CardHeader className="px-0 pt-0">
-              <CardTitle className="text-2xl font-headline flex items-center gap-2">
-                <User className="h-6 w-6 text-primary" />
-                Edit Profile Information
-              </CardTitle>
-              <CardDescription>Update your public identity on the Vridhira Marketplace.</CardDescription>
+          <Card className="border-none shadow-xl bg-white rounded-[2.5rem] p-8 max-w-2xl mx-auto">
+            <CardHeader className="px-0 pt-0 text-center items-center">
+              <div className="flex items-center gap-6 mb-8">
+                <div className="relative">
+                  <Avatar className="w-32 h-32 rounded-full border-4 border-muted shadow-xl">
+                    <AvatarImage src={user.photoURL || undefined} />
+                    <AvatarFallback className="text-4xl bg-primary text-white font-headline font-bold">{userInitials}</AvatarFallback>
+                  </Avatar>
+                  <Button variant="secondary" size="icon" className="absolute bottom-0 right-0 rounded-full shadow-lg h-10 w-10 bg-white hover:bg-primary hover:text-white transition-all">
+                    <Sparkles className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground font-medium mb-12">Upload / Generate a new avatar</p>
             </CardHeader>
-            <CardContent className="px-0 pt-6 space-y-6">
-              <form onSubmit={handleUpdateProfile} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="displayName">Display Name</Label>
+            <CardContent className="px-0 pt-6">
+              <form onSubmit={handleUpdateProfile} className="space-y-8">
+                <div className="space-y-3">
+                  <Label htmlFor="displayName" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Display Name</Label>
                   <Input 
                     id="displayName"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    className="h-12 rounded-xl"
-                    placeholder="E.g. Heritage Collector"
+                    value={profileData.displayName}
+                    onChange={(e) => setProfileData({ ...profileData, displayName: e.target.value })}
+                    className="h-14 rounded-2xl border-2 bg-muted/20"
+                    placeholder="Your full name"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Email (Read-only)</Label>
-                  <Input value={user.email || ''} disabled className="h-12 rounded-xl bg-muted" />
+
+                <div className="space-y-3">
+                  <Label htmlFor="username" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Username</Label>
+                  <div className="relative">
+                    <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      id="username"
+                      value={profileData.username}
+                      onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
+                      className="h-14 rounded-2xl border-2 bg-muted/20 pl-11"
+                      placeholder="username"
+                    />
+                  </div>
                 </div>
-                <Button className="w-full h-12 rounded-xl bg-secondary text-white" disabled={savingProfile}>
-                  {savingProfile ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+
+                <div className="space-y-3">
+                  <Label htmlFor="bio" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Bio</Label>
+                  <Textarea 
+                    id="bio"
+                    value={profileData.bio}
+                    onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+                    className="min-h-[120px] rounded-2xl border-2 bg-muted/20 p-4"
+                    placeholder="Tell us about yourself"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="address" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Shipping Address</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-4 top-4 h-4 w-4 text-muted-foreground" />
+                    <Textarea 
+                      id="address"
+                      value={profileData.address}
+                      onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
+                      className="min-h-[100px] rounded-2xl border-2 bg-muted/20 pl-11 pt-4"
+                      placeholder="Street, City, Zip Code"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Phone Number</Label>
+                  <div className="flex gap-4">
+                    <div className="relative flex-1">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        id="phone"
+                        value={profileData.phoneNumber}
+                        onChange={(e) => setProfileData({ ...profileData, phoneNumber: e.target.value })}
+                        className="h-14 rounded-2xl border-2 bg-muted/20 pl-11"
+                        placeholder="+91 00000 00000"
+                      />
+                    </div>
+                    {!customer?.phoneNumberVerified && profileData.phoneNumber && (
+                      <Button 
+                        type="button" 
+                        variant="secondary" 
+                        className="h-14 rounded-2xl px-6 bg-primary/10 text-primary hover:bg-primary/20"
+                        onClick={() => setShowPhoneVerify(true)}
+                      >
+                        Verify
+                      </Button>
+                    )}
+                    {customer?.phoneNumberVerified && (
+                        <div className="h-14 w-14 rounded-2xl bg-green-50 flex items-center justify-center border border-green-100">
+                            <CheckCircle2 className="h-6 w-6 text-green-500" />
+                        </div>
+                    )}
+                  </div>
+                  {showPhoneVerify && (
+                    <div className="mt-4 p-6 bg-primary/5 rounded-2xl border border-primary/20 animate-in slide-in-from-top-2">
+                        <p className="text-sm font-bold text-secondary mb-4">Verify Phone (Test Code: 123456)</p>
+                        <div className="flex gap-2">
+                            <Input 
+                                placeholder="000000" 
+                                maxLength={6}
+                                value={phoneOtp}
+                                onChange={(e) => setPhoneOtp(e.target.value)}
+                                className="h-12 text-center text-xl font-bold tracking-widest rounded-xl"
+                            />
+                            <Button 
+                                onClick={handleVerifyPhone}
+                                disabled={verifyingPhone}
+                                className="h-12 rounded-xl bg-secondary text-white px-8"
+                            >
+                                {verifyingPhone ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify"}
+                            </Button>
+                            <Button 
+                                variant="ghost" 
+                                onClick={() => setShowPhoneVerify(false)}
+                                className="h-12 rounded-xl"
+                            >
+                                Cancel
+                            </Button>
+                        </div>
+                    </div>
+                  )}
+                </div>
+
+                <Button 
+                    className="w-full h-16 rounded-[2rem] bg-secondary text-white font-bold text-lg shadow-xl hover:scale-[1.02] transition-all" 
+                    disabled={savingProfile}
+                >
+                  {savingProfile ? <Loader2 className="h-5 w-5 animate-spin mr-3" /> : <Save className="h-5 w-5 mr-3" />}
                   Save Profile Changes
                 </Button>
               </form>

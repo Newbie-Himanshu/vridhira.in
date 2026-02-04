@@ -47,7 +47,11 @@ export interface Customer {
   firstName: string;
   lastName: string;
   email: string;
+  username?: string;
+  bio?: string;
   address?: string;
+  phoneNumber?: string;
+  phoneNumberVerified?: boolean;
   role: UserRole;
   isVerified?: boolean;
   failedAttempts?: number;
