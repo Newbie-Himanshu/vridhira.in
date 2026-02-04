@@ -8,6 +8,12 @@
       "imageHint": "artisan weaving"
     },
     {
+      "id": "hero-artisan-mobile",
+      "description": "A vertical portrait of an artisan focused on detailed craftwork",
+      "imageUrl": "https://picsum.photos/seed/artisan-mobile/800/1200",
+      "imageHint": "artisan portrait"
+    },
+    {
       "id": "terracotta-pot",
       "description": "Handcrafted terracotta pot with traditional motifs",
       "imageUrl": "https://picsum.photos/seed/pot1/600/400",
