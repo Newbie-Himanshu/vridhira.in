@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -108,8 +107,8 @@ export function Navbar() {
             </Link>
           </Button>
 
-          {/* Sign In / Account (Desktop & Tablet) */}
-          <div className="hidden sm:block">
+          {/* Sign In / Account (Desktop only - hidden when side menu toggle is present) */}
+          <div className="hidden lg:block">
             {user ? (
               <Link href="/account">
                 <Button variant="secondary" size="sm" className="gap-2 bg-secondary text-secondary-foreground hover:opacity-90 rounded-full px-5 h-10 border-none transition-all font-bold">
