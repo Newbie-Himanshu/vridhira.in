@@ -3,16 +3,17 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { ShoppingBag, LayoutDashboard, Store, Menu, Home, User, Search, ChevronRight, LogOut, X } from 'lucide-react';
+import { ShoppingBag, LayoutDashboard, Store, Menu, Home, User, Search, ChevronRight, LogOut, X, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useUser, useDoc, useMemoFirebase, useFirestore, useAuth } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { Customer } from '@/lib/mock-data';
+import { Customer, MOCK_PRODUCTS } from '@/lib/mock-data';
 import { signOut } from 'firebase/auth';
 import { getLocalCart, CartItem } from '@/lib/cart-actions';
+import Image from 'next/image';
 import {
   Sheet,
   SheetContent,
@@ -36,12 +37,14 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileSearchActive, setIsMobileSearchActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [localCart, setLocalCart] = useState<CartItem[]>([]);
   const { user } = useUser();
   const auth = useAuth();
   const db = useFirestore();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSearchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -63,6 +66,12 @@ export function Navbar() {
       searchInputRef.current.focus();
     }
   }, [isSearchOpen]);
+
+  useEffect(() => {
+    if (isMobileSearchActive && mobileSearchRef.current) {
+      mobileSearchRef.current.focus();
+    }
+  }, [isMobileSearchActive]);
 
   const customerRef = useMemoFirebase(() => 
     user ? doc(db, 'customers', user.uid) : null, 
@@ -97,14 +106,23 @@ export function Navbar() {
     router.push('/');
   };
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearchSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
       setIsSearchOpen(false);
+      setIsMobileSearchActive(false);
       setSearchQuery('');
     }
   };
+
+  // Real-time suggestions
+  const suggestions = searchQuery.trim().length > 1
+    ? MOCK_PRODUCTS.filter(p => 
+        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.category.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 3)
+    : [];
 
   return (
     <div className="fixed top-0 left-0 w-full z-50 pointer-events-none flex justify-center pt-0 transition-all duration-700 ease-in-out">
@@ -232,7 +250,7 @@ export function Navbar() {
             )}
             
             <div className="lg:hidden">
-              <Sheet>
+              <Sheet onOpenChange={(open) => { if(!open) setIsMobileSearchActive(false); }}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="text-secondary">
                     <Menu className="h-7 w-7" />
@@ -249,29 +267,101 @@ export function Navbar() {
                     </SheetTitle>
                   </SheetHeader>
                   <div className="flex-1 px-8 py-10 space-y-10 overflow-y-auto">
+                      {/* Mobile Quick Access / Search Area */}
                       <div className="space-y-4">
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1">Quick Access</p>
-                          <form onSubmit={handleSearchSubmit} className="relative w-full">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
-                            <Input
-                              placeholder="Search collections..."
-                              className="h-16 rounded-2xl border-muted-foreground/20 pl-12 bg-muted/50 focus:bg-white"
-                              value={searchQuery}
-                              onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                          </form>
-                          <div className="grid grid-cols-1 gap-3">
-                              <Button variant="outline" className="h-16 rounded-2xl border-muted-foreground/20 gap-3 justify-start px-6 relative group" asChild>
-                                  <Link href="/cart">
-                                      <ShoppingBag className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                                      <span className="font-bold text-sm">View Cart</span>
-                                      {cartCount > 0 && (
-                                        <span className="absolute top-1/2 -translate-y-1/2 right-6 w-6 h-6 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-bold shadow-sm">
-                                          {cartCount}
-                                        </span>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1">
+                            {isMobileSearchActive ? 'Refine Search' : 'Quick Access'}
+                          </p>
+                          
+                          <div className="relative transition-all duration-500">
+                            {isMobileSearchActive ? (
+                              <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                                <form onSubmit={handleSearchSubmit} className="relative w-full">
+                                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+                                  <Input
+                                    ref={mobileSearchRef}
+                                    placeholder="Type to find treasures..."
+                                    className="h-16 rounded-2xl border-primary pl-12 bg-white shadow-xl focus:ring-primary"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                  />
+                                  <Button 
+                                    type="button"
+                                    variant="ghost" 
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                                    onClick={() => { setIsMobileSearchActive(false); setSearchQuery(''); }}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </form>
+
+                                {/* Real-time Suggestions Dropdown */}
+                                {searchQuery.trim().length > 1 && (
+                                  <div className="bg-white rounded-3xl border border-border/50 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+                                    <div className="p-4 border-b bg-muted/20">
+                                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Top Results</p>
+                                    </div>
+                                    <div className="divide-y divide-border/30">
+                                      {suggestions.length > 0 ? (
+                                        suggestions.map((product) => (
+                                          <Link 
+                                            key={product.id} 
+                                            href={`/shop/${product.id}`}
+                                            className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors group"
+                                            onClick={() => { setIsMobileSearchActive(false); setSearchQuery(''); }}
+                                          >
+                                            <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-sm shrink-0">
+                                              <Image src={product.imageUrl} alt={product.title} fill className="object-cover" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                              <p className="font-bold text-sm truncate group-hover:text-primary transition-colors">{product.title}</p>
+                                              <p className="text-[10px] text-muted-foreground uppercase font-medium">{product.category} • ${product.price}</p>
+                                            </div>
+                                            <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                                          </Link>
+                                        ))
+                                      ) : (
+                                        <div className="p-8 text-center">
+                                          <Search className="h-8 w-8 text-muted-foreground/20 mx-auto mb-2" />
+                                          <p className="text-sm text-muted-foreground italic">No matches found.</p>
+                                        </div>
                                       )}
-                                  </Link>
-                              </Button>
+                                    </div>
+                                    {suggestions.length > 0 && (
+                                      <Button 
+                                        variant="ghost" 
+                                        className="w-full h-12 rounded-none text-primary font-bold text-xs gap-2 hover:bg-primary/5"
+                                        onClick={() => handleSearchSubmit()}
+                                      >
+                                        View All Results <ArrowRight className="h-3 w-3" />
+                                      </Button>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-2 gap-3 animate-in fade-in duration-500">
+                                  <Button 
+                                    variant="outline" 
+                                    className="h-16 rounded-2xl border-muted-foreground/20 gap-3 justify-start px-6 group hover:border-primary transition-all"
+                                    onClick={() => setIsMobileSearchActive(true)}
+                                  >
+                                      <Search className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                                      <span className="font-bold text-sm">Search</span>
+                                  </Button>
+                                  <Button variant="outline" className="h-16 rounded-2xl border-muted-foreground/20 gap-3 justify-start px-6 relative group hover:border-primary transition-all" asChild>
+                                      <Link href="/cart">
+                                          <ShoppingBag className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                                          <span className="font-bold text-sm">View Cart</span>
+                                          {cartCount > 0 && (
+                                            <span className="absolute top-1/2 -translate-y-1/2 right-6 w-6 h-6 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-bold shadow-sm">
+                                              {cartCount}
+                                            </span>
+                                          )}
+                                      </Link>
+                                  </Button>
+                              </div>
+                            )}
                           </div>
                       </div>
 
