@@ -9,12 +9,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { User, Mail, Shield, Calendar, Loader2, LogOut, Package, CheckCircle2, AlertTriangle, PhoneIncoming, Info, Clock } from 'lucide-react';
+import { User, Mail, Shield, Calendar, Loader2, LogOut, Package, CheckCircle2, AlertTriangle, PhoneIncoming, Info, Clock, LayoutDashboard, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 export default function AccountPage() {
   const { user, isUserLoading } = useUser();
@@ -106,7 +107,7 @@ export default function AccountPage() {
         if (returnTo) {
           router.push(returnTo);
         }
-      }, 500);
+      }, 1000);
     } else {
       const newAttempts = (customer.failedAttempts || 0) + 1;
       const customerRef = doc(db, 'customers', user.uid);
@@ -152,6 +153,7 @@ export default function AccountPage() {
   }
 
   const isBanned = timeLeft !== null;
+  const isAdmin = customer?.role === 'owner' || customer?.role === 'store admin';
 
   return (
     <div className="container mx-auto px-4 py-32 max-w-4xl">
@@ -161,14 +163,26 @@ export default function AccountPage() {
           <h1 className="text-4xl md:text-5xl font-headline font-bold text-secondary">Your Account</h1>
           <p className="text-muted-foreground italic">Manage your heritage collection and profile details.</p>
         </div>
-        <Button 
-          variant="outline" 
-          onClick={handleSignOut}
-          className="rounded-full px-6 border-destructive/20 text-destructive hover:bg-destructive/5"
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Sign Out
-        </Button>
+        <div className="flex gap-4">
+          {isAdmin && (
+            <Link href="/admin/dashboard">
+              <Button 
+                className="rounded-full px-6 bg-secondary text-white hover:bg-secondary/90 shadow-lg gap-2"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                Admin Portal
+              </Button>
+            </Link>
+          )}
+          <Button 
+            variant="outline" 
+            onClick={handleSignOut}
+            className="rounded-full px-6 border-destructive/20 text-destructive hover:bg-destructive/5"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-8">
@@ -282,11 +296,29 @@ export default function AccountPage() {
                   <span className="font-bold">{user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'Recently'}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">Account Type</span>
-                  <span className="font-bold">{user.providerData[0]?.providerId === 'google.com' ? 'Google linked' : 'Standard'}</span>
+                  <span className="text-muted-foreground text-sm">User ID</span>
+                  <span className="font-code text-[10px] bg-muted px-2 py-0.5 rounded select-all cursor-help" title="Use this ID in Firestore to grant 'owner' role">{user.uid}</span>
                 </div>
               </div>
             </div>
+
+            {isAdmin && (
+              <div className="mt-8 bg-secondary/5 rounded-3xl p-6 border border-secondary/10">
+                <h3 className="font-headline text-xl font-bold text-secondary mb-2 flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-primary" />
+                  Administrative Portal
+                </h3>
+                <p className="text-sm text-muted-foreground mb-6">
+                  You have elevated permissions. Access the dashboard to manage orders, products, and users.
+                </p>
+                <Link href="/admin/dashboard">
+                  <Button className="w-full h-14 rounded-2xl bg-secondary text-white hover:bg-secondary/90 font-bold group">
+                    Enter Admin Dashboard
+                    <ChevronRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+              </div>
+            )}
 
             <div className="mt-8 pt-8 border-t border-border/30">
               <h3 className="font-headline text-xl font-bold text-secondary mb-4 flex items-center gap-2">
