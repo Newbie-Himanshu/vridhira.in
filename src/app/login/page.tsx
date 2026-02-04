@@ -42,6 +42,7 @@ export default function LoginPage() {
   
   const { data: customer, isLoading: isCustomerLoading } = useDoc<Customer>(customerRef);
 
+  // Redirection Logic
   useEffect(() => {
     if (user && customer && !loading) {
       if (customer.isVerified) {
@@ -53,6 +54,7 @@ export default function LoginPage() {
     }
   }, [user, customer, loading, router, db, returnTo]);
 
+  // Timer for ban status
   useEffect(() => {
     if (!customer?.banUntil) return;
     
@@ -89,6 +91,8 @@ export default function LoginPage() {
         return { message: 'Email Taken', hint: 'This email is already registered. Try Logging In instead.' };
       case 'auth/weak-password':
         return { message: 'Weak Password', hint: 'Your password is too simple. Try using at least 6 characters.' };
+      case 'auth/popup-closed-by-user':
+        return { message: 'Sign-in Cancelled', hint: 'The login window was closed before completion. Please try again.' };
       default:
         return { message: 'Authentication Error', hint: 'Something went wrong. Please check your connection and try again.' };
     }
@@ -105,6 +109,7 @@ export default function LoginPage() {
           const customerRef = doc(db, 'customers', cred.user.uid);
           updateDocumentNonBlocking(customerRef, { role: 'owner' });
         }
+        setLoading(false);
       })
       .catch((err: any) => {
         setError(getAuthErrorDetails(err.code));
@@ -140,6 +145,7 @@ export default function LoginPage() {
           failedAttempts: 0
         }, { merge: true });
         
+        setLoading(false);
         setShowOtpStep(true);
       })
       .catch((err: any) => {
@@ -174,6 +180,8 @@ export default function LoginPage() {
           isVerified: false,
           failedAttempts: 0
         }, { merge: true });
+        
+        setLoading(false);
       })
       .catch((err: any) => {
         setError(getAuthErrorDetails(err.code));
