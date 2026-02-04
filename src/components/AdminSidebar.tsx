@@ -96,7 +96,7 @@ export function AdminSidebar() {
                           isActive 
                             ? "bg-primary text-white shadow-xl scale-[1.02]" 
                             : isFloating 
-                              ? "text-white hover:bg-white/10" 
+                              ? "text-white hover:bg-white/10 hover:translate-x-1" 
                               : "text-muted-foreground hover:bg-muted hover:text-foreground",
                           collapsed && "justify-center px-0"
                         )}
@@ -132,7 +132,7 @@ export function AdminSidebar() {
                           isActive 
                             ? "bg-primary text-white shadow-lg" 
                             : isFloating 
-                              ? "text-white/80 hover:bg-white/10 hover:text-white" 
+                              ? "text-white/80 hover:bg-white/10 hover:text-white hover:translate-x-1" 
                               : "text-muted-foreground hover:bg-muted hover:text-foreground",
                           collapsed && "justify-center px-0"
                         )}
@@ -214,7 +214,7 @@ export function AdminSidebar() {
             />
             
             <div className={cn(
-              "fixed bottom-4 left-4 right-4 h-[55vh] z-50 rounded-[3rem] overflow-hidden border border-white/20 bg-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] flex flex-col animate-in slide-in-from-bottom-8 fade-in duration-500 ease-out",
+              "fixed bottom-4 left-4 right-4 h-[55vh] z-50 rounded-[3rem] overflow-hidden border border-white/20 bg-white/10 backdrop-blur-md shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] flex flex-col animate-in slide-in-from-bottom-8 fade-in duration-500 ease-out animate-subtle-float",
               "ring-1 ring-white/10"
             )}>
               {/* Header inside floating window */}
