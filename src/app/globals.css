@@ -16,8 +16,8 @@
     --secondary-foreground: 40 40% 98%;
     --muted: 40 20% 85%;
     --muted-foreground: 20 10% 40%;
-    --accent: 17 72% 61%;
-    --accent-foreground: 40 40% 98%;
+    --accent: 40 20% 88%; /* Refined subtle accent for hover states */
+    --accent-foreground: 17 72% 30%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 17 30% 80%;
@@ -38,7 +38,7 @@
     --secondary-foreground: 20 10% 10%;
     --muted: 20 10% 25%;
     --muted-foreground: 40 10% 65%;
-    --accent: 17 72% 61%;
+    --accent: 20 10% 20%;
     --accent-foreground: 40 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
@@ -60,13 +60,11 @@
   }
 }
 
-/* Custom Artisan Textures */
 .artisan-pattern {
   background-image: radial-gradient(var(--border) 0.5px, transparent 0.5px);
   background-size: 20px 20px;
 }
 
-/* Dynamic Animations */
 @keyframes subtle-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
@@ -74,7 +72,7 @@
 
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 5px hsl(var(--primary) / 0.2); }
-  50% { box-shadow: 0 0 15px hsl(var(--primary) / 0.4); }
+  50% { box-shadow: 0 0 15px hsl(var(--primary) / 0.5); }
 }
 
 @keyframes shine {

@@ -93,11 +93,11 @@ export function Navbar() {
         {/* Right Column: Actions */}
         <div className="flex-[1_0_0] flex justify-end items-center gap-1 sm:gap-4">
           
-          <Button variant="ghost" size="icon" className="flex text-muted-foreground hover:text-primary transition-colors duration-300">
+          <Button variant="ghost" size="icon" className="flex text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300">
             <Search className="h-5 w-5" />
           </Button>
 
-          <Button variant="ghost" size="icon" className="relative group text-muted-foreground hover:text-primary transition-all duration-300" asChild>
+          <Button variant="ghost" size="icon" className="relative group text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300" asChild>
             <Link href="/cart">
               <ShoppingBag className="h-5 w-5 transition-transform group-hover:-translate-y-1 group-active:scale-90" />
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-bold animate-in zoom-in-0 duration-500">
@@ -152,7 +152,6 @@ export function Navbar() {
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    style={{ animationDelay: `${idx * 100}ms` }}
                                     className={cn(
                                         "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 animate-in slide-in-from-right-4",
                                         pathname === link.href 
