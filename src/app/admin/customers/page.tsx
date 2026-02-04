@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useFirestore, useCollection, useUser, useDoc, useMemoFirebase } from '@/firebase';
-import { collection, doc, updateDoc } from 'firebase/firestore';
+import { useFirestore, useCollection, useUser, useDoc, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
 import { Customer } from '@/lib/mock-data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -25,7 +25,7 @@ export default function AdminManagementPage() {
 
   const isOwner = currentCustomer?.role === 'owner';
 
-  const toggleAdminRole = async (targetUser: Customer) => {
+  const toggleAdminRole = (targetUser: Customer) => {
     if (!isOwner) {
       toast({ variant: "destructive", title: "Unauthorized", description: "Only the Owner can promote or demote admins." });
       return;
@@ -39,12 +39,13 @@ export default function AdminManagementPage() {
     const newRole = targetUser.role === 'store admin' ? 'user' : 'store admin';
     const targetRef = doc(db, 'customers', targetUser.id);
     
-    try {
-      await updateDoc(targetRef, { role: newRole });
-      toast({ title: "Role Updated", description: `${targetUser.firstName} is now a ${newRole}.` });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Failed", description: "Permissions denied. Check your role." });
-    }
+    // Use the non-blocking helper to handle permission error emission
+    updateDocumentNonBlocking(targetRef, { role: newRole });
+    
+    toast({ 
+      title: "Role update requested", 
+      description: `Attempting to set ${targetUser.firstName} as ${newRole}.` 
+    });
   };
 
   if (isLoading) {

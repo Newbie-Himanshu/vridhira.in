@@ -4,14 +4,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser, useFirestore } from '@/firebase';
-import { initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn } from '@/firebase';
+import { initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn, setDocumentNonBlocking } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sparkles, Mail, Lock, User, Loader2, ShieldCheck, AlertCircle } from 'lucide-react';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { Mail, Lock, User, Loader2, ShieldCheck, AlertCircle } from 'lucide-react';
+import { doc, serverTimestamp } from 'firebase/firestore';
 import { syncLocalCartToCloud } from '@/lib/cart-actions';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -93,7 +93,7 @@ export default function LoginPage() {
       const userRef = doc(db, 'users', user.uid);
       const customerRef = doc(db, 'customers', user.uid);
       
-      setDoc(userRef, {
+      setDocumentNonBlocking(userRef, {
         id: user.uid,
         email: user.email,
         displayName: displayName || user.displayName || 'Artisan Enthusiast',
@@ -101,11 +101,12 @@ export default function LoginPage() {
         creationTime: serverTimestamp(),
       }, { merge: true });
 
-      setDoc(customerRef, {
+      setDocumentNonBlocking(customerRef, {
         id: user.uid,
         email: user.email,
         firstName: displayName || user.displayName?.split(' ')[0] || 'Artisan',
-        lastName: user.displayName?.split(' ')[1] || 'Enthusiast'
+        lastName: user.displayName?.split(' ')[1] || 'Enthusiast',
+        role: 'user' // Default role
       }, { merge: true });
     }
   }, [user, db, displayName]);
