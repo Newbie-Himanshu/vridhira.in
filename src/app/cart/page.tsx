@@ -1,9 +1,11 @@
+
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { MOCK_PRODUCTS } from '@/lib/mock-data';
-import { updateCartItemQuantityAction, removeCartItemAction, CartData } from '@/lib/cart-actions';
+import { updateCartItemQuantityAction, removeCartItemAction, getLocalCart, CartData, CartItem } from '@/lib/cart-actions';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,15 +18,23 @@ import { cn } from '@/lib/utils';
 export default function CartPage() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
+  const [localCart, setLocalCart] = useState<CartItem[]>([]);
+
+  useEffect(() => {
+    const updateLocal = () => setLocalCart(getLocalCart());
+    updateLocal();
+    window.addEventListener('cart-updated', updateLocal);
+    return () => window.removeEventListener('cart-updated', updateLocal);
+  }, []);
 
   const cartRef = useMemoFirebase(() => 
     user ? doc(db, 'carts', user.uid) : null,
     [db, user]
   );
   
-  const { data: cart, isLoading: isCartLoading } = useDoc<CartData>(cartRef);
+  const { data: cloudCart, isLoading: isCartLoading } = useDoc<CartData>(cartRef);
 
-  if (isUserLoading || isCartLoading) {
+  if (isUserLoading || (user && isCartLoading)) {
     return (
       <div className="container mx-auto px-4 py-20 flex justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -32,7 +42,7 @@ export default function CartPage() {
     );
   }
 
-  const items = cart?.items || [];
+  const items = user ? (cloudCart?.items || []) : localCart;
   
   const cartDetailedItems = items.map(item => {
     const product = MOCK_PRODUCTS.find(p => p.id === item.productId);
@@ -46,7 +56,7 @@ export default function CartPage() {
   });
 
   const subtotal = cartDetailedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const platformFee = subtotal * 0.10; // 10% Platform Fee
+  const platformFee = subtotal * 0.10;
   const total = subtotal + platformFee;
 
   if (items.length === 0) {
@@ -75,7 +85,6 @@ export default function CartPage() {
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-7xl">
-      {/* Header Area */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8 animate-in slide-in-from-top-4 duration-700">
         <div className="space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest">
@@ -96,76 +105,36 @@ export default function CartPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        {/* Items List */}
         <div className="lg:col-span-8 space-y-8">
-          {cartDetailedItems.map((item, index) => (
-            <Card 
-              key={`${item.productId}-${item.variantId}`} 
-              className={cn(
-                "border-none shadow-xl shadow-black/5 overflow-hidden bg-white/60 backdrop-blur-xl rounded-[2.5rem] transition-all duration-500 hover:bg-white hover:-translate-y-1 animate-in fade-in slide-in-from-left-4",
-                "duration-500"
-              )}
-            >
+          {cartDetailedItems.map((item) => (
+            <Card key={`${item.productId}-${item.variantId}`} className="border-none shadow-xl shadow-black/5 overflow-hidden bg-white/60 backdrop-blur-xl rounded-[2.5rem] transition-all hover:bg-white">
               <CardContent className="p-8">
                 <div className="flex flex-col sm:flex-row gap-8">
                   <div className="relative w-full sm:w-44 aspect-square rounded-[2rem] overflow-hidden shrink-0 shadow-inner group">
-                    <Image
-                      src={item.product?.imageUrl || ''}
-                      alt={item.product?.title || ''}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-black/5" />
+                    <Image src={item.product?.imageUrl || ''} alt={item.product?.title || ''} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
                   </div>
-                  
                   <div className="flex-1 flex flex-col justify-between py-2">
                     <div className="space-y-2">
                       <div className="flex justify-between items-start gap-4">
-                        <h3 className="text-2xl md:text-3xl font-headline font-bold text-secondary hover:text-primary transition-colors cursor-pointer">
-                          {item.product?.title}
-                        </h3>
+                        <h3 className="text-2xl md:text-3xl font-headline font-bold text-secondary">{item.product?.title}</h3>
                         <p className="text-2xl font-bold text-primary">${(item.price * item.quantity).toFixed(2)}</p>
                       </div>
-                      
                       <div className="flex flex-wrap gap-2 items-center">
-                        <Badge variant="outline" className="bg-white text-[10px] font-bold uppercase tracking-wider border-border/50 py-1">
-                          {item.product?.category}
-                        </Badge>
-                        {item.variant && (
-                          <Badge className="bg-secondary/10 text-secondary text-[10px] font-bold uppercase tracking-wider hover:bg-secondary/20 py-1 border-none">
-                            Style: {item.variant.name}
-                          </Badge>
-                        )}
+                        <Badge variant="outline" className="bg-white text-[10px] uppercase tracking-wider">{item.product?.category}</Badge>
+                        {item.variant && <Badge className="bg-secondary/10 text-secondary text-[10px] uppercase tracking-wider">Style: {item.variant.name}</Badge>}
                       </div>
                     </div>
-                    
                     <div className="flex items-center justify-between mt-8 pt-6 border-t border-border/30">
                       <div className="flex items-center gap-4 bg-muted/30 rounded-2xl px-4 py-2 border border-border/20">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-10 w-10 rounded-xl hover:bg-white hover:text-primary transition-all"
-                          onClick={() => updateCartItemQuantityAction(db, user!.uid, item.productId, item.variantId, item.quantity - 1)}
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => updateCartItemQuantityAction(db, user?.uid || null, item.productId, item.variantId, item.quantity - 1)}>
                           <Minus className="h-4 w-4" />
                         </Button>
                         <span className="font-bold text-lg min-w-[30px] text-center">{item.quantity}</span>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-10 w-10 rounded-xl hover:bg-white hover:text-primary transition-all"
-                          onClick={() => updateCartItemQuantityAction(db, user!.uid, item.productId, item.variantId, item.quantity + 1)}
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => updateCartItemQuantityAction(db, user?.uid || null, item.productId, item.variantId, item.quantity + 1)}>
                           <Plus className="h-4 w-4" />
                         </Button>
                       </div>
-                      
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 gap-2 font-bold py-6 px-4 rounded-2xl transition-colors"
-                        onClick={() => removeCartItemAction(db, user!.uid, item.productId, item.variantId)}
-                      >
+                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive gap-2 font-bold" onClick={() => removeCartItemAction(db, user?.uid || null, item.productId, item.variantId)}>
                         <Trash2 className="h-5 w-5" />
                         <span className="hidden sm:inline uppercase text-[10px] tracking-widest">Remove Piece</span>
                       </Button>
@@ -177,59 +146,26 @@ export default function CartPage() {
           ))}
         </div>
 
-        {/* Summary Area */}
         <div className="lg:col-span-4">
           <div className="sticky top-32">
-            <Card className="border-none shadow-[0_30px_60px_-15px_rgba(75,0,130,0.3)] bg-secondary text-secondary-foreground rounded-[3rem] overflow-hidden artisan-pattern">
+            <Card className="border-none shadow-2xl bg-secondary text-secondary-foreground rounded-[3rem] overflow-hidden artisan-pattern">
               <div className="p-10 space-y-10">
                 <div className="space-y-2">
                   <h2 className="text-3xl font-headline font-bold">Collection Summary</h2>
                   <p className="text-sm opacity-60">Complete your acquisition to support Indian artisans.</p>
                 </div>
-
                 <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg opacity-80">Subtotal</span>
-                    <span className="text-xl font-bold">${subtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg opacity-80">Heritage Platform Fee</span>
-                      <div className="group relative">
-                         <ShieldCheck className="h-4 w-4 text-primary cursor-help" />
-                      </div>
-                    </div>
-                    <span className="text-xl font-bold">${platformFee.toFixed(2)}</span>
-                  </div>
-                  
+                  <div className="flex justify-between items-center"><span className="text-lg opacity-80">Subtotal</span><span className="text-xl font-bold">${subtotal.toFixed(2)}</span></div>
+                  <div className="flex justify-between items-center"><span className="text-lg opacity-80">Heritage Platform Fee</span><span className="text-xl font-bold">${platformFee.toFixed(2)}</span></div>
                   <Separator className="bg-white/10" />
-                  
                   <div className="flex justify-between items-center pt-2">
-                    <div className="flex flex-col">
-                      <span className="font-headline text-3xl font-bold">Total</span>
-                      <span className="text-[10px] uppercase tracking-widest opacity-50">Incl. all taxes</span>
-                    </div>
+                    <div className="flex flex-col"><span className="font-headline text-3xl font-bold">Total</span><span className="text-[10px] uppercase tracking-widest opacity-50">Incl. all taxes</span></div>
                     <span className="text-4xl font-bold text-primary">${total.toFixed(2)}</span>
                   </div>
                 </div>
-
-                <div className="space-y-4">
-                  <Button className="w-full h-20 rounded-3xl bg-primary hover:bg-primary/90 text-white font-bold text-xl shadow-2xl transition-all active:scale-95 animate-pulse-glow shine-effect overflow-hidden">
-                    Complete Purchase
-                    <ArrowRight className="ml-3 h-6 w-6" />
-                  </Button>
-                  
-                  <div className="flex items-center justify-center gap-2 py-2">
-                    <ShieldCheck className="h-4 w-4 text-primary" />
-                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-60">Secure Heritage Checkout</span>
-                  </div>
-                </div>
-
-                <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
-                  <p className="text-[11px] text-center opacity-70 leading-relaxed font-medium italic">
-                    "Your purchase directly impacts the livelihoods of over 500+ artisan families across India. We thank you for preserving this heritage."
-                  </p>
-                </div>
+                <Button className="w-full h-20 rounded-3xl bg-primary hover:bg-primary/90 text-white font-bold text-xl shadow-2xl animate-pulse-glow shine-effect overflow-hidden">
+                  Complete Purchase <ArrowRight className="ml-3 h-6 w-6" />
+                </Button>
               </div>
             </Card>
           </div>

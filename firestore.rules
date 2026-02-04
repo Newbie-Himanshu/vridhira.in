@@ -4,8 +4,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --- Helper Functions ---
-
     function isSignedIn() {
       return request.auth != null;
     }
@@ -14,29 +12,30 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    function isAdmin() {
-      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    function getRole(userId) {
+      return get(/databases/$(database)/documents/customers/$(userId)).data.role;
     }
 
-    // --- Collection Rules ---
+    function isAdmin() {
+      return isSignedIn() && (getRole(request.auth.uid) == 'store admin' || getRole(request.auth.uid) == 'owner');
+    }
+
+    function isPlatformOwner() {
+      return isSignedIn() && getRole(request.auth.uid) == 'owner';
+    }
 
     match /users/{userId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update, delete: if isOwner(userId);
+      allow get, list: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
     }
 
     match /customers/{userId} {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
-      allow create, update: if isOwner(userId) || isAdmin();
-      allow delete: if isAdmin();
-    }
-
-    match /roles_admin/{userId} {
-      allow get: if isOwner(userId) || isAdmin();
-      allow list: if isAdmin();
-      allow write: if isAdmin();
+      // Public can create as 'user', but ONLY owner can update roles to admin
+      allow create: if isOwner(userId) && request.resource.data.role == 'user';
+      allow update: if isPlatformOwner() || (isOwner(userId) && request.resource.data.role == resource.data.role);
     }
 
     match /page_customizations/{document} {
