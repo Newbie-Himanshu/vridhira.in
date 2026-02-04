@@ -1,9 +1,10 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ShieldCheck, Heart, Sparkles } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 export default function LandingPage() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-artisan');
@@ -12,7 +13,7 @@ export default function LandingPage() {
     <div className="flex flex-col gap-20 pb-20">
       {/* Hero Section */}
       <section className="relative w-full h-[85vh] flex items-center justify-center overflow-hidden">
-        {heroImage?.imageUrl && (
+        {heroImage?.imageUrl ? (
           <Image
             src={heroImage.imageUrl}
             alt={heroImage.description}
@@ -21,9 +22,11 @@ export default function LandingPage() {
             className="object-cover brightness-50"
             data-ai-hint={heroImage.imageHint}
           />
+        ) : (
+          <div className="absolute inset-0 bg-secondary/20" />
         )}
         <div className="container relative z-10 mx-auto px-4 text-center text-white space-y-6">
-          <Badge className="bg-primary hover:bg-primary text-white border-none px-4 py-1.5 text-sm uppercase tracking-widest animate-in fade-in slide-in-from-top-4 duration-1000">
+          <Badge className="bg-primary hover:bg-primary text-white border-none px-4 py-1.5 text-sm uppercase tracking-widest">
             Handcrafted Heritage
           </Badge>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline font-bold drop-shadow-lg max-w-4xl mx-auto leading-tight">
@@ -101,6 +104,7 @@ export default function LandingPage() {
                     alt={cat.name}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    data-ai-hint={img.imageHint}
                   />
                 ) : (
                   <div className="absolute inset-0 bg-muted flex items-center justify-center">
@@ -172,14 +176,6 @@ export default function LandingPage() {
           </Link>
         </div>
       </section>
-    </div>
-  );
-}
-
-function Badge({ children, className, variant }: { children: React.ReactNode; className?: string; variant?: "default" | "secondary" | "destructive" | "outline" }) {
-  return (
-    <div className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", className)}>
-      {children}
     </div>
   );
 }
