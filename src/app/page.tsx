@@ -12,7 +12,7 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col gap-24 md:gap-32 pb-32">
       {/* Hero Section */}
-      <section className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden py-24 px-4">
+      <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden py-24 px-4">
         <div className="absolute inset-0 z-0">
           {/* Desktop Image */}
           {heroDesktop && (
