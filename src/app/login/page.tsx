@@ -114,7 +114,7 @@ export default function LoginPage() {
           {/* Featured One-Tap Google Button */}
           <Button 
             variant="outline" 
-            className="w-full h-14 rounded-2xl border-2 font-bold hover:bg-white hover:shadow-lg transition-all duration-300 bg-white shadow-sm flex items-center justify-center text-lg animate-pulse-glow shine-effect overflow-hidden" 
+            className="w-full h-14 rounded-2xl border-2 font-bold hover:bg-white hover:shadow-xl transition-all duration-300 bg-white shadow-sm flex items-center justify-center text-lg animate-pulse-glow shine-effect overflow-hidden" 
             onClick={handleGoogleSignIn}
             disabled={loading}
           >
@@ -177,7 +177,7 @@ export default function LoginPage() {
                         />
                       </div>
                     </div>
-                    <Button className="w-full h-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-sm uppercase tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95 animate-pulse-glow shine-effect overflow-hidden" disabled={loading}>
+                    <Button className="w-full h-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-sm uppercase tracking-widest shadow-lg shadow-primary/30 transition-all active:scale-95 animate-pulse-glow shine-effect overflow-hidden" disabled={loading}>
                       {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
                     </Button>
                   </form>
@@ -241,7 +241,7 @@ export default function LoginPage() {
                         />
                       </div>
                     </div>
-                    <Button className="w-full h-12 rounded-2xl bg-secondary text-white font-bold text-sm uppercase tracking-widest shadow-lg transition-all active:scale-95 animate-pulse-glow shine-effect overflow-hidden" disabled={loading}>
+                    <Button className="w-full h-12 rounded-2xl bg-secondary text-white font-bold text-sm uppercase tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95 animate-pulse-glow shine-effect overflow-hidden" disabled={loading}>
                       {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Start Journey"}
                     </Button>
                   </form>
