@@ -6,17 +6,49 @@ import Image from 'next/image';
 import { Product, ProductVariant } from '@/lib/mock-data';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Heart, Share2, Info } from 'lucide-react';
+import { ShoppingCart, Heart, Share2, Info, Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { useUser, useFirestore, useAuth, initiateAnonymousSignIn } from '@/firebase';
+import { addToCartAction } from '@/lib/cart-actions';
+import { useToast } from '@/hooks/use-toast';
 
 export function V0Template({ product }: { product: Product }) {
+  const { user } = useUser();
+  const db = useFirestore();
+  const auth = useAuth();
+  const { toast } = useToast();
+  
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     product.variants?.[0] || null
   );
+  const [isAdding, setIsAdding] = useState(false);
 
   const price = selectedVariant ? selectedVariant.price : product.price;
+
+  const handleAddToCart = async () => {
+    setIsAdding(true);
+    try {
+      if (!user) {
+        initiateAnonymousSignIn(auth);
+        await new Promise(r => setTimeout(r, 1000));
+      }
+      
+      if (user?.uid) {
+        await addToCartAction(db, user.uid, {
+          productId: product.id,
+          variantId: selectedVariant?.id,
+          quantity: 1
+        });
+        toast({ title: "Treasure secured", description: "Item added to your collection." });
+      }
+    } catch (e) {
+      toast({ variant: "destructive", title: "Oops", description: "Couldn't add that to your cart." });
+    } finally {
+      setIsAdding(false);
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 bg-background p-6 rounded-xl border">
@@ -73,8 +105,13 @@ export function V0Template({ product }: { product: Product }) {
         )}
 
         <div className="flex flex-col gap-3 pt-4">
-          <Button size="lg" className="w-full bg-primary hover:bg-primary/90 text-lg py-6">
-            <ShoppingCart className="mr-2 h-5 w-5" />
+          <Button 
+            size="lg" 
+            className="w-full bg-primary hover:bg-primary/90 text-lg py-6"
+            onClick={handleAddToCart}
+            disabled={isAdding}
+          >
+            {isAdding ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <ShoppingCart className="mr-2 h-5 w-5" />}
             Add to Cart
           </Button>
           <div className="flex gap-2">

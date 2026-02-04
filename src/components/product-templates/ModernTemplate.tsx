@@ -6,20 +6,51 @@ import Image from 'next/image';
 import { Product, ProductVariant } from '@/lib/mock-data';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Star, ShieldCheck, Truck, RefreshCcw } from 'lucide-react';
+import { ShoppingCart, Star, ShieldCheck, Truck, RefreshCcw, Loader2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useUser, useFirestore, useAuth, initiateAnonymousSignIn } from '@/firebase';
+import { addToCartAction } from '@/lib/cart-actions';
+import { useToast } from '@/hooks/use-toast';
 
 export function ModernTemplate({ product }: { product: Product }) {
+  const { user } = useUser();
+  const db = useFirestore();
+  const auth = useAuth();
+  const { toast } = useToast();
+
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     product.variants?.[0] || null
   );
+  const [isAdding, setIsAdding] = useState(false);
 
   const price = selectedVariant ? selectedVariant.price : product.price;
+
+  const handleAddToCart = async () => {
+    setIsAdding(true);
+    try {
+      if (!user) {
+        initiateAnonymousSignIn(auth);
+        await new Promise(r => setTimeout(r, 1000));
+      }
+      
+      if (user?.uid) {
+        await addToCartAction(db, user.uid, {
+          productId: product.id,
+          variantId: selectedVariant?.id,
+          quantity: 1
+        });
+        toast({ title: "Masterpiece added", description: "Item is now in your collection." });
+      }
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error", description: "We couldn't add that piece." });
+    } finally {
+      setIsAdding(false);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-12 animate-in fade-in duration-700">
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
-        {/* Visual Column */}
         <div className="lg:col-span-3 relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl">
           <Image
             src={product.imageUrl}
@@ -38,7 +69,6 @@ export function ModernTemplate({ product }: { product: Product }) {
           </div>
         </div>
 
-        {/* Content Column */}
         <div className="lg:col-span-2 space-y-8">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-primary">
@@ -81,8 +111,13 @@ export function ModernTemplate({ product }: { product: Product }) {
           )}
 
           <div className="flex gap-4">
-            <Button size="lg" className="flex-1 bg-secondary text-white hover:bg-secondary/90 py-8 text-xl font-bold rounded-2xl">
-              <ShoppingCart className="mr-3 h-6 w-6" />
+            <Button 
+              size="lg" 
+              className="flex-1 bg-secondary text-white hover:bg-secondary/90 py-8 text-xl font-bold rounded-2xl"
+              onClick={handleAddToCart}
+              disabled={isAdding}
+            >
+              {isAdding ? <Loader2 className="h-6 w-6 animate-spin mr-3" /> : <ShoppingCart className="mr-3 h-6 w-6" />}
               Buy Now
             </Button>
           </div>

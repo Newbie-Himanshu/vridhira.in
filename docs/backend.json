@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "User": {
@@ -44,6 +45,27 @@
         "email"
       ]
     },
+    "Cart": {
+      "title": "Cart",
+      "type": "object",
+      "description": "Represents a user's active shopping cart.",
+      "properties": {
+        "userId": { "type": "string" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "productId": { "type": "string" },
+              "variantId": { "type": "string" },
+              "quantity": { "type": "number" },
+              "addedAt": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
     "PageCustomization": {
       "title": "PageCustomization",
       "type": "object",
@@ -79,6 +101,10 @@
     "/products/{productId}": {
       "schema": { "type": "object" },
       "description": "Public product catalog."
+    },
+    "/carts/{userId}": {
+      "schema": { "$ref": "#/backend/entities/Cart" },
+      "description": "User shopping carts."
     }
   }
 }

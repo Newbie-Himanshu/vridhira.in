@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -50,6 +51,14 @@ export function Navbar() {
   
   const { data: customer } = useDoc<Customer>(customerRef);
 
+  const cartRef = useMemoFirebase(() => 
+    user ? doc(db, 'carts', user.uid) : null,
+    [db, user]
+  );
+  const { data: cart } = useDoc<any>(cartRef);
+
+  const cartCount = cart?.items?.reduce((acc: number, item: any) => acc + item.quantity, 0) || 0;
+
   const isAdmin = customer?.role === 'owner' || customer?.role === 'store admin';
 
   const navLinks = [
@@ -78,7 +87,6 @@ export function Navbar() {
           isScrolled ? "max-w-none" : "container mx-auto"
         )}>
           
-          {/* Left Column: Logo */}
           <div className="flex-[1_0_0] flex justify-start">
             <Link href="/" className="flex items-center gap-2 group">
               <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
@@ -88,7 +96,6 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Center Column: Desktop Navigation */}
           <nav className="hidden lg:flex items-center justify-center gap-10 absolute left-1/2 -translate-x-1/2">
             {navLinks.map((link) => (
               <Link
@@ -108,7 +115,6 @@ export function Navbar() {
             ))}
           </nav>
 
-          {/* Right Column: Actions */}
           <div className="flex-[1_0_0] flex justify-end items-center gap-1 sm:gap-4">
             
             <Button variant="ghost" size="icon" className="flex text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300">
@@ -118,13 +124,14 @@ export function Navbar() {
             <Button variant="ghost" size="icon" className="relative group text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300" asChild>
               <Link href="/cart">
                 <ShoppingBag className="h-5 w-5 transition-transform group-hover:-translate-y-1 group-active:scale-90" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-bold animate-in zoom-in-0 duration-500">
-                  0
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-bold animate-in zoom-in-0 duration-500">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
             </Button>
 
-            {/* Account/Auth Buttons */}
             {mounted && (
               <div className="hidden lg:block">
                 {user ? (
@@ -163,7 +170,6 @@ export function Navbar() {
               </div>
             )}
 
-            {/* Mobile Menu Toggle */}
             <div className="lg:hidden">
               <Sheet>
                 <SheetTrigger asChild>
@@ -217,7 +223,7 @@ export function Navbar() {
                                   <div className="p-3 bg-white rounded-xl shadow-sm group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all">
                                       <ShoppingBag className="h-6 w-6 text-primary group-hover:text-white" />
                                   </div>
-                                  <span className="font-bold text-secondary">Cart</span>
+                                  <span className="font-bold text-secondary">Cart ({cartCount})</span>
                               </Link>
                               <Link href="/search" className="flex flex-col items-center justify-center p-6 bg-muted/50 rounded-2xl gap-2 hover:bg-primary/5 transition-all duration-300 group active:scale-95 animate-in fade-in zoom-in-95 duration-700 delay-600">
                                   <div className="p-3 bg-white rounded-xl shadow-sm group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all">
