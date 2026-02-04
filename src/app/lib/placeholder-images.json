@@ -3,15 +3,21 @@
   "placeholderImages": [
     {
       "id": "hero-artisan",
-      "description": "An artisan meticulously weaving a traditional textile on a wooden loom",
-      "imageUrl": "https://picsum.photos/seed/artisan1/1200/800",
-      "imageHint": "artisan weaving"
+      "description": "A close-up of an artisan's hands working with traditional terracotta clay on a potter's wheel",
+      "imageUrl": "https://picsum.photos/seed/artisan-hands-hero/1920/1080",
+      "imageHint": "artisan pottery"
     },
     {
       "id": "hero-artisan-mobile",
-      "description": "A vertical portrait of an artisan focused on detailed craftwork",
-      "imageUrl": "https://picsum.photos/seed/artisan-mobile/800/1200",
-      "imageHint": "artisan portrait"
+      "description": "Vertical portrait of a woman master weaver at her loom in a sunlit village workshop",
+      "imageUrl": "https://picsum.photos/seed/artisan-weaver-mobile/800/1200",
+      "imageHint": "artisan weaving"
+    },
+    {
+      "id": "global-texture",
+      "description": "Subtle off-white handmade paper or canvas texture for global background",
+      "imageUrl": "https://picsum.photos/seed/heritage-texture/1920/1080",
+      "imageHint": "paper texture"
     },
     {
       "id": "terracotta-pot",

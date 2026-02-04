@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -61,8 +62,12 @@
 }
 
 .artisan-pattern {
-  background-image: radial-gradient(var(--border) 0.5px, transparent 0.5px);
-  background-size: 20px 20px;
+  background-color: hsl(var(--background));
+  background-image: url('https://picsum.photos/seed/heritage-texture/1920/1080');
+  background-blend-mode: overlay;
+  background-attachment: fixed;
+  background-size: cover;
+  opacity: 0.98;
 }
 
 @keyframes subtle-float {
