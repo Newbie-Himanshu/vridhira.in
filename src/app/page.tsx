@@ -46,10 +46,12 @@ export default function LandingPage() {
         
         <div className="container relative z-10 mx-auto max-w-4xl text-left">
           <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-left-4 duration-1000">
+            {/* The Badge */}
+            <div className="inline-flex w-fit bg-primary text-white px-8 py-2.5 rounded-full uppercase tracking-[0.3em] font-bold text-[10px] animate-subtle-float shadow-2xl">
+              Handcrafted Heritage
+            </div>
+
             <div className="space-y-1">
-              <p className="text-[10px] md:text-xs font-bold text-white/60 tracking-[0.3em] uppercase">
-                CERAMICS • TEXTILES • WOODWORK
-              </p>
               <h1 className="text-[36px] font-outfit font-semibold text-white leading-[1.3] drop-shadow-xl">
                 Buy The Story & <br /> Collect The Unseen.
               </h1>
