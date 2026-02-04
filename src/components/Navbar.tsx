@@ -60,11 +60,12 @@ export function Navbar() {
     )}>
       <div className="container mx-auto px-4 h-full flex items-center relative">
         
-        {/* Left Column: Logo Only */}
+        {/* Left Column: Logo */}
         <div className="flex-[1_0_0] flex justify-start">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
-                <div className="absolute inset-0 bg-primary/10 rotate-45 rounded-lg group-hover:rotate-90 transition-transform duration-700" />
+                {/* Slow, constant artisanal rotation */}
+                <div className="absolute inset-0 bg-primary/10 rotate-45 rounded-lg animate-[spin_20s_linear_infinite]" />
                 <span className="relative font-headline font-bold text-2xl text-primary transition-transform duration-300 group-hover:scale-110">V</span>
             </div>
           </Link>
@@ -106,7 +107,7 @@ export function Navbar() {
             </Link>
           </Button>
 
-          {/* Account/Auth Buttons - Only visible on desktop (lg) */}
+          {/* Account/Auth Buttons */}
           {mounted && (
             <div className="hidden lg:block">
               {user ? (
@@ -138,11 +139,15 @@ export function Navbar() {
               </SheetTrigger>
               <SheetContent side="right" className="w-full sm:max-w-md p-0 overflow-hidden border-none flex flex-col animate-in slide-in-from-right duration-500">
                 <SheetHeader className="p-8 pb-4 text-left border-b bg-muted/30">
-                  <SheetTitle className="font-headline text-3xl text-secondary flex items-center gap-3">
+                  <SheetTitle className="font-headline text-3xl text-secondary flex items-center gap-4">
                     <div className="relative w-10 h-10 flex items-center justify-center">
-                        <div className="absolute inset-0 bg-primary rounded-lg animate-in zoom-in-0 spin-in-90 duration-1000" />
+                        {/* Indefinite artisanal rotation while menu is open */}
+                        <div className="absolute inset-0 bg-primary rounded-lg animate-[spin_12s_linear_infinite]" />
                         <span className="relative text-white font-bold text-xl animate-in fade-in zoom-in-50 delay-300 duration-500">V</span>
                     </div>
+                    <span className="font-headline font-bold text-2xl tracking-tight animate-in fade-in slide-in-from-left-4 duration-1000 delay-500">
+                      Vridhira
+                    </span>
                   </SheetTitle>
                 </SheetHeader>
                 
