@@ -1,16 +1,16 @@
-
 'use client';
 
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { MOCK_PRODUCTS } from '@/lib/mock-data';
 import { updateCartItemQuantityAction, removeCartItemAction, CartData } from '@/lib/cart-actions';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, Loader2, Sparkles, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 
 export default function CartPage() {
   const { user, isUserLoading } = useUser();
@@ -45,21 +45,26 @@ export default function CartPage() {
   });
 
   const subtotal = cartDetailedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const platformFee = subtotal * 0.10; // Placeholder 10%
+  const platformFee = subtotal * 0.10; // 10% Platform Fee
   const total = subtotal + platformFee;
 
   if (items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-24 text-center space-y-8 animate-in fade-in duration-700">
-        <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-          <ShoppingBag className="h-10 w-10 text-primary opacity-40" />
+      <div className="container mx-auto px-4 py-32 text-center space-y-10 animate-in fade-in duration-1000">
+        <div className="relative w-32 h-32 mx-auto">
+          <div className="absolute inset-0 bg-primary/10 rounded-full animate-artisanal-rotation" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <ShoppingBag className="h-12 w-12 text-primary/40" />
+          </div>
         </div>
-        <div className="space-y-2">
-          <h1 className="text-4xl font-headline font-bold text-secondary">Your Collection is Empty</h1>
-          <p className="text-muted-foreground max-w-md mx-auto">Discover unique treasures and start your journey with Indian craftsmanship.</p>
+        <div className="space-y-4">
+          <h1 className="text-5xl font-headline font-bold text-secondary tracking-tight">Your Collection is Empty</h1>
+          <p className="text-muted-foreground max-w-md mx-auto text-lg leading-relaxed">
+            Every masterpiece begins with a single selection. Start your journey into Indian heritage.
+          </p>
         </div>
-        <Link href="/shop">
-          <Button size="lg" className="rounded-full px-12 bg-primary hover:bg-primary/90 text-white font-bold h-14 shadow-xl">
+        <Link href="/shop" className="inline-block">
+          <Button size="lg" className="rounded-full px-16 h-16 bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-2xl hover:scale-105 active:scale-95 transition-all shine-effect overflow-hidden">
             Explore Marketplace
           </Button>
         </Link>
@@ -68,76 +73,100 @@ export default function CartPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-6xl">
-      <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
-        <div>
-          <h1 className="text-4xl font-headline font-bold text-secondary flex items-center gap-3">
-            <ShoppingBag className="h-10 w-10 text-primary" />
+    <div className="container mx-auto px-4 py-12 max-w-7xl">
+      {/* Header Area */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8 animate-in slide-in-from-top-4 duration-700">
+        <div className="space-y-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest">
+            <Sparkles className="h-3 w-3" />
+            Curated Treasures
+          </div>
+          <h1 className="text-5xl md:text-6xl font-headline font-bold text-secondary leading-none">
             Your Collection
           </h1>
-          <p className="text-muted-foreground mt-2">Treasures selected for your home and heritage.</p>
+          <p className="text-muted-foreground text-lg max-w-xl">
+            A selection of timeless pieces reserved specifically for your home and legacy.
+          </p>
         </div>
-        <div className="bg-primary/10 text-primary px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-          <Sparkles className="h-3 w-3" />
-          {items.length} Unique Pieces
+        <div className="bg-white/50 backdrop-blur-sm border border-border/50 px-8 py-4 rounded-3xl shadow-sm flex flex-col items-center">
+          <span className="text-4xl font-headline font-bold text-primary">{items.length}</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Unique Items</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Items List */}
-        <div className="lg:col-span-2 space-y-6">
-          {cartDetailedItems.map((item) => (
-            <Card key={`${item.productId}-${item.variantId}`} className="border-none shadow-sm overflow-hidden bg-white/70 backdrop-blur">
-              <CardContent className="p-6">
-                <div className="flex gap-6">
-                  <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden shrink-0">
+        <div className="lg:col-span-8 space-y-8">
+          {cartDetailedItems.map((item, index) => (
+            <Card 
+              key={`${item.productId}-${item.variantId}`} 
+              className={cn(
+                "border-none shadow-xl shadow-black/5 overflow-hidden bg-white/60 backdrop-blur-xl rounded-[2.5rem] transition-all duration-500 hover:bg-white hover:-translate-y-1 animate-in fade-in slide-in-from-left-4",
+                "duration-500 delay-[" + (index * 100) + "ms]"
+              )}
+            >
+              <CardContent className="p-8">
+                <div className="flex flex-col sm:flex-row gap-8">
+                  <div className="relative w-full sm:w-44 aspect-square rounded-[2rem] overflow-hidden shrink-0 shadow-inner group">
                     <Image
                       src={item.product?.imageUrl || ''}
                       alt={item.product?.title || ''}
                       fill
-                      className="object-cover"
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
+                    <div className="absolute inset-0 bg-black/5" />
                   </div>
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <div className="flex justify-between items-start">
-                      <h3 className="text-xl font-headline font-bold text-secondary truncate">
-                        {item.product?.title}
-                      </h3>
-                      <p className="font-bold text-primary">${(item.price * item.quantity).toFixed(2)}</p>
+                  
+                  <div className="flex-1 flex flex-col justify-between py-2">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-start gap-4">
+                        <h3 className="text-2xl md:text-3xl font-headline font-bold text-secondary hover:text-primary transition-colors cursor-pointer">
+                          {item.product?.title}
+                        </h3>
+                        <p className="text-2xl font-bold text-primary">${(item.price * item.quantity).toFixed(2)}</p>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <Badge variant="outline" className="bg-white text-[10px] font-bold uppercase tracking-wider border-border/50 py-1">
+                          {item.product?.category}
+                        </Badge>
+                        {item.variant && (
+                          <Badge className="bg-secondary/10 text-secondary text-[10px] font-bold uppercase tracking-wider hover:bg-secondary/20 py-1 border-none">
+                            Style: {item.variant.name}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    {item.variant && (
-                      <p className="text-sm text-muted-foreground">Style: {item.variant.name}</p>
-                    )}
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">{item.product?.category}</p>
                     
-                    <div className="flex items-center justify-between pt-4">
-                      <div className="flex items-center gap-3 bg-muted/50 rounded-full px-3 py-1 border border-border/50">
+                    <div className="flex items-center justify-between mt-8 pt-6 border-t border-border/30">
+                      <div className="flex items-center gap-4 bg-muted/30 rounded-2xl px-4 py-2 border border-border/20">
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-8 w-8 rounded-full"
+                          className="h-10 w-10 rounded-xl hover:bg-white hover:text-primary transition-all"
                           onClick={() => updateCartItemQuantityAction(db, user!.uid, item.productId, item.variantId, item.quantity - 1)}
                         >
-                          <Minus className="h-3 w-3" />
+                          <Minus className="h-4 w-4" />
                         </Button>
-                        <span className="font-bold text-sm min-w-[20px] text-center">{item.quantity}</span>
+                        <span className="font-bold text-lg min-w-[30px] text-center">{item.quantity}</span>
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-8 w-8 rounded-full"
+                          className="h-10 w-10 rounded-xl hover:bg-white hover:text-primary transition-all"
                           onClick={() => updateCartItemQuantityAction(db, user!.uid, item.productId, item.variantId, item.quantity + 1)}
                         >
-                          <Plus className="h-3 w-3" />
+                          <Plus className="h-4 w-4" />
                         </Button>
                       </div>
+                      
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="text-muted-foreground hover:text-destructive gap-2 font-bold"
+                        className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 gap-2 font-bold py-6 px-4 rounded-2xl transition-colors"
                         onClick={() => removeCartItemAction(db, user!.uid, item.productId, item.variantId)}
                       >
-                        <Trash2 className="h-4 w-4" />
-                        Remove
+                        <Trash2 className="h-5 w-5" />
+                        <span className="hidden sm:inline uppercase text-[10px] tracking-widest">Remove Piece</span>
                       </Button>
                     </div>
                   </div>
@@ -147,35 +176,62 @@ export default function CartPage() {
           ))}
         </div>
 
-        {/* Summary */}
-        <div className="lg:col-span-1">
-          <Card className="border-none shadow-2xl bg-secondary text-secondary-foreground sticky top-24 rounded-[2rem] overflow-hidden">
-            <div className="p-8 space-y-6">
-              <h2 className="text-2xl font-headline font-bold border-b border-white/10 pb-4">Collection Summary</h2>
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="opacity-70">Subtotal</span>
-                  <span className="font-bold">${subtotal.toFixed(2)}</span>
+        {/* Summary Area */}
+        <div className="lg:col-span-4">
+          <div className="sticky top-32">
+            <Card className="border-none shadow-[0_30px_60px_-15px_rgba(75,0,130,0.3)] bg-secondary text-secondary-foreground rounded-[3rem] overflow-hidden artisan-pattern">
+              <div className="p-10 space-y-10">
+                <div className="space-y-2">
+                  <h2 className="text-3xl font-headline font-bold">Collection Summary</h2>
+                  <p className="text-sm opacity-60">Complete your acquisition to support Indian artisans.</p>
                 </div>
-                <div className="flex justify-between">
-                  <span className="opacity-70">Heritage Platform Fee</span>
-                  <span className="font-bold">${platformFee.toFixed(2)}</span>
+
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg opacity-80">Subtotal</span>
+                    <span className="text-xl font-bold">${subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg opacity-80">Heritage Platform Fee</span>
+                      <div className="group relative">
+                         <ShieldCheck className="h-4 w-4 text-primary cursor-help" />
+                      </div>
+                    </div>
+                    <span className="text-xl font-bold">${platformFee.toFixed(2)}</span>
+                  </div>
+                  
+                  <Separator className="bg-white/10" />
+                  
+                  <div className="flex justify-between items-center pt-2">
+                    <div className="flex flex-col">
+                      <span className="font-headline text-3xl font-bold">Total</span>
+                      <span className="text-[10px] uppercase tracking-widest opacity-50">Incl. all taxes</span>
+                    </div>
+                    <span className="text-4xl font-bold text-primary">${total.toFixed(2)}</span>
+                  </div>
                 </div>
-                <Separator className="bg-white/10" />
-                <div className="flex justify-between text-xl">
-                  <span className="font-headline font-bold">Total</span>
-                  <span className="font-bold text-primary">${total.toFixed(2)}</span>
+
+                <div className="space-y-4">
+                  <Button className="w-full h-20 rounded-3xl bg-primary hover:bg-primary/90 text-white font-bold text-xl shadow-2xl transition-all active:scale-95 animate-pulse-glow shine-effect overflow-hidden">
+                    Complete Purchase
+                    <ArrowRight className="ml-3 h-6 w-6" />
+                  </Button>
+                  
+                  <div className="flex items-center justify-center gap-2 py-2">
+                    <ShieldCheck className="h-4 w-4 text-primary" />
+                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-60">Secure Heritage Checkout</span>
+                  </div>
+                </div>
+
+                <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <p className="text-[11px] text-center opacity-70 leading-relaxed font-medium italic">
+                    "Your purchase directly impacts the livelihoods of over 500+ artisan families across India. We thank you for preserving this heritage."
+                  </p>
                 </div>
               </div>
-              <Button className="w-full h-16 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-xl transition-all active:scale-95 shine-effect overflow-hidden">
-                Proceed to Checkout
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <p className="text-[10px] text-center opacity-50 uppercase tracking-widest leading-relaxed">
-                By checking out, you directly support Indian artisans and heritage preservation.
-              </p>
-            </div>
-          </Card>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
