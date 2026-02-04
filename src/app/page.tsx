@@ -51,22 +51,22 @@ export default function LandingPage() {
             </Badge>
           </div>
           
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-headline font-bold drop-shadow-2xl max-w-5xl mx-auto leading-[1.1] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-headline font-bold drop-shadow-2xl max-w-5xl mx-auto leading-[1.1] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
             Preserving Souls in Every Stitch
           </h1>
           
-          <p className="text-sm md:text-lg lg:text-xl max-w-2xl mx-auto opacity-95 font-body animate-in fade-in duration-1000 delay-500 leading-relaxed px-4 drop-shadow-md">
+          <p className="text-base md:text-lg lg:text-xl max-w-2xl mx-auto opacity-95 font-body animate-in fade-in duration-1000 delay-500 leading-relaxed px-4 drop-shadow-md">
             Directly support authentic Indian artisans. Discover timeless treasures that carry the heartbeat of centuries-old traditions.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center pt-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700 w-full max-w-xs sm:max-w-none mx-auto">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700 w-full max-w-xs sm:max-w-none mx-auto">
             <Link href="/shop" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 px-10 md:px-14 h-14 md:h-15 text-lg font-bold rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect border-none">
-                Shop the Collection
+              <Button size="lg" className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 px-10 h-12 text-base font-bold rounded-full shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect border-none">
+                Shop
               </Button>
             </Link>
             <Link href="#our-story" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto text-white border-white/80 hover:bg-white/10 px-10 md:px-14 h-14 md:h-15 text-lg font-medium rounded-full backdrop-blur-md transition-all duration-300">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto text-white border-white/80 hover:bg-white/10 px-10 h-12 text-base font-medium rounded-full backdrop-blur-md transition-all duration-300">
                 Our Story
               </Button>
             </Link>
@@ -171,7 +171,7 @@ export default function LandingPage() {
               </div>
             </div>
             <Link href="/shop" className="inline-block pt-4">
-              <Button className="bg-primary hover:bg-primary/90 text-white font-bold rounded-full px-12 h-14 md:h-20 text-lg md:text-xl shadow-2xl hover:scale-105 active:scale-95 transition-all shine-effect w-full sm:w-auto">
+              <Button className="bg-primary hover:bg-primary/90 text-white font-bold rounded-full px-12 h-14 md:h-16 text-lg md:text-xl shadow-2xl hover:scale-105 active:scale-95 transition-all shine-effect w-full sm:w-auto">
                 Experience the Craft
               </Button>
             </Link>
@@ -191,7 +191,7 @@ export default function LandingPage() {
           </p>
           <div className="relative z-10 pt-4">
             <Link href="/shop" className="w-full sm:w-auto inline-block">
-              <Button size="lg" className="w-full sm:w-auto rounded-full px-16 h-14 md:h-20 bg-secondary hover:bg-secondary/90 text-lg md:text-2xl font-bold shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect">
+              <Button size="lg" className="w-full sm:w-auto rounded-full px-12 h-14 md:h-16 bg-secondary hover:bg-secondary/90 text-lg md:text-xl font-bold shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect">
                 Go to Marketplace
               </Button>
             </Link>
