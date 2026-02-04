@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -61,16 +60,13 @@ export function Navbar() {
     )}>
       <div className="container mx-auto px-4 h-full flex items-center relative">
         
-        {/* Left Column: Logo & Brand */}
+        {/* Left Column: Logo Only */}
         <div className="flex-[1_0_0] flex justify-start">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
                 <div className="absolute inset-0 bg-primary/10 rotate-45 rounded-lg group-hover:rotate-90 transition-transform duration-500" />
                 <span className="relative font-headline font-bold text-2xl text-primary">V</span>
             </div>
-            <span className="text-xl md:text-2xl font-headline font-bold text-secondary hidden sm:inline-block tracking-tight">
-              Vridhira
-            </span>
           </Link>
         </div>
 
@@ -109,7 +105,7 @@ export function Navbar() {
             </Link>
           </Button>
 
-          {/* Defer account button rendering to avoid hydration mismatch */}
+          {/* Account/Auth Buttons - Only visible on desktop (lg) */}
           {mounted && (
             <div className="hidden lg:block">
               {user ? (
