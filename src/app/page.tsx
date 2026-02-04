@@ -52,7 +52,7 @@ export default function LandingPage() {
           </div>
           
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-headline font-bold drop-shadow-2xl max-w-5xl mx-auto leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
-            Preserving Souls in Every Stitch
+            Buy The Story & <br /> Collect The Unseen.
           </h1>
           
           <p className="text-base md:text-lg lg:text-xl max-w-2xl mx-auto opacity-95 font-body animate-in fade-in duration-1000 delay-500 leading-relaxed px-4 drop-shadow-md">
