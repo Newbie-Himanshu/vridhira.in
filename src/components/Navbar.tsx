@@ -1,16 +1,15 @@
-
 'use client';
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { ShoppingBag, LayoutDashboard, Store, Menu, Home, User, Search, ChevronRight, LogOut, X, Sparkles, ArrowRight } from 'lucide-react';
+import { ShoppingBag, LayoutDashboard, Store, Menu, Home, User, Search, ChevronRight, LogOut, X, Sparkles, ArrowRight, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useUser, useDoc, useMemoFirebase, useFirestore, useAuth } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { Customer, MOCK_PRODUCTS } from '@/lib/mock-data';
+import { Customer, MOCK_PRODUCTS, CATEGORIES } from '@/lib/mock-data';
 import { signOut } from 'firebase/auth';
 import { getLocalCart, CartItem } from '@/lib/cart-actions';
 import Image from 'next/image';
@@ -116,11 +115,18 @@ export function Navbar() {
     }
   };
 
-  // Real-time suggestions
-  const suggestions = searchQuery.trim().length > 1
+  // Real-time suggestions logic
+  const normalizedQuery = searchQuery.toLowerCase().trim();
+  const hasMinQuery = normalizedQuery.length > 1;
+
+  const matchedCategories = hasMinQuery
+    ? CATEGORIES.filter(cat => cat.toLowerCase().includes(normalizedQuery))
+    : [];
+
+  const suggestions = hasMinQuery
     ? MOCK_PRODUCTS.filter(p => 
-        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.category.toLowerCase().includes(searchQuery.toLowerCase())
+        p.title.toLowerCase().includes(normalizedQuery) ||
+        p.category.toLowerCase().includes(normalizedQuery)
       ).slice(0, 3)
     : [];
 
@@ -267,7 +273,6 @@ export function Navbar() {
                     </SheetTitle>
                   </SheetHeader>
                   <div className="flex-1 px-8 py-10 space-y-10 overflow-y-auto">
-                      {/* Mobile Quick Access / Search Area */}
                       <div className="space-y-4">
                           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1">
                             {isMobileSearchActive ? 'Refine Search' : 'Quick Access'}
@@ -295,47 +300,72 @@ export function Navbar() {
                                   </Button>
                                 </form>
 
-                                {/* Real-time Suggestions Dropdown */}
-                                {searchQuery.trim().length > 1 && (
+                                {/* Real-time Suggestions Dropdown with Categories */}
+                                {(matchedCategories.length > 0 || suggestions.length > 0) && (
                                   <div className="bg-white rounded-3xl border border-border/50 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-                                    <div className="p-4 border-b bg-muted/20">
-                                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Top Results</p>
-                                    </div>
-                                    <div className="divide-y divide-border/30">
-                                      {suggestions.length > 0 ? (
-                                        suggestions.map((product) => (
-                                          <Link 
-                                            key={product.id} 
-                                            href={`/shop/${product.id}`}
-                                            className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors group"
-                                            onClick={() => { setIsMobileSearchActive(false); setSearchQuery(''); }}
-                                          >
-                                            <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-sm shrink-0">
-                                              <Image src={product.imageUrl} alt={product.title} fill className="object-cover" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                              <p className="font-bold text-sm truncate group-hover:text-primary transition-colors">{product.title}</p>
-                                              <p className="text-[10px] text-muted-foreground uppercase font-medium">{product.category} • ${product.price}</p>
-                                            </div>
-                                            <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-                                          </Link>
-                                        ))
-                                      ) : (
-                                        <div className="p-8 text-center">
-                                          <Search className="h-8 w-8 text-muted-foreground/20 mx-auto mb-2" />
-                                          <p className="text-sm text-muted-foreground italic">No matches found.</p>
+                                    
+                                    {/* Categories Section */}
+                                    {matchedCategories.length > 0 && (
+                                      <div className="p-4 border-b bg-primary/5">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Matching Categories</p>
+                                        <div className="flex flex-wrap gap-2">
+                                          {matchedCategories.map((cat) => (
+                                            <Link 
+                                              key={cat} 
+                                              href={`/shop?q=${cat}`}
+                                              onClick={() => { setIsMobileSearchActive(false); setSearchQuery(''); }}
+                                              className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-primary/20 rounded-full text-xs font-bold text-secondary hover:bg-primary hover:text-white transition-all"
+                                            >
+                                              <Tag className="h-3 w-3" />
+                                              {cat}
+                                            </Link>
+                                          ))}
                                         </div>
-                                      )}
-                                    </div>
-                                    {suggestions.length > 0 && (
-                                      <Button 
-                                        variant="ghost" 
-                                        className="w-full h-12 rounded-none text-primary font-bold text-xs gap-2 hover:bg-primary/5"
-                                        onClick={() => handleSearchSubmit()}
-                                      >
-                                        View All Results <ArrowRight className="h-3 w-3" />
-                                      </Button>
+                                      </div>
                                     )}
+
+                                    {/* Products Section */}
+                                    {suggestions.length > 0 && (
+                                      <>
+                                        <div className="p-4 border-b bg-muted/20">
+                                          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Top Products</p>
+                                        </div>
+                                        <div className="divide-y divide-border/30">
+                                          {suggestions.map((product) => (
+                                            <Link 
+                                              key={product.id} 
+                                              href={`/shop/${product.id}`}
+                                              className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors group"
+                                              onClick={() => { setIsMobileSearchActive(false); setSearchQuery(''); }}
+                                            >
+                                              <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-sm shrink-0">
+                                                <Image src={product.imageUrl} alt={product.title} fill className="object-cover" />
+                                              </div>
+                                              <div className="flex-1 min-w-0">
+                                                <p className="font-bold text-sm truncate group-hover:text-primary transition-colors">{product.title}</p>
+                                                <p className="text-[10px] text-muted-foreground uppercase font-medium">{product.category} • ${product.price}</p>
+                                              </div>
+                                              <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                                            </Link>
+                                          ))}
+                                        </div>
+                                      </>
+                                    )}
+                                    
+                                    <Button 
+                                      variant="ghost" 
+                                      className="w-full h-12 rounded-none text-primary font-bold text-xs gap-2 hover:bg-primary/5"
+                                      onClick={() => handleSearchSubmit()}
+                                    >
+                                      View All Results <ArrowRight className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                )}
+                                
+                                {searchQuery.trim().length > 1 && matchedCategories.length === 0 && suggestions.length === 0 && (
+                                  <div className="bg-white rounded-3xl border border-border/50 shadow-2xl p-8 text-center animate-in zoom-in-95 duration-300">
+                                    <Search className="h-8 w-8 text-muted-foreground/20 mx-auto mb-2" />
+                                    <p className="text-sm text-muted-foreground italic">No matches found for your search.</p>
                                   </div>
                                 )}
                               </div>
