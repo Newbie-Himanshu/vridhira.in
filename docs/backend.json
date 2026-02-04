@@ -66,6 +66,56 @@
       },
       "required": ["id", "email", "role"]
     },
+    "Product": {
+      "title": "Product",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "price": { "type": "number" },
+        "stock": { "type": "number" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "type": { "type": "string", "enum": ["single", "variable", "group"] },
+        "variants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "price": { "type": "number" },
+              "stock": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+    "Order": {
+      "title": "Order",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "totalAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["Pending", "Shipped", "Delivered", "Cancelled"] },
+        "date": { "type": "string", "format": "date-time" },
+        "platformFee": { "type": "number" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "productId": { "type": "string" },
+              "quantity": { "type": "number" },
+              "price": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
     "UserPreferences": {
       "title": "UserPreferences",
       "type": "object",
@@ -134,8 +184,12 @@
       "description": "Global store appearance and branding settings."
     },
     "/products/{productId}": {
-      "schema": { "type": "object" },
+      "schema": { "$ref": "#/backend/entities/Product" },
       "description": "Public product catalog."
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/backend/entities/Order" },
+      "description": "Customer order records."
     },
     "/carts/{userId}": {
       "schema": { "$ref": "#/backend/entities/Cart" },

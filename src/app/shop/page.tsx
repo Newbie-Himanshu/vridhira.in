@@ -1,19 +1,27 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { MOCK_PRODUCTS, CATEGORIES, Category } from '@/lib/mock-data';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
+import { CATEGORIES, Category, Product } from '@/lib/mock-data';
 import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { Search, SlidersHorizontal, Sparkles, Loader2 } from 'lucide-react';
 
 function ShopContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const db = useFirestore();
   
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
+
+  // Fetch products from Firestore
+  const productsQuery = useMemoFirebase(() => query(collection(db, 'products'), orderBy('title', 'asc')), [db]);
+  const { data: products, isLoading } = useCollection<Product>(productsQuery);
 
   // Sync search state with URL query parameter
   useEffect(() => {
@@ -24,7 +32,8 @@ function ShopContent() {
   }, [searchParams]);
 
   const filteredProducts = useMemo(() => {
-    return MOCK_PRODUCTS.filter((product) => {
+    if (!products) return [];
+    return products.filter((product) => {
       const matchesSearch =
         product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -34,7 +43,7 @@ function ShopContent() {
 
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, products]);
 
   const handleSearchChange = (val: string) => {
     setSearchQuery(val);
@@ -46,6 +55,14 @@ function ShopContent() {
     }
     router.replace(`/shop?${params.toString()}`, { scroll: false });
   };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 pt-48 flex justify-center min-h-[600px]">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 pt-32 pb-12">

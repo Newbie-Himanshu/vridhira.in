@@ -4,7 +4,7 @@
 import { use, useState, useEffect } from 'react';
 import { useDoc, useMemoFirebase, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { MOCK_PRODUCTS, Product, PageSettings } from '@/lib/mock-data';
+import { Product, PageSettings } from '@/lib/mock-data';
 import { V0Template } from '@/components/product-templates/V0Template';
 import { ModernTemplate } from '@/components/product-templates/ModernTemplate';
 import { Button } from '@/components/ui/button';
@@ -15,9 +15,7 @@ export default function ProductPage(props: {
   params: Promise<{ productId: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  // In Next.js 15, params and searchParams are Promises that must be unwrapped with React.use()
   const params = use(props.params);
-  const searchParams = use(props.searchParams);
   const productId = params.productId;
   
   const db = useFirestore();
@@ -26,18 +24,11 @@ export default function ProductPage(props: {
   const settingsRef = useMemoFirebase(() => doc(db, 'page_customizations', 'global-settings'), [db]);
   const { data: settings, isLoading: settingsLoading } = useDoc<PageSettings>(settingsRef);
 
-  // Simulate product fetching
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Fetch product from Firestore
+  const productRef = useMemoFirebase(() => doc(db, 'products', productId), [db, productId]);
+  const { data: product, isLoading: productLoading } = useDoc<Product>(productRef);
 
-  useEffect(() => {
-    if (!productId) return;
-    const found = MOCK_PRODUCTS.find(p => p.id === productId);
-    setProduct(found || null);
-    setLoading(false);
-  }, [productId]);
-
-  if (loading || settingsLoading) {
+  if (productLoading || settingsLoading) {
     return (
       <div className="container mx-auto px-4 py-32 flex justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
