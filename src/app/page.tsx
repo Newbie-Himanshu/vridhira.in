@@ -52,7 +52,7 @@ export default function LandingPage() {
             </div>
 
             <div className="space-y-1">
-              <h1 className="text-[36px] font-outfit font-semibold text-white leading-[1.3] drop-shadow-xl">
+              <h1 className="text-[42px] md:text-[56px] font-outfit font-semibold text-white leading-[1.3] drop-shadow-xl">
                 Buy The Story & <br /> Collect The Unseen.
               </h1>
             </div>
