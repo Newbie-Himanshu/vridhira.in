@@ -139,8 +139,10 @@ export function Navbar() {
               <SheetContent side="right" className="w-full sm:max-w-md p-0 overflow-hidden border-none flex flex-col animate-in slide-in-from-right duration-500">
                 <SheetHeader className="p-8 pb-4 text-left border-b bg-muted/30">
                   <SheetTitle className="font-headline text-3xl text-secondary flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white animate-in zoom-in-0 duration-700">V</div>
-                    Vridhira
+                    <div className="relative w-10 h-10 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-primary rounded-lg animate-in zoom-in-0 spin-in-90 duration-1000" />
+                        <span className="relative text-white font-bold text-xl animate-in fade-in zoom-in-50 delay-300 duration-500">V</span>
+                    </div>
                   </SheetTitle>
                 </SheetHeader>
                 
