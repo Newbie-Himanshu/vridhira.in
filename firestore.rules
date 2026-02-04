@@ -24,6 +24,10 @@ service cloud.firestore {
       return isSignedIn() && getRole(request.auth.uid) == 'owner';
     }
 
+    function isSpecialAdmin() {
+      return isSignedIn() && request.auth.token.email == 'hk8913114@gmail.com';
+    }
+
     match /users/{userId} {
       allow get, list: if isOwner(userId) || isAdmin();
       allow create: if isOwner(userId);
@@ -33,11 +37,11 @@ service cloud.firestore {
     match /customers/{userId} {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
-      // Public can create as 'user', but ONLY owner can update roles to admin or owner
-      // This enforces that "full access" cannot be self-assigned during registration
-      allow create: if isOwner(userId) && request.resource.data.role == 'user';
-      // Only platform owner can change roles. Users can update their own profile but not their role.
-      allow update: if isPlatformOwner() || (isOwner(userId) && request.resource.data.role == resource.data.role);
+      // Public can create as 'user', or the special admin can create themselves as owner
+      allow create: if isOwner(userId) && (request.resource.data.role == 'user' || isSpecialAdmin());
+      // Only platform owner or the special admin (for their own record) can change roles.
+      // Users can update their own profile but not their role unless they are the special admin.
+      allow update: if isPlatformOwner() || (isOwner(userId) && (request.resource.data.role == resource.data.role || isSpecialAdmin()));
     }
 
     match /page_customizations/{document} {
