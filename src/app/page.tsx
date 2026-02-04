@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col gap-24 md:gap-32 pb-32">
       {/* Hero Section */}
-      <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden py-24 px-4">
+      <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden py-24 px-4 [clip-path:inset(0_0_0_0)]">
         <div className="fixed inset-0 z-0 pointer-events-none">
           {/* Desktop Image */}
           {heroDesktop && (
