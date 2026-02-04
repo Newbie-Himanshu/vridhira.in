@@ -93,7 +93,8 @@ export function Navbar() {
         {/* Right Column: Actions */}
         <div className="flex-[1_0_0] flex justify-end items-center gap-1 sm:gap-4">
           
-          <Button variant="ghost" size="icon" className="hidden sm:flex text-muted-foreground hover:text-primary">
+          {/* Search Button (Visible on all devices) */}
+          <Button variant="ghost" size="icon" className="flex text-muted-foreground hover:text-primary">
             <Search className="h-5 w-5" />
           </Button>
 
