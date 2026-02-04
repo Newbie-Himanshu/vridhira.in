@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo } from 'react';
@@ -32,6 +31,7 @@ import {
   type ChartConfig
 } from '@/components/ui/chart';
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { cn } from '@/lib/utils';
 
 const chartData = [
   { month: "Jan", sales: 4500 },
