@@ -3,18 +3,19 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, useUser, useFirestore } from '@/firebase';
-import { initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn, setDocumentNonBlocking } from '@/firebase';
+import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn, setDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Lock, User, Loader2, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User, Loader2, ShieldCheck, AlertCircle, PhoneIncoming, CheckCircle2 } from 'lucide-react';
 import { doc, serverTimestamp } from 'firebase/firestore';
 import { syncLocalCartToCloud } from '@/lib/cart-actions';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Customer } from '@/lib/mock-data';
 
 export default function LoginPage() {
   const { user, isUserLoading } = useUser();
@@ -26,14 +27,27 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [otp, setOtp] = useState('');
   const [error, setError] = useState<{ message: string; hint: string } | null>(null);
+  const [showOtpStep, setShowOtpStep] = useState(false);
+
+  const customerRef = useMemoFirebase(() => 
+    user ? doc(db, 'customers', user.uid) : null,
+    [db, user]
+  );
+  
+  const { data: customer, isLoading: isCustomerLoading } = useDoc<Customer>(customerRef);
 
   useEffect(() => {
-    if (user && !loading) {
-      syncLocalCartToCloud(db, user.uid);
-      router.push('/');
+    if (user && customer && !loading) {
+      if (customer.isVerified) {
+        syncLocalCartToCloud(db, user.uid);
+        router.push('/');
+      } else {
+        setShowOtpStep(true);
+      }
     }
-  }, [user, loading, router, db]);
+  }, [user, customer, loading, router, db]);
 
   const getAuthErrorDetails = (code: string) => {
     switch (code) {
@@ -72,6 +86,30 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     initiateEmailSignUp(auth, email, password)
+      .then((cred) => {
+        const u = cred.user;
+        const userRef = doc(db, 'users', u.uid);
+        const customerRef = doc(db, 'customers', u.uid);
+        
+        setDocumentNonBlocking(userRef, {
+          id: u.uid,
+          email: u.email,
+          displayName: displayName || 'Artisan Enthusiast',
+          photoURL: u.photoURL || '',
+          creationTime: serverTimestamp(),
+        }, { merge: true });
+
+        setDocumentNonBlocking(customerRef, {
+          id: u.uid,
+          email: u.email,
+          firstName: displayName.split(' ')[0] || 'Artisan',
+          lastName: displayName.split(' ')[1] || 'Enthusiast',
+          role: 'user',
+          isVerified: false
+        }, { merge: true });
+        
+        setShowOtpStep(true);
+      })
       .catch((err: any) => {
         setError(getAuthErrorDetails(err.code));
         setLoading(false);
@@ -82,36 +120,52 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     initiateGoogleSignIn(auth)
+      .then((cred) => {
+        const u = cred.user;
+        const userRef = doc(db, 'users', u.uid);
+        const customerRef = doc(db, 'customers', u.uid);
+        
+        setDocumentNonBlocking(userRef, {
+          id: u.uid,
+          email: u.email,
+          displayName: u.displayName || 'Artisan Enthusiast',
+          photoURL: u.photoURL || '',
+          creationTime: serverTimestamp(),
+        }, { merge: true });
+
+        setDocumentNonBlocking(customerRef, {
+          id: u.uid,
+          email: u.email,
+          firstName: u.displayName?.split(' ')[0] || 'Artisan',
+          lastName: u.displayName?.split(' ')[1] || 'Enthusiast',
+          role: 'user'
+        }, { merge: true });
+      })
       .catch((err: any) => {
         setError(getAuthErrorDetails(err.code));
         setLoading(false);
       });
   };
 
-  useEffect(() => {
-    if (user) {
-      const userRef = doc(db, 'users', user.uid);
+  const handleVerifyOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setLoading(true);
+    
+    // Simulate OTP verification logic
+    if (otp === '123456') {
       const customerRef = doc(db, 'customers', user.uid);
-      
-      setDocumentNonBlocking(userRef, {
-        id: user.uid,
-        email: user.email,
-        displayName: displayName || user.displayName || 'Artisan Enthusiast',
-        photoURL: user.photoURL || '',
-        creationTime: serverTimestamp(),
-      }, { merge: true });
-
-      setDocumentNonBlocking(customerRef, {
-        id: user.uid,
-        email: user.email,
-        firstName: displayName || user.displayName?.split(' ')[0] || 'Artisan',
-        lastName: user.displayName?.split(' ')[1] || 'Enthusiast',
-        role: 'user' // Default role
-      }, { merge: true });
+      updateDocumentNonBlocking(customerRef, { isVerified: true });
+      setTimeout(() => {
+        router.push('/');
+      }, 500);
+    } else {
+      setError({ message: 'Invalid OTP', hint: 'Please use the test code: 123456' });
+      setLoading(false);
     }
-  }, [user, db, displayName]);
+  };
 
-  if (isUserLoading) {
+  if (isUserLoading || (user && isCustomerLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -127,6 +181,53 @@ export default function LoginPage() {
       <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
     </svg>
   );
+
+  if (showOtpStep) {
+    return (
+      <div className="container mx-auto px-4 py-20 min-h-[calc(100vh-80px)] flex items-center justify-center">
+        <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <Card className="border-none shadow-2xl bg-white/70 backdrop-blur-md rounded-3xl artisan-pattern overflow-hidden">
+            <CardHeader className="bg-primary/10 text-center py-8">
+              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+                <PhoneIncoming className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle className="text-2xl font-headline font-bold text-secondary">Verify Identity</CardTitle>
+              <CardDescription>A 6-digit verification code was sent to your email.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-8 space-y-6">
+              {error && (
+                <Alert variant="destructive" className="rounded-2xl border-2">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>{error.message}</AlertTitle>
+                  <AlertDescription>{error.hint}</AlertDescription>
+                </Alert>
+              )}
+              <form onSubmit={handleVerifyOtp} className="space-y-6">
+                <div className="space-y-3">
+                  <Label className="uppercase tracking-[0.2em] text-[10px] font-bold text-muted-foreground">One-Time Password</Label>
+                  <Input 
+                    type="text" 
+                    maxLength={6} 
+                    className="h-16 text-center text-3xl font-black tracking-[0.5em] rounded-2xl border-2 focus:ring-primary focus:border-primary" 
+                    placeholder="000000"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button className="w-full h-14 rounded-2xl bg-secondary hover:bg-secondary/90 text-white font-bold text-lg shadow-xl" disabled={loading}>
+                  {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Complete Registration"}
+                </Button>
+              </form>
+            </CardContent>
+            <CardFooter className="bg-muted/30 p-4 justify-center">
+              <p className="text-xs text-muted-foreground">Didn't receive the code? <button className="text-primary font-bold hover:underline" onClick={() => setError({ message: "Resent", hint: "Check your spam folder just in case." })}>Resend Code</button></p>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-20 min-h-[calc(100vh-80px)] flex items-center justify-center">

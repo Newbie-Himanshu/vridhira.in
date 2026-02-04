@@ -47,8 +47,9 @@ export interface Customer {
   firstName: string;
   lastName: string;
   email: string;
-  address: string;
+  address?: string;
   role: UserRole;
+  isVerified?: boolean;
 }
 
 export const CATEGORIES: Category[] = ['Pottery', 'Textiles', 'Decor', 'Art', 'Fashion'];
