@@ -1,23 +1,31 @@
 
 'use client';
 
-import { useUser, useDoc, useMemoFirebase, useFirestore } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase, useFirestore, updateDocumentNonBlocking } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Customer } from '@/lib/mock-data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { User, Mail, Shield, Calendar, Loader2, LogOut, Package, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { User, Mail, Shield, Calendar, Loader2, LogOut, Package, CheckCircle2, AlertTriangle, PhoneIncoming, Info } from 'lucide-react';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AccountPage() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
   const auth = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
+
+  const [otp, setOtp] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [showOtpInput, setShowOtpInput] = useState(false);
 
   const customerRef = useMemoFirebase(() => 
     user ? doc(db, 'customers', user.uid) : null, 
@@ -33,6 +41,38 @@ export default function AccountPage() {
     }
   }, [user, isUserLoading, router]);
 
+  const handleSignOut = async () => {
+    await signOut(auth);
+    router.push('/');
+  };
+
+  const handleVerifyOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setVerifying(true);
+    
+    // Simulate OTP verification logic
+    if (otp === '123456') {
+      const customerRef = doc(db, 'customers', user.uid);
+      updateDocumentNonBlocking(customerRef, { isVerified: true });
+      setTimeout(() => {
+        setVerifying(false);
+        setShowOtpInput(false);
+        toast({
+          title: "Account Verified",
+          description: "Your heritage identity has been successfully confirmed.",
+        });
+      }, 500);
+    } else {
+      setVerifying(false);
+      toast({
+        variant: "destructive",
+        title: "Invalid Code",
+        description: "The verification code you entered is incorrect. Please try 123456.",
+      });
+    }
+  };
+
   if (isUserLoading || isCustomerLoading) {
     return (
       <div className="container mx-auto px-4 py-32 flex justify-center">
@@ -44,11 +84,6 @@ export default function AccountPage() {
   if (!user) {
     return null;
   }
-
-  const handleSignOut = async () => {
-    await signOut(auth);
-    router.push('/');
-  };
 
   return (
     <div className="container mx-auto px-4 py-24 max-w-4xl">
@@ -69,6 +104,57 @@ export default function AccountPage() {
       </div>
 
       <div className="grid gap-8">
+        {/* Verification Banner for Unverified Users */}
+        {!customer?.isVerified && (
+          <Alert className="bg-primary/5 border-primary/20 rounded-[2.5rem] p-8 shadow-sm animate-in zoom-in-95 duration-500 overflow-hidden relative group">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl" />
+            <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start">
+              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm border border-primary/10">
+                <PhoneIncoming className="h-8 w-8 text-primary" />
+              </div>
+              <div className="space-y-6 flex-1">
+                <div>
+                  <AlertTitle className="text-2xl font-headline font-bold text-secondary mb-2">Verify Your Heritage Identity</AlertTitle>
+                  <AlertDescription className="text-muted-foreground text-lg leading-relaxed">
+                    Unlock full access to the marketplace and secure your handcrafted acquisitions by completing our verification process.
+                  </AlertDescription>
+                </div>
+                
+                {showOtpInput ? (
+                  <form onSubmit={handleVerifyOtp} className="space-y-6 max-w-sm animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-primary mb-1">
+                        <Info className="h-3 w-3" />
+                        Prototype Code: 123456
+                      </div>
+                      <Input 
+                        type="text" 
+                        maxLength={6} 
+                        className="h-16 text-center text-3xl font-black tracking-[0.4em] rounded-2xl border-2 focus:ring-primary focus:border-primary bg-white" 
+                        placeholder="000000"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        required
+                        autoFocus
+                      />
+                    </div>
+                    <div className="flex gap-4">
+                      <Button className="flex-1 h-14 rounded-2xl bg-secondary hover:bg-secondary/90 text-white font-bold text-lg shadow-xl" disabled={verifying}>
+                        {verifying ? <Loader2 className="h-5 w-5 animate-spin" /> : "Confirm Identity"}
+                      </Button>
+                      <Button type="button" variant="ghost" className="h-14 rounded-2xl px-6 font-bold" onClick={() => setShowOtpInput(false)}>Cancel</Button>
+                    </div>
+                  </form>
+                ) : (
+                  <Button className="h-14 px-10 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-2xl animate-pulse-glow transition-transform hover:scale-105" onClick={() => setShowOtpInput(true)}>
+                    Enter Verification Code
+                  </Button>
+                )}
+              </div>
+            </div>
+          </Alert>
+        )}
+
         <Card className="border-none shadow-xl bg-white/60 backdrop-blur-xl rounded-[2.5rem] overflow-hidden artisan-pattern">
           <CardHeader className="bg-secondary text-secondary-foreground p-8 pb-12">
             <div className="flex items-center gap-6">
