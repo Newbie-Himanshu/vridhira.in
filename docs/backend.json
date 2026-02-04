@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "User": {
@@ -71,6 +70,8 @@
       "type": "object",
       "properties": {
         "id": { "type": "string" },
+        "sku": { "type": "string" },
+        "brand": { "type": "string" },
         "title": { "type": "string" },
         "price": { "type": "number" },
         "stock": { "type": "number" },
@@ -78,6 +79,8 @@
         "description": { "type": "string" },
         "imageUrl": { "type": "string" },
         "type": { "type": "string", "enum": ["single", "variable", "group"] },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "specs": { "type": "object", "additionalProperties": { "type": "string" } },
         "variants": {
           "type": "array",
           "items": {

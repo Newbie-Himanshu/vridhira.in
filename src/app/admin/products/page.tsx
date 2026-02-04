@@ -1,17 +1,17 @@
-
 'use client';
 
 import { useState, useMemo, useRef } from 'react';
-import { useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, updateDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, query, orderBy, doc } from 'firebase/firestore';
-import { Product, CATEGORIES, Category, ProductType } from '@/lib/mock-data';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Product, CATEGORIES, Category, ProductType, ProductVariant } from '@/lib/mock-data';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Dialog, 
   DialogContent, 
@@ -38,7 +38,10 @@ import {
   Download, 
   Upload,
   FileSpreadsheet,
-  AlertCircle
+  Settings2,
+  Tags,
+  PlusCircle,
+  XCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -59,7 +62,8 @@ export default function ProductsManagementPage() {
     if (!products) return [];
     return products.filter(p => 
       p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.category.toLowerCase().includes(searchQuery.toLowerCase())
+      p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.sku?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [products, searchQuery]);
 
@@ -77,6 +81,7 @@ export default function ProductsManagementPage() {
       stock: Number(editingProduct.stock || 0),
       type: (editingProduct.type || 'single') as ProductType,
       category: (editingProduct.category || 'Decor') as Category,
+      tags: typeof editingProduct.tags === 'string' ? (editingProduct.tags as string).split(',').map(t => t.trim()) : (editingProduct.tags || []),
     };
 
     setDocumentNonBlocking(productRef, finalData, { merge: true });
@@ -88,6 +93,42 @@ export default function ProductsManagementPage() {
     
     setIsDialogOpen(false);
     setEditingProduct(null);
+  };
+
+  const handleAddVariant = () => {
+    const variants = [...(editingProduct?.variants || [])];
+    variants.push({ id: Math.random().toString(36).substr(2, 9), name: '', price: editingProduct?.price || 0, stock: 0 });
+    setEditingProduct({ ...editingProduct, variants });
+  };
+
+  const handleRemoveVariant = (id: string) => {
+    const variants = (editingProduct?.variants || []).filter(v => v.id !== id);
+    setEditingProduct({ ...editingProduct, variants });
+  };
+
+  const handleUpdateVariant = (id: string, updates: Partial<ProductVariant>) => {
+    const variants = (editingProduct?.variants || []).map(v => v.id === id ? { ...v, ...updates } : v);
+    setEditingProduct({ ...editingProduct, variants });
+  };
+
+  const handleAddSpec = () => {
+    const specs = { ...(editingProduct?.specs || {}), '': '' };
+    setEditingProduct({ ...editingProduct, specs });
+  };
+
+  const handleRemoveSpec = (key: string) => {
+    const specs = { ...(editingProduct?.specs || {}) };
+    delete specs[key];
+    setEditingProduct({ ...editingProduct, specs });
+  };
+
+  const handleUpdateSpec = (oldKey: string, newKey: string, value: string) => {
+    const specs = { ...(editingProduct?.specs || {}) };
+    if (oldKey !== newKey) {
+      delete specs[oldKey];
+    }
+    specs[newKey] = value;
+    setEditingProduct({ ...editingProduct, specs });
   };
 
   const handleDeleteProduct = (id: string) => {
@@ -105,18 +146,21 @@ export default function ProductsManagementPage() {
   const handleExportCSV = () => {
     if (!products || products.length === 0) return;
 
-    const headers = ['id', 'title', 'price', 'stock', 'category', 'description', 'imageUrl', 'type'];
+    const headers = ['id', 'sku', 'brand', 'title', 'price', 'stock', 'category', 'description', 'imageUrl', 'type', 'tags'];
     const csvContent = [
       headers.join(','),
       ...products.map(p => [
         p.id,
+        p.sku || '',
+        p.brand || '',
         `"${p.title.replace(/"/g, '""')}"`,
         p.price,
         p.stock,
         p.category,
         `"${(p.description || '').replace(/"/g, '""')}"`,
         `"${p.imageUrl}"`,
-        p.type
+        p.type,
+        `"${(p.tags || []).join(',')}"`
       ].join(','))
     ].join('\n');
 
@@ -146,7 +190,6 @@ export default function ProductsManagementPage() {
       rows.slice(1).forEach(row => {
         if (!row.trim()) return;
         
-        // Simple CSV parser for quoted fields
         const values = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
         if (!values) return;
 
@@ -167,6 +210,7 @@ export default function ProductsManagementPage() {
             id,
             price: Number(productData.price || 0),
             stock: Number(productData.stock || 0),
+            tags: productData.tags ? productData.tags.split(',') : []
           }, { merge: true });
           importCount++;
         }
@@ -224,112 +268,235 @@ export default function ProductsManagementPage() {
             <DialogTrigger asChild>
               <Button 
                 className="rounded-full bg-primary text-white hover:bg-primary/90 shadow-lg gap-2"
-                onClick={() => setEditingProduct({ type: 'single', category: 'Decor', stock: 0, price: 0 })}
+                onClick={() => setEditingProduct({ type: 'single', category: 'Decor', stock: 0, price: 0, specs: {}, variants: [], tags: [] })}
               >
                 <Plus className="h-4 w-4" />
                 Add New Piece
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] rounded-[2rem] overflow-hidden">
-              <DialogHeader>
+            <DialogContent className="sm:max-w-[800px] h-[90vh] rounded-[2rem] overflow-hidden flex flex-col p-0">
+              <DialogHeader className="p-8 pb-0">
                 <DialogTitle className="font-headline text-2xl">
                   {editingProduct?.id ? 'Edit Heritage Piece' : 'Catalogue New Masterpiece'}
                 </DialogTitle>
-                <p className="text-sm text-muted-foreground italic">Fill in the details for the marketplace listing.</p>
+                <p className="text-sm text-muted-foreground italic">Comprehensive marketplace listing details.</p>
               </DialogHeader>
-              <form onSubmit={handleSaveProduct} className="space-y-6 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2 col-span-2">
-                    <Label htmlFor="title">Product Title</Label>
-                    <Input 
-                      id="title" 
-                      value={editingProduct?.title || ''} 
-                      onChange={(e) => setEditingProduct({ ...editingProduct, title: e.target.value })}
-                      placeholder="e.g., Hand-Painted Terracotta Vase"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select 
-                      value={editingProduct?.category} 
-                      onValueChange={(val) => setEditingProduct({ ...editingProduct, category: val as Category })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CATEGORIES.map(cat => (
-                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              
+              <ScrollArea className="flex-1 px-8 py-4">
+                <form id="product-form" onSubmit={handleSaveProduct} className="space-y-8 pb-10">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Core Info */}
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="title" className="text-xs font-bold uppercase tracking-wider">Product Title</Label>
+                        <Input 
+                          id="title" 
+                          value={editingProduct?.title || ''} 
+                          onChange={(e) => setEditingProduct({ ...editingProduct, title: e.target.value })}
+                          placeholder="e.g., Hand-Painted Terracotta Vase"
+                          required
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="sku" className="text-xs font-bold uppercase tracking-wider">SKU</Label>
+                          <Input 
+                            id="sku" 
+                            value={editingProduct?.sku || ''} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, sku: e.target.value })}
+                            placeholder="VRD-001"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="brand" className="text-xs font-bold uppercase tracking-wider">Brand / Origin</Label>
+                          <Input 
+                            id="brand" 
+                            value={editingProduct?.brand || ''} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, brand: e.target.value })}
+                            placeholder="Vridhira Heritage"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="category" className="text-xs font-bold uppercase tracking-wider">Category</Label>
+                          <Select 
+                            value={editingProduct?.category} 
+                            onValueChange={(val) => setEditingProduct({ ...editingProduct, category: val as Category })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {CATEGORIES.map(cat => (
+                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="type" className="text-xs font-bold uppercase tracking-wider">Listing Type</Label>
+                          <Select 
+                            value={editingProduct?.type} 
+                            onValueChange={(val) => setEditingProduct({ ...editingProduct, type: val as ProductType })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="single">Single Item</SelectItem>
+                              <SelectItem value="variable">Variable (Sizes/Colors)</SelectItem>
+                              <SelectItem value="group">Group Set</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Media & Pricing */}
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="imageUrl" className="text-xs font-bold uppercase tracking-wider">Hero Image URL</Label>
+                        <Input 
+                          id="imageUrl" 
+                          value={editingProduct?.imageUrl || ''} 
+                          onChange={(e) => setEditingProduct({ ...editingProduct, imageUrl: e.target.value })}
+                          placeholder="https://picsum.photos/..."
+                          required
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="price" className="text-xs font-bold uppercase tracking-wider">Base Price ($)</Label>
+                          <Input 
+                            id="price" 
+                            type="number" 
+                            step="0.01"
+                            value={editingProduct?.price || ''} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="stock" className="text-xs font-bold uppercase tracking-wider">Total Inventory</Label>
+                          <Input 
+                            id="stock" 
+                            type="number" 
+                            value={editingProduct?.stock || ''} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, stock: Number(e.target.value) })}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="tags" className="text-xs font-bold uppercase tracking-wider">Search Tags (Comma separated)</Label>
+                        <div className="relative">
+                          <Tags className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            id="tags" 
+                            value={Array.isArray(editingProduct?.tags) ? editingProduct.tags.join(', ') : editingProduct?.tags || ''} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, tags: e.target.value })}
+                            placeholder="handmade, vintage, gift"
+                            className="pl-10"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-span-1 md:col-span-2 space-y-2">
+                      <Label htmlFor="description" className="text-xs font-bold uppercase tracking-wider">Heritage Story (Description)</Label>
+                      <Textarea 
+                        id="description" 
+                        className="min-h-[100px] rounded-xl"
+                        value={editingProduct?.description || ''} 
+                        onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
+                        placeholder="Tell the story of this craft, its history and significance..."
+                      />
+                    </div>
+
+                    {/* Variants Section */}
+                    {editingProduct?.type === 'variable' && (
+                      <div className="col-span-1 md:col-span-2 space-y-4 border-t pt-6">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-bold flex items-center gap-2">
+                            <PlusCircle className="h-4 w-4 text-primary" />
+                            Product Variants (Sizes / Colors)
+                          </Label>
+                          <Button type="button" variant="ghost" size="sm" onClick={handleAddVariant} className="text-primary hover:text-primary/80">
+                            Add Variant
+                          </Button>
+                        </div>
+                        <div className="grid gap-4">
+                          {editingProduct.variants?.map((v) => (
+                            <div key={v.id} className="grid grid-cols-12 gap-3 items-end bg-muted/30 p-4 rounded-xl">
+                              <div className="col-span-5 space-y-1">
+                                <Label className="text-[10px] font-bold">Variant Name</Label>
+                                <Input value={v.name} onChange={(e) => handleUpdateVariant(v.id, { name: e.target.value })} placeholder="Large / Blue" />
+                              </div>
+                              <div className="col-span-3 space-y-1">
+                                <Label className="text-[10px] font-bold">Price ($)</Label>
+                                <Input type="number" value={v.price} onChange={(e) => handleUpdateVariant(v.id, { price: Number(e.target.value) })} />
+                              </div>
+                              <div className="col-span-3 space-y-1">
+                                <Label className="text-[10px] font-bold">Stock</Label>
+                                <Input type="number" value={v.stock} onChange={(e) => handleUpdateVariant(v.id, { stock: Number(e.target.value) })} />
+                              </div>
+                              <div className="col-span-1 flex justify-center">
+                                <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(v.id)} className="text-destructive">
+                                  <XCircle className="h-5 w-5" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Specs Section */}
+                    <div className="col-span-1 md:col-span-2 space-y-4 border-t pt-6">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-bold flex items-center gap-2">
+                          <Settings2 className="h-4 w-4 text-primary" />
+                          Technical Specifications
+                        </Label>
+                        <Button type="button" variant="ghost" size="sm" onClick={handleAddSpec} className="text-primary hover:text-primary/80">
+                          Add Specification
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {Object.entries(editingProduct?.specs || {}).map(([key, value], idx) => (
+                          <div key={idx} className="flex gap-2 items-center bg-muted/20 p-2 rounded-lg border">
+                            <Input 
+                              className="h-8 text-xs font-bold" 
+                              value={key} 
+                              onChange={(e) => handleUpdateSpec(key, e.target.value, value)} 
+                              placeholder="e.g., Material"
+                            />
+                            <Input 
+                              className="h-8 text-xs" 
+                              value={value} 
+                              onChange={(e) => handleUpdateSpec(key, key, e.target.value)} 
+                              placeholder="e.g., Silk"
+                            />
+                            <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveSpec(key)} className="h-8 w-8 text-destructive">
+                              <XCircle className="h-4 w-4" />
+                            </Button>
+                          </div>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="type">Listing Type</Label>
-                    <Select 
-                      value={editingProduct?.type} 
-                      onValueChange={(val) => setEditingProduct({ ...editingProduct, type: val as ProductType })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="single">Single Item</SelectItem>
-                        <SelectItem value="variable">Variable (Sizes/Colors)</SelectItem>
-                        <SelectItem value="group">Group Set</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="price">Price ($)</Label>
-                    <Input 
-                      id="price" 
-                      type="number" 
-                      step="0.01"
-                      value={editingProduct?.price || ''} 
-                      onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="stock">Inventory Count</Label>
-                    <Input 
-                      id="stock" 
-                      type="number" 
-                      value={editingProduct?.stock || ''} 
-                      onChange={(e) => setEditingProduct({ ...editingProduct, stock: Number(e.target.value) })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2 col-span-2">
-                    <Label htmlFor="imageUrl">Image URL</Label>
-                    <Input 
-                      id="imageUrl" 
-                      value={editingProduct?.imageUrl || ''} 
-                      onChange={(e) => setEditingProduct({ ...editingProduct, imageUrl: e.target.value })}
-                      placeholder="https://picsum.photos/..."
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2 col-span-2">
-                    <Label htmlFor="description">Heritage Story (Description)</Label>
-                    <Textarea 
-                      id="description" 
-                      className="min-h-[100px]"
-                      value={editingProduct?.description || ''} 
-                      onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
-                      placeholder="Tell the story of this craft..."
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button type="button" variant="ghost">Cancel</Button>
-                  </DialogClose>
-                  <Button type="submit" className="bg-secondary text-white rounded-xl px-8">Save Listing</Button>
-                </DialogFooter>
-              </form>
+                </form>
+              </ScrollArea>
+
+              <DialogFooter className="p-8 bg-muted/30 border-t">
+                <DialogClose asChild>
+                  <Button type="button" variant="ghost" className="rounded-xl">Cancel</Button>
+                </DialogClose>
+                <Button form="product-form" type="submit" className="bg-secondary text-white rounded-xl px-12 shadow-lg hover:scale-[1.02] transition-all">
+                  Save Heritage Listing
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
@@ -339,7 +506,7 @@ export default function ProductsManagementPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
-            placeholder="Search catalog by name or category..." 
+            placeholder="Search catalog by SKU, name or category..." 
             className="pl-10 rounded-xl"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -358,10 +525,10 @@ export default function ProductsManagementPage() {
               <TableHeader>
                 <TableRow className="bg-muted/30">
                   <TableHead className="px-8 font-bold">Item</TableHead>
+                  <TableHead className="font-bold">SKU</TableHead>
                   <TableHead className="font-bold">Category</TableHead>
                   <TableHead className="font-bold">Price</TableHead>
                   <TableHead className="font-bold">Stock</TableHead>
-                  <TableHead className="font-bold">Type</TableHead>
                   <TableHead className="text-right px-8 font-bold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -375,10 +542,11 @@ export default function ProductsManagementPage() {
                         </div>
                         <div className="min-w-0">
                           <p className="font-bold text-secondary truncate">{product.title}</p>
-                          <p className="text-xs text-muted-foreground font-code truncate opacity-60">#{product.id.slice(0, 8)}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase font-medium opacity-60">{product.brand || 'Vridhira Heritage'}</p>
                         </div>
                       </div>
                     </TableCell>
+                    <TableCell className="font-code text-xs text-muted-foreground">{product.sku || '-'}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className="rounded-full px-3 py-0.5 border-primary/20 text-primary bg-primary/5">
                         {product.category}
@@ -390,7 +558,6 @@ export default function ProductsManagementPage() {
                         {product.stock}
                       </span>
                     </TableCell>
-                    <TableCell className="capitalize text-xs font-medium text-muted-foreground">{product.type}</TableCell>
                     <TableCell className="text-right px-8">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button 
@@ -398,7 +565,12 @@ export default function ProductsManagementPage() {
                           size="icon" 
                           className="rounded-full hover:bg-primary/10 hover:text-primary"
                           onClick={() => {
-                            setEditingProduct(product);
+                            setEditingProduct({
+                              ...product,
+                              specs: product.specs || {},
+                              variants: product.variants || [],
+                              tags: product.tags || []
+                            });
                             setIsDialogOpen(true);
                           }}
                         >
