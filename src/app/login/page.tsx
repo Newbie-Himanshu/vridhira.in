@@ -64,12 +64,12 @@ export default function LoginPage() {
       }, { merge: true });
 
       // By default, everyone is a 'user'. Admins must be promoted by Owner.
+      // We use setDoc with merge: true to avoid overwriting existing roles if logging back in
       setDoc(customerRef, {
         id: user.uid,
         email: user.email,
-        role: 'user', // Forced default role for public registration
-        firstName: displayName || user.displayName || 'Artisan',
-        lastName: 'Enthusiast'
+        firstName: displayName || user.displayName?.split(' ')[0] || 'Artisan',
+        lastName: user.displayName?.split(' ')[1] || 'Enthusiast'
       }, { merge: true });
     }
   }, [user, db, displayName]);

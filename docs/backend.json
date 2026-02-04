@@ -81,7 +81,6 @@
   "auth": {
     "providers": [
       "password",
-      "anonymous",
       "google.com"
     ]
   },
@@ -90,9 +89,9 @@
       "schema": { "$ref": "#/backend/entities/User" },
       "description": "Stores user profile information."
     },
-    "/roles_admin/{userId}": {
+    "/customers/{userId}": {
       "schema": { "type": "object" },
-      "description": "Existence grants admin privileges."
+      "description": "Stores extended user profile and role info."
     },
     "/page_customizations/{settingsId}": {
       "schema": { "$ref": "#/backend/entities/PageCustomization" },

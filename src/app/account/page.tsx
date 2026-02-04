@@ -72,7 +72,7 @@ export default function AccountPage() {
                 <CardTitle className="text-3xl font-headline">{user.displayName || 'Artisan Enthusiast'}</CardTitle>
                 <CardDescription className="text-secondary-foreground/70 flex items-center gap-2">
                   <Mail className="h-3 w-3" />
-                  {user.email || 'Guest User'}
+                  {user.email || 'Verified User'}
                 </CardDescription>
               </div>
             </div>
@@ -86,11 +86,11 @@ export default function AccountPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Access Level</span>
-                  <Badge variant="secondary" className="bg-secondary/10 text-secondary capitalize">{customer?.role || 'Collector'}</Badge>
+                  <Badge variant="secondary" className="bg-secondary/10 text-secondary capitalize">{customer?.role || 'user'}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Account Type</span>
-                  <span className="font-bold">{user.isAnonymous ? 'Guest' : 'Verified'}</span>
+                  <span className="text-muted-foreground">Verification</span>
+                  <span className="font-bold">{user.emailVerified ? 'Verified' : 'Unverified'}</span>
                 </div>
               </div>
 
@@ -101,7 +101,7 @@ export default function AccountPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Joined</span>
-                  <span className="font-bold">{user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'Today'}</span>
+                  <span className="font-bold">{user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'Recently'}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Last Visit</span>
