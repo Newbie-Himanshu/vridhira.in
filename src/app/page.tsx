@@ -41,7 +41,7 @@ export default function LandingPage() {
             </div>
           )}
           {/* Overlay to ensure text readability */}
-          <div className="absolute inset-0 bg-black/20" />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
         
         <div className="container relative z-10 mx-auto text-center text-white space-y-8 md:space-y-10">
@@ -61,12 +61,12 @@ export default function LandingPage() {
           
           <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center pt-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700 w-full max-w-xs sm:max-w-none mx-auto">
             <Link href="/shop" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 px-8 md:px-12 h-14 md:h-16 text-lg md:text-xl font-bold rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect border-none">
+              <Button size="lg" className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 px-10 md:px-14 h-14 md:h-15 text-lg font-bold rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect border-none">
                 Shop the Collection
               </Button>
             </Link>
             <Link href="#our-story" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto text-white border-white/60 hover:bg-white/10 px-8 md:px-12 h-14 md:h-16 text-lg md:text-xl rounded-full backdrop-blur-md transition-all duration-300">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto text-white border-white/80 hover:bg-white/10 px-10 md:px-14 h-14 md:h-15 text-lg font-medium rounded-full backdrop-blur-md transition-all duration-300">
                 Our Story
               </Button>
             </Link>

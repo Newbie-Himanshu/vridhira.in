@@ -1,59 +1,58 @@
-
 {
   "placeholderImages": [
     {
       "id": "hero-artisan",
-      "description": "A close-up of an artisan's hands working with traditional terracotta clay on a potter's wheel",
-      "imageUrl": "https://picsum.photos/seed/artisan-hands-hero/1920/1080",
-      "imageHint": "artisan pottery"
+      "description": "Nostalgic black and white close-up of an elderly artisan weaving on a traditional wooden loom",
+      "imageUrl": "https://picsum.photos/seed/heritage-weaver-bw/1920/1080",
+      "imageHint": "vintage artisan"
     },
     {
       "id": "hero-artisan-mobile",
-      "description": "Vertical portrait of a woman master weaver at her loom in a sunlit village workshop",
-      "imageUrl": "https://picsum.photos/seed/artisan-weaver-mobile/800/1200",
-      "imageHint": "artisan weaving"
+      "description": "Sepia-toned portrait of a master potter working in a sunlit village courtyard",
+      "imageUrl": "https://picsum.photos/seed/vintage-pottery/800/1200",
+      "imageHint": "traditional pottery"
     },
     {
       "id": "global-texture",
-      "description": "Subtle off-white handmade paper or canvas texture for global background",
-      "imageUrl": "https://picsum.photos/seed/heritage-texture/1920/1080",
-      "imageHint": "paper texture"
+      "description": "Subtle aged handmade paper texture with natural fibers",
+      "imageUrl": "https://picsum.photos/seed/aged-paper-texture/1920/1080",
+      "imageHint": "vintage paper"
     },
     {
       "id": "terracotta-pot",
-      "description": "Handcrafted terracotta pot with traditional motifs",
-      "imageUrl": "https://picsum.photos/seed/pot1/600/400",
-      "imageHint": "terracotta pottery"
+      "description": "Hand-painted terracotta vessels with traditional motifs in soft morning light",
+      "imageUrl": "https://picsum.photos/seed/heritage-clay/600/400",
+      "imageHint": "heritage pottery"
     },
     {
       "id": "silk-saree",
-      "description": "Elegant hand-woven Banarasi silk saree",
-      "imageUrl": "https://picsum.photos/seed/saree1/600/400",
-      "imageHint": "silk textile"
+      "description": "Deep crimson Banarasi silk with vintage gold zari patterns",
+      "imageUrl": "https://picsum.photos/seed/antique-silk/600/400",
+      "imageHint": "royal textile"
     },
     {
       "id": "wooden-elephant",
-      "description": "Intricately carved sandalwood elephant",
-      "imageUrl": "https://picsum.photos/seed/elephant1/600/400",
-      "imageHint": "wooden craft"
+      "description": "Finely detailed sandalwood carving with a weathered patina",
+      "imageUrl": "https://picsum.photos/seed/carved-wood-antique/600/400",
+      "imageHint": "wooden heirloom"
     },
     {
       "id": "brass-lamp",
-      "description": "Traditional brass oil lamp with peacock design",
-      "imageUrl": "https://picsum.photos/seed/lamp1/600/400",
-      "imageHint": "brass artifact"
+      "description": "Ancient brass oil lamp with a soft warm glow",
+      "imageUrl": "https://picsum.photos/seed/vintage-brass-lamp/600/400",
+      "imageHint": "antique artifact"
     },
     {
       "id": "mural-painting",
-      "description": "Madhubani style mural painting",
-      "imageUrl": "https://picsum.photos/seed/mural1/600/400",
-      "imageHint": "indian painting"
+      "description": "Madhubani folk art on a rustic clay-washed wall",
+      "imageUrl": "https://picsum.photos/seed/folk-mural/600/400",
+      "imageHint": "traditional art"
     },
     {
       "id": "leather-juttis",
-      "description": "Hand-stitched leather juttis with embroidery",
-      "imageUrl": "https://picsum.photos/seed/shoes1/600/400",
-      "imageHint": "leather footwear"
+      "description": "Classic hand-stitched leather footwear with intricate silk embroidery",
+      "imageUrl": "https://picsum.photos/seed/heritage-shoes/600/400",
+      "imageHint": "leather craft"
     }
   ]
 }
