@@ -27,44 +27,60 @@ service cloud.firestore {
 
     // --- Collection Rules ---
 
+    // Products are publicly readable, writeable only by admins
     match /products/{productId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
+    // Categories are publicly readable, writeable only by admins
     match /categories/{categoryId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
+    // Customer profiles
     match /customers/{customerId} {
-      // Users can see their own profile, admins/owners can see all
       allow read: if isUser(customerId) || isAdmin();
       
-      // Users can create their own profile as 'user'
-      // Owner can update anyone's role.
-      // Store admin cannot update roles.
+      // Allow creation of a basic 'user' profile during sign-up
       allow create: if isUser(customerId) && request.resource.data.role == 'user';
+      
+      // Role updates are restricted to owners
       allow update: if isOwner() || (isUser(customerId) && request.resource.data.role == resource.data.role);
       allow delete: if isOwner();
-    }
 
-    match /customers/{customerId}/orders/{orderId} {
-      allow read: if isUser(customerId) || isAdmin();
-      allow create: if isUser(customerId);
-      allow update: if isAdmin(); // Admins update status
-      allow delete: if isOwner();
-
-      match /order_items/{orderItemId} {
+      // Nested orders
+      match /orders/{orderId} {
         allow read: if isUser(customerId) || isAdmin();
         allow create: if isUser(customerId);
-        allow update, delete: if isAdmin();
+        allow update: if isAdmin();
+        allow delete: if isOwner();
+
+        match /order_items/{orderItemId} {
+          allow read: if isUser(customerId) || isAdmin();
+          allow create: if isUser(customerId);
+          allow update, delete: if isAdmin();
+        }
       }
     }
 
+    // Global settings for UI customization
     match /page_customizations/{pageCustomizationId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // --- Collection Group Rules (Cross-customer queries) ---
+
+    // Allow admins to query orders across all customers (Collection Group)
+    match /{path=**}/orders/{orderId} {
+      allow read: if isAdmin();
+    }
+    
+    // Allow public listing of products regardless of hierarchy if ever moved
+    match /{path=**}/products/{productId} {
+      allow read: if true;
     }
   }
 }

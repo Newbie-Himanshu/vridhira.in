@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -20,8 +21,18 @@ import {
 export function Navbar() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { user } = useUser();
   const db = useFirestore();
+
+  useEffect(() => {
+    setMounted(true);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const customerRef = useMemoFirebase(() => 
     user ? doc(db, 'customers', user.uid) : null, 
@@ -31,14 +42,6 @@ export function Navbar() {
   const { data: customer } = useDoc<Customer>(customerRef);
 
   const isAdmin = customer?.role === 'owner' || customer?.role === 'store admin';
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const navLinks = [
     { href: '/', label: 'Home', icon: Home },
@@ -71,7 +74,7 @@ export function Navbar() {
           </Link>
         </div>
 
-        {/* Center Column: Desktop Navigation (Hidden on Mobile) */}
+        {/* Center Column: Desktop Navigation */}
         <nav className="hidden lg:flex items-center justify-center gap-10 absolute left-1/2 -translate-x-1/2">
           {navLinks.map((link) => (
             <Link
@@ -93,12 +96,10 @@ export function Navbar() {
         {/* Right Column: Actions */}
         <div className="flex-[1_0_0] flex justify-end items-center gap-1 sm:gap-4">
           
-          {/* Search Button (Visible on all devices) */}
           <Button variant="ghost" size="icon" className="flex text-muted-foreground hover:text-primary">
             <Search className="h-5 w-5" />
           </Button>
 
-          {/* Cart Button */}
           <Button variant="ghost" size="icon" className="relative group text-muted-foreground hover:text-primary" asChild>
             <Link href="/cart">
               <ShoppingBag className="h-5 w-5 transition-transform group-hover:-translate-y-0.5" />
@@ -108,27 +109,29 @@ export function Navbar() {
             </Link>
           </Button>
 
-          {/* Sign In / Account (Desktop only - hidden when side menu toggle is present) */}
-          <div className="hidden lg:block">
-            {user ? (
-              <Link href="/account">
-                <Button variant="secondary" size="sm" className="gap-2 bg-secondary text-secondary-foreground hover:opacity-90 rounded-full px-5 h-10 border-none transition-all font-bold">
-                  <User className="h-4 w-4" />
-                  <span className="max-w-[100px] truncate">
-                      {customer?.firstName || 'Account'}
-                  </span>
-                </Button>
-              </Link>
-            ) : (
-              <Link href="/login">
-                <Button variant="secondary" size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-all rounded-full px-7 h-10 font-bold tracking-widest uppercase text-[11px]">
-                  Sign In
-                </Button>
-              </Link>
-            )}
-          </div>
+          {/* Defer account button rendering to avoid hydration mismatch */}
+          {mounted && (
+            <div className="hidden lg:block">
+              {user ? (
+                <Link href="/account">
+                  <Button variant="secondary" size="sm" className="gap-2 bg-secondary text-secondary-foreground hover:opacity-90 rounded-full px-5 h-10 border-none transition-all font-bold">
+                    <User className="h-4 w-4" />
+                    <span className="max-w-[100px] truncate">
+                        {customer?.firstName || 'Account'}
+                    </span>
+                  </Button>
+                </Link>
+              ) : (
+                <Link href="/login">
+                  <Button variant="secondary" size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-all rounded-full px-7 h-10 font-bold tracking-widest uppercase text-[11px]">
+                    Sign In
+                  </Button>
+                </Link>
+              )}
+            </div>
+          )}
 
-          {/* Mobile Menu Toggle (Below LG) */}
+          {/* Mobile Menu Toggle */}
           <div className="lg:hidden">
             <Sheet>
               <SheetTrigger asChild>
@@ -188,22 +191,24 @@ export function Navbar() {
                     </div>
                 </div>
 
-                <div className="p-8 border-t bg-muted/30">
-                    {user ? (
-                        <Link href="/account">
-                            <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold gap-3 shadow-lg">
-                                <User className="h-5 w-5" />
-                                My Account
-                            </Button>
-                        </Link>
-                    ) : (
-                        <Link href="/login">
-                            <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold shadow-lg">
-                                Sign In
-                            </Button>
-                        </Link>
-                    )}
-                </div>
+                {mounted && (
+                  <div className="p-8 border-t bg-muted/30">
+                      {user ? (
+                          <Link href="/account">
+                              <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold gap-3 shadow-lg">
+                                  <User className="h-5 w-5" />
+                                  My Account
+                              </Button>
+                          </Link>
+                      ) : (
+                          <Link href="/login">
+                              <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold shadow-lg">
+                                  Sign In
+                              </Button>
+                          </Link>
+                      )}
+                  </div>
+                )}
               </SheetContent>
             </Sheet>
           </div>
