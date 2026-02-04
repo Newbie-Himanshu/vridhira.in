@@ -79,7 +79,7 @@ export function Navbar() {
         <div className="flex-[1_0_0] flex justify-start">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
-                <div className="absolute inset-0 bg-primary/10 rotate-45 rounded-lg animate-[spin_20s_linear_infinite]" />
+                <div className="absolute inset-0 bg-primary/10 rotate-45 rounded-lg animate-[spin_8s_linear_infinite]" />
                 <span className="relative font-headline font-bold text-2xl text-primary transition-transform duration-300 group-hover:scale-110">V</span>
             </div>
           </Link>
@@ -172,10 +172,10 @@ export function Navbar() {
                 <SheetHeader className="p-8 pb-4 text-left border-b bg-muted/30">
                   <SheetTitle className="font-headline text-3xl text-secondary flex items-center gap-4">
                     <div className="relative w-10 h-10 flex items-center justify-center">
-                        <div className="absolute inset-0 bg-primary rounded-lg animate-[spin_12s_linear_infinite]" />
+                        <div className="absolute inset-0 bg-primary rounded-lg animate-[spin_8s_linear_infinite]" />
                         <span className="relative text-white font-bold text-xl">V</span>
                     </div>
-                    <span className="font-headline font-bold text-2xl tracking-tight">
+                    <span className="font-headline font-bold text-2xl tracking-tight animate-in fade-in slide-in-from-left-4 duration-1000 delay-300">
                       Vridhira
                     </span>
                   </SheetTitle>
@@ -185,16 +185,17 @@ export function Navbar() {
                     <div className="space-y-4">
                         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground px-1">Discover</p>
                         <div className="grid gap-2">
-                            {navLinks.map((link) => (
+                            {navLinks.map((link, idx) => (
                                 <Link
                                     key={link.href}
                                     href={link.href}
                                     className={cn(
-                                        "flex items-center justify-between p-4 rounded-2xl transition-all duration-300",
+                                        "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 animate-in fade-in slide-in-from-right-4",
                                         pathname === link.href 
                                             ? "bg-primary text-white shadow-lg shadow-primary/20" 
                                             : "bg-muted/50 text-secondary hover:bg-muted"
                                     )}
+                                    style={{ animationDelay: `${(idx + 1) * 100}ms` }}
                                 >
                                     <div className="flex items-center gap-4">
                                         <link.icon className="h-5 w-5" />
@@ -209,13 +210,13 @@ export function Navbar() {
                     <div className="space-y-4">
                         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground px-1">Quick Actions</p>
                         <div className="grid grid-cols-2 gap-4">
-                            <Link href="/cart" className="flex flex-col items-center justify-center p-6 bg-muted/50 rounded-2xl gap-2 hover:bg-primary/5 transition-all duration-300 group active:scale-95">
+                            <Link href="/cart" className="flex flex-col items-center justify-center p-6 bg-muted/50 rounded-2xl gap-2 hover:bg-primary/5 transition-all duration-300 group active:scale-95 animate-in fade-in zoom-in-95 duration-700 delay-500">
                                 <div className="p-3 bg-white rounded-xl shadow-sm group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all">
                                     <ShoppingBag className="h-6 w-6 text-primary group-hover:text-white" />
                                 </div>
                                 <span className="font-bold text-secondary">Cart</span>
                             </Link>
-                            <Link href="/search" className="flex flex-col items-center justify-center p-6 bg-muted/50 rounded-2xl gap-2 hover:bg-primary/5 transition-all duration-300 group active:scale-95">
+                            <Link href="/search" className="flex flex-col items-center justify-center p-6 bg-muted/50 rounded-2xl gap-2 hover:bg-primary/5 transition-all duration-300 group active:scale-95 animate-in fade-in zoom-in-95 duration-700 delay-600">
                                 <div className="p-3 bg-white rounded-xl shadow-sm group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all">
                                     <Search className="h-6 w-6 text-primary group-hover:text-white" />
                                 </div>
