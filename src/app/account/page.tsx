@@ -393,141 +393,151 @@ export default function AccountPage() {
         </TabsContent>
 
         <TabsContent value="profile">
-          <Card className="border-none shadow-xl bg-white rounded-[2.5rem] p-8 max-w-2xl mx-auto">
-            <CardHeader className="px-0 pt-0 text-center items-center">
-              <div className="flex items-center gap-6 mb-8">
-                <div className="relative">
-                  <Avatar className="w-32 h-32 rounded-full border-4 border-muted shadow-xl">
-                    <AvatarImage src={user.photoURL || undefined} />
-                    <AvatarFallback className="text-4xl bg-primary text-white font-headline font-bold">{userInitials}</AvatarFallback>
-                  </Avatar>
-                  <Button variant="secondary" size="icon" className="absolute bottom-0 right-0 rounded-full shadow-lg h-10 w-10 bg-white hover:bg-primary hover:text-white transition-all">
-                    <Sparkles className="h-5 w-5" />
-                  </Button>
+          <Card className="border-none shadow-xl bg-white rounded-[2.5rem] p-8 max-w-4xl mx-auto overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+              <div className="md:col-span-1 flex flex-col items-center space-y-6 border-b md:border-b-0 md:border-r pb-8 md:pb-0 md:pr-12 border-border/50">
+                <CardHeader className="px-0 pt-0 text-center items-center">
+                  <div className="relative">
+                    <Avatar className="w-40 h-40 rounded-full border-8 border-muted shadow-2xl">
+                      <AvatarImage src={user.photoURL || undefined} />
+                      <AvatarFallback className="text-5xl bg-primary text-white font-headline font-bold">{userInitials}</AvatarFallback>
+                    </Avatar>
+                    <Button variant="secondary" size="icon" className="absolute bottom-2 right-2 rounded-full shadow-2xl h-12 w-12 bg-white hover:bg-primary hover:text-white transition-all scale-110">
+                      <Sparkles className="h-6 w-6" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <div className="text-center space-y-2">
+                  <h3 className="font-headline font-bold text-xl text-secondary">Profile Identity</h3>
+                  <p className="text-sm text-muted-foreground font-medium">Customize your heritage presence or generate a new avatar.</p>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground font-medium mb-12">Upload / Generate a new avatar</p>
-            </CardHeader>
-            <CardContent className="px-0 pt-6">
-              <form onSubmit={handleUpdateProfile} className="space-y-8">
-                <div className="space-y-3">
-                  <Label htmlFor="displayName" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Display Name</Label>
-                  <Input 
-                    id="displayName"
-                    value={profileData.displayName}
-                    onChange={(e) => setProfileData({ ...profileData, displayName: e.target.value })}
-                    className="h-14 rounded-2xl border-2 bg-muted/20"
-                    placeholder="Your full name"
-                  />
-                </div>
 
-                <div className="space-y-3">
-                  <Label htmlFor="username" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Username</Label>
-                  <div className="relative">
-                    <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      id="username"
-                      value={profileData.username}
-                      onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
-                      className="h-14 rounded-2xl border-2 bg-muted/20 pl-11"
-                      placeholder="username"
-                    />
-                  </div>
-                </div>
+              <div className="md:col-span-2">
+                <CardContent className="px-0 pt-0">
+                  <form onSubmit={handleUpdateProfile} className="space-y-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <Label htmlFor="displayName" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Display Name</Label>
+                        <Input 
+                          id="displayName"
+                          value={profileData.displayName}
+                          onChange={(e) => setProfileData({ ...profileData, displayName: e.target.value })}
+                          className="h-14 rounded-2xl border-2 bg-muted/20"
+                          placeholder="Your full name"
+                        />
+                      </div>
 
-                <div className="space-y-3">
-                  <Label htmlFor="bio" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Bio</Label>
-                  <Textarea 
-                    id="bio"
-                    value={profileData.bio}
-                    onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
-                    className="min-h-[120px] rounded-2xl border-2 bg-muted/20 p-4"
-                    placeholder="Tell us about yourself"
-                  />
-                </div>
+                      <div className="space-y-3">
+                        <Label htmlFor="username" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Username</Label>
+                        <div className="relative">
+                          <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            id="username"
+                            value={profileData.username}
+                            onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
+                            className="h-14 rounded-2xl border-2 bg-muted/20 pl-11"
+                            placeholder="username"
+                          />
+                        </div>
+                      </div>
+                    </div>
 
-                <div className="space-y-3">
-                  <Label htmlFor="address" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Shipping Address</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-4 top-4 h-4 w-4 text-muted-foreground" />
-                    <Textarea 
-                      id="address"
-                      value={profileData.address}
-                      onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
-                      className="min-h-[100px] rounded-2xl border-2 bg-muted/20 pl-11 pt-4"
-                      placeholder="Street, City, Zip Code"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Phone Number</Label>
-                  <div className="flex gap-4">
-                    <div className="relative flex-1">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        id="phone"
-                        value={profileData.phoneNumber}
-                        onChange={(e) => setProfileData({ ...profileData, phoneNumber: e.target.value })}
-                        className="h-14 rounded-2xl border-2 bg-muted/20 pl-11"
-                        placeholder="+91 00000 00000"
+                    <div className="space-y-3">
+                      <Label htmlFor="bio" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Bio</Label>
+                      <Textarea 
+                        id="bio"
+                        value={profileData.bio}
+                        onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+                        className="min-h-[120px] rounded-2xl border-2 bg-muted/20 p-4"
+                        placeholder="Tell us about yourself"
                       />
                     </div>
-                    {!customer?.phoneNumberVerified && profileData.phoneNumber && (
-                      <Button 
-                        type="button" 
-                        variant="secondary" 
-                        className="h-14 rounded-2xl px-6 bg-primary/10 text-primary hover:bg-primary/20"
-                        onClick={() => setShowPhoneVerify(true)}
-                      >
-                        Verify
-                      </Button>
-                    )}
-                    {customer?.phoneNumberVerified && (
-                        <div className="h-14 w-14 rounded-2xl bg-green-50 flex items-center justify-center border border-green-100">
-                            <CheckCircle2 className="h-6 w-6 text-green-500" />
-                        </div>
-                    )}
-                  </div>
-                  {showPhoneVerify && (
-                    <div className="mt-4 p-6 bg-primary/5 rounded-2xl border border-primary/20 animate-in slide-in-from-top-2">
-                        <p className="text-sm font-bold text-secondary mb-4">Verify Phone (Test Code: 123456)</p>
-                        <div className="flex gap-2">
-                            <Input 
-                                placeholder="000000" 
-                                maxLength={6}
-                                value={phoneOtp}
-                                onChange={(e) => setPhoneOtp(e.target.value)}
-                                className="h-12 text-center text-xl font-bold tracking-widest rounded-xl"
-                            />
-                            <Button 
-                                onClick={handleVerifyPhone}
-                                disabled={verifyingPhone}
-                                className="h-12 rounded-xl bg-secondary text-white px-8"
-                            >
-                                {verifyingPhone ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify"}
-                            </Button>
-                            <Button 
-                                variant="ghost" 
-                                onClick={() => setShowPhoneVerify(false)}
-                                className="h-12 rounded-xl"
-                            >
-                                Cancel
-                            </Button>
-                        </div>
-                    </div>
-                  )}
-                </div>
 
-                <Button 
-                    className="w-full h-16 rounded-[2rem] bg-secondary text-white font-bold text-lg shadow-xl hover:scale-[1.02] transition-all" 
-                    disabled={savingProfile}
-                >
-                  {savingProfile ? <Loader2 className="h-5 w-5 animate-spin mr-3" /> : <Save className="h-5 w-5 mr-3" />}
-                  Save Profile Changes
-                </Button>
-              </form>
-            </CardContent>
+                    <div className="space-y-3">
+                      <Label htmlFor="address" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Shipping Address</Label>
+                      <div className="relative">
+                        <MapPin className="absolute left-4 top-4 h-4 w-4 text-muted-foreground" />
+                        <Textarea 
+                          id="address"
+                          value={profileData.address}
+                          onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
+                          className="min-h-[100px] rounded-2xl border-2 bg-muted/20 pl-11 pt-4"
+                          placeholder="Street, City, Zip Code"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Phone Number</Label>
+                      <div className="flex gap-4">
+                        <div className="relative flex-1">
+                          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            id="phone"
+                            value={profileData.phoneNumber}
+                            onChange={(e) => setProfileData({ ...profileData, phoneNumber: e.target.value })}
+                            className="h-14 rounded-2xl border-2 bg-muted/20 pl-11"
+                            placeholder="+91 00000 00000"
+                          />
+                        </div>
+                        {!customer?.phoneNumberVerified && profileData.phoneNumber && (
+                          <Button 
+                            type="button" 
+                            variant="secondary" 
+                            className="h-14 rounded-2xl px-6 bg-primary/10 text-primary hover:bg-primary/20"
+                            onClick={() => setShowPhoneVerify(true)}
+                          >
+                            Verify
+                          </Button>
+                        )}
+                        {customer?.phoneNumberVerified && (
+                            <div className="h-14 w-14 rounded-2xl bg-green-50 flex items-center justify-center border border-green-100">
+                                <CheckCircle2 className="h-6 w-6 text-green-500" />
+                            </div>
+                        )}
+                      </div>
+                      {showPhoneVerify && (
+                        <div className="mt-4 p-6 bg-primary/5 rounded-2xl border border-primary/20 animate-in slide-in-from-top-2">
+                            <p className="text-sm font-bold text-secondary mb-4">Verify Phone (Test Code: 123456)</p>
+                            <div className="flex gap-2">
+                                <Input 
+                                    placeholder="000000" 
+                                    maxLength={6}
+                                    value={phoneOtp}
+                                    onChange={(e) => setPhoneOtp(e.target.value)}
+                                    className="h-12 text-center text-xl font-bold tracking-widest rounded-xl"
+                                />
+                                <Button 
+                                    onClick={handleVerifyPhone}
+                                    disabled={verifyingPhone}
+                                    className="h-12 rounded-xl bg-secondary text-white px-8"
+                                >
+                                    {verifyingPhone ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify"}
+                                </Button>
+                                <Button 
+                                    variant="ghost" 
+                                    onClick={() => setShowPhoneVerify(false)}
+                                    className="h-12 rounded-xl"
+                                >
+                                    Cancel
+                                </Button>
+                            </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <Button 
+                        className="w-full h-16 rounded-[2rem] bg-secondary text-white font-bold text-lg shadow-xl hover:scale-[1.02] transition-all" 
+                        disabled={savingProfile}
+                    >
+                      {savingProfile ? <Loader2 className="h-5 w-5 animate-spin mr-3" /> : <Save className="h-5 w-5 mr-3" />}
+                      Save Profile Changes
+                    </Button>
+                  </form>
+                </CardContent>
+              </div>
+            </div>
           </Card>
         </TabsContent>
 
