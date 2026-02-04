@@ -106,7 +106,7 @@ export default function LoginPage() {
           </div>
           <div className="space-y-2">
             <h1 className="text-3xl font-headline font-bold text-secondary">Join the Heritage</h1>
-            <p className="text-muted-foreground">Direct access to the heart of Indian craftsmanship.</p>
+            <p className="text-muted-foreground text-sm">Direct access to the heart of Indian craftsmanship.</p>
           </div>
         </div>
 
@@ -114,7 +114,7 @@ export default function LoginPage() {
           {/* Featured One-Tap Google Button */}
           <Button 
             variant="outline" 
-            className="w-full h-14 rounded-2xl border-2 font-bold hover:bg-white hover:shadow-lg transition-all duration-300 bg-white shadow-sm flex items-center justify-center text-lg" 
+            className="w-full h-14 rounded-2xl border-2 font-bold hover:bg-white hover:shadow-lg transition-all duration-300 bg-white shadow-sm flex items-center justify-center text-lg animate-pulse-glow shine-effect overflow-hidden" 
             onClick={handleGoogleSignIn}
             disabled={loading}
           >
@@ -126,34 +126,34 @@ export default function LoginPage() {
             <div className="absolute inset-0 flex items-center">
               <Separator className="w-full" />
             </div>
-            <div className="relative flex justify-center text-xs uppercase tracking-[0.2em] font-bold">
+            <div className="relative flex justify-center text-[10px] uppercase tracking-[0.2em] font-bold">
               <span className="bg-background px-4 text-muted-foreground/60">Or use email</span>
             </div>
           </div>
 
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 p-1 rounded-full h-12">
-              <TabsTrigger value="login" className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold">Login</TabsTrigger>
-              <TabsTrigger value="signup" className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold">Sign Up</TabsTrigger>
+              <TabsTrigger value="login" className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold text-xs uppercase tracking-wider">Login</TabsTrigger>
+              <TabsTrigger value="signup" className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold text-xs uppercase tracking-wider">Sign Up</TabsTrigger>
             </TabsList>
 
             <TabsContent value="login">
               <Card className="border-none shadow-2xl bg-white/70 backdrop-blur-md rounded-3xl overflow-hidden">
                 <CardHeader className="pb-4">
-                  <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
-                  <CardDescription>Enter your credentials to access your collection.</CardDescription>
+                  <CardTitle className="font-headline text-xl">Welcome Back</CardTitle>
+                  <CardDescription className="text-xs">Enter your credentials to access your collection.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <form onSubmit={handleSignIn} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider">Email</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input 
                           id="email" 
                           type="email" 
                           placeholder="weaver@heritage.com" 
-                          className="pl-10 h-12 rounded-xl"
+                          className="pl-10 h-12 rounded-xl border-border/50"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
@@ -162,28 +162,28 @@ export default function LoginPage() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="password">Password</Label>
-                        <Button variant="link" size="sm" className="px-0 text-primary h-auto">Forgot password?</Button>
+                        <Label htmlFor="password" className="text-xs font-bold uppercase tracking-wider">Password</Label>
+                        <Button variant="link" size="sm" className="px-0 text-primary h-auto text-[11px] font-bold">Forgot password?</Button>
                       </div>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input 
                           id="password" 
                           type="password" 
-                          className="pl-10 h-12 rounded-xl"
+                          className="pl-10 h-12 rounded-xl border-border/50"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           required
                         />
                       </div>
                     </div>
-                    <Button className="w-full h-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-lg shadow-primary/20 transition-all active:scale-95" disabled={loading}>
+                    <Button className="w-full h-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-sm uppercase tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95 animate-pulse-glow shine-effect overflow-hidden" disabled={loading}>
                       {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
                     </Button>
                   </form>
                 </CardContent>
                 <CardFooter className="flex flex-col gap-2">
-                  <Button variant="ghost" type="button" className="w-full text-muted-foreground hover:text-primary" onClick={handleGuestLogin} disabled={loading}>
+                  <Button variant="ghost" type="button" className="w-full text-muted-foreground hover:text-primary text-xs font-bold" onClick={handleGuestLogin} disabled={loading}>
                     Continue as Guest
                   </Button>
                 </CardFooter>
@@ -193,19 +193,19 @@ export default function LoginPage() {
             <TabsContent value="signup">
               <Card className="border-none shadow-2xl bg-white/70 backdrop-blur-md rounded-3xl overflow-hidden">
                 <CardHeader className="pb-4">
-                  <CardTitle className="font-headline text-2xl">Create Account</CardTitle>
-                  <CardDescription>Join our community of artisanal enthusiasts.</CardDescription>
+                  <CardTitle className="font-headline text-xl">Create Account</CardTitle>
+                  <CardDescription className="text-xs">Join our community of artisanal enthusiasts.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <form onSubmit={handleSignUp} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Display Name</Label>
+                      <Label htmlFor="name" className="text-xs font-bold uppercase tracking-wider">Display Name</Label>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input 
                           id="name" 
                           placeholder="Aarav Sharma" 
-                          className="pl-10 h-12 rounded-xl"
+                          className="pl-10 h-12 rounded-xl border-border/50"
                           value={displayName}
                           onChange={(e) => setDisplayName(e.target.value)}
                           required
@@ -213,14 +213,14 @@ export default function LoginPage() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email-signup">Email</Label>
+                      <Label htmlFor="email-signup" className="text-xs font-bold uppercase tracking-wider">Email</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input 
                           id="email-signup" 
                           type="email" 
                           placeholder="weaver@heritage.com" 
-                          className="pl-10 h-12 rounded-xl"
+                          className="pl-10 h-12 rounded-xl border-border/50"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
@@ -228,20 +228,20 @@ export default function LoginPage() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="password-signup">Password</Label>
+                      <Label htmlFor="password-signup" className="text-xs font-bold uppercase tracking-wider">Password</Label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input 
                           id="password-signup" 
                           type="password" 
-                          className="pl-10 h-12 rounded-xl"
+                          className="pl-10 h-12 rounded-xl border-border/50"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           required
                         />
                       </div>
                     </div>
-                    <Button className="w-full h-12 rounded-2xl bg-secondary text-white font-bold text-lg shadow-lg transition-all active:scale-95" disabled={loading}>
+                    <Button className="w-full h-12 rounded-2xl bg-secondary text-white font-bold text-sm uppercase tracking-widest shadow-lg transition-all active:scale-95 animate-pulse-glow shine-effect overflow-hidden" disabled={loading}>
                       {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Start Journey"}
                     </Button>
                   </form>
@@ -251,9 +251,9 @@ export default function LoginPage() {
           </Tabs>
         </div>
 
-        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground px-8 text-center leading-relaxed">
+        <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground px-8 text-center leading-relaxed font-medium uppercase tracking-tight">
           <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
-          By continuing, you agree to our terms of heritage preservation and artisan support.
+          By continuing, you agree to our terms of heritage preservation.
         </div>
       </div>
     </div>
