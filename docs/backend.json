@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "User": {
@@ -44,6 +43,17 @@
         "id",
         "email"
       ]
+    },
+    "PageCustomization": {
+      "title": "PageCustomization",
+      "type": "object",
+      "properties": {
+        "template": { "type": "string", "enum": ["v0", "modern"] },
+        "showBreadcrumbs": { "type": "boolean" },
+        "showRelatedProducts": { "type": "boolean" },
+        "enableZoom": { "type": "boolean" },
+        "accentColor": { "type": "string" }
+      }
     }
   },
   "auth": {
@@ -54,40 +64,21 @@
     ]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "Stores user profile information. Accessible only to the user themselves. Path-based ownership ensures that only the authenticated user (whose UID matches userId) can read or write their data.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user, matching the Firebase Authentication UID."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/roles_admin/{userId}",
-        "definition": {
-          "entityName": "AdminRole",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "Collection to store admin roles. The existence of a document with a user's ID in this collection grants them admin privileges. No data about the user needs to be duplicated here.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user who has admin privileges. Presence of the document grants admin access."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "This design prioritizes security and scalability for the Vridhira Marketplace. It leverages path-based ownership for user data and a dedicated collection for admin roles. The key principle is Authorization Independence.  User profiles are stored under `/users/{userId}`. This enables simple, secure rules based on `request.auth.uid == userId`.  To manage administrative access to revenue control and order management, a dedicated collection `/roles_admin/{uid}` is used. The existence of a document in this collection grants admin privileges.  This avoids complex role hierarchies. Because this application only deals with basic user information and admin access, denormalization is not applicable. QAPs are supported by segregating user data and admin roles into distinct collections, each with its own security rules, ensuring secure `list` operations. Path based user data is used to restrict user data visibility. DBAC is achieved via the `/roles_admin/{uid}` collection to determine administrative access."
+    "/users/{userId}": {
+      "schema": { "$ref": "#/backend/entities/User" },
+      "description": "Stores user profile information."
+    },
+    "/roles_admin/{userId}": {
+      "schema": { "type": "object" },
+      "description": "Existence grants admin privileges."
+    },
+    "/page_customizations/{settingsId}": {
+      "schema": { "$ref": "#/backend/entities/PageCustomization" },
+      "description": "Global store appearance and branding settings."
+    },
+    "/products/{productId}": {
+      "schema": { "type": "object" },
+      "description": "Public product catalog."
+    }
   }
 }
