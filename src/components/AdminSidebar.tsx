@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -27,8 +26,9 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 const mainNavItems = [
   { label: 'Dashboard', icon: Home, href: '/admin/dashboard' },
@@ -55,116 +55,143 @@ const secondaryNavItems = [
 export function AdminSidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 1024;
-      setIsMobile(mobile);
-      if (mobile) setIsCollapsed(true);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   const toggleSidebar = () => setIsCollapsed(!isCollapsed);
 
-  const renderNavItems = (items: typeof mainNavItems) => (
-    <div className="space-y-1">
-      {items.map((item) => {
-        const isActive = pathname === item.href;
-        return (
-          <TooltipProvider key={item.href} delayDuration={0}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link href={item.href}>
-                  <div
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group relative",
-                      isActive 
-                        ? "bg-primary/10 text-primary" 
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                      isCollapsed && "justify-center px-0"
-                    )}
-                  >
-                    <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
-                    {!isCollapsed && <span className="flex-1 truncate">{item.label}</span>}
-                    {isActive && !isCollapsed && <ChevronRight className="h-4 w-4" />}
-                  </div>
-                </Link>
-              </TooltipTrigger>
-              {isCollapsed && !isMobile && (
-                <TooltipContent side="right" className="font-bold">
-                  {item.label}
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
-        );
-      })}
+  const NavContent = ({ collapsed = false }: { collapsed?: boolean }) => (
+    <div className="flex flex-col h-full bg-white">
+      <div className="flex-1 py-6 px-4 space-y-4 overflow-y-auto scrollbar-hide">
+        <div className="space-y-1">
+          {mainNavItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <TooltipProvider key={item.href} delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href={item.href}>
+                      <div
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group",
+                          isActive 
+                            ? "bg-primary text-white shadow-lg" 
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                          collapsed && "justify-center px-0"
+                        )}
+                      >
+                        <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-white" : "text-muted-foreground group-hover:text-foreground")} />
+                        {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
+                        {isActive && !collapsed && <ChevronRight className="h-4 w-4" />}
+                      </div>
+                    </Link>
+                  </TooltipTrigger>
+                  {collapsed && (
+                    <TooltipContent side="right" className="font-bold">
+                      {item.label}
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })}
+        </div>
+        <div className="pt-4 border-t space-y-1">
+          {secondaryNavItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <TooltipProvider key={item.href} delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href={item.href}>
+                      <div
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group",
+                          isActive 
+                            ? "bg-primary text-white shadow-lg" 
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                          collapsed && "justify-center px-0"
+                        )}
+                      >
+                        <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-white" : "text-muted-foreground group-hover:text-foreground")} />
+                        {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
+                      </div>
+                    </Link>
+                  </TooltipTrigger>
+                  {collapsed && (
+                    <TooltipContent side="right" className="font-bold">
+                      {item.label}
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="p-4 border-t bg-muted/10 space-y-2">
+        <Button 
+          variant="ghost" 
+          className={cn(
+            "w-full justify-start gap-3 text-muted-foreground hover:text-destructive transition-colors rounded-xl",
+            collapsed && "justify-center px-0"
+          )}
+        >
+          <LogOut className="h-4 w-4 shrink-0" />
+          {!collapsed && <span className="truncate">Sign Out</span>}
+        </Button>
+      </div>
     </div>
   );
 
   return (
     <>
-      {/* Sidebar Aside */}
+      {/* Desktop Sidebar - A flex sibling to prevent overlap */}
       <aside 
         className={cn(
-          "sticky top-20 left-0 h-[calc(100vh-80px)] bg-white border-r transition-all duration-300 ease-in-out z-40 flex flex-col shrink-0",
-          isCollapsed ? (isMobile ? "w-0 -translate-x-full border-none" : "w-16") : "w-64 translate-x-0"
+          "hidden lg:flex flex-col border-r bg-white sticky top-20 h-[calc(100vh-80px)] transition-all duration-300 shrink-0 z-30",
+          isCollapsed ? "w-20" : "w-64"
         )}
       >
-        <div className="flex-1 py-6 px-4 space-y-4 overflow-y-auto scrollbar-hide overflow-x-hidden">
-          {renderNavItems(mainNavItems)}
-          <div className="pt-4 border-t">
-            {renderNavItems(secondaryNavItems)}
-          </div>
-        </div>
-
-        <div className="p-4 border-t bg-muted/10 space-y-2">
-          {/* Collapse Toggle Arrow Button */}
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={toggleSidebar}
-            className="w-full h-10 flex items-center justify-center hover:bg-primary/5 text-muted-foreground hover:text-primary transition-colors border-t border-muted-foreground/10 pt-4"
-          >
-            {isCollapsed ? (
-              <ChevronRight className="h-5 w-5" />
-            ) : (
-              <div className="flex items-center gap-2">
-                <ChevronLeft className="h-5 w-5" />
-                <span className="text-[10px] font-bold uppercase tracking-widest">Collapse Menu</span>
-              </div>
-            )}
-          </Button>
-
-          <Button 
-            variant="ghost" 
-            className={cn(
-              "w-full justify-start gap-3 text-muted-foreground hover:text-destructive transition-colors",
-              isCollapsed && "justify-center px-0"
-            )}
-            onClick={() => console.log('Logout')}
-          >
-            <LogOut className="h-4 w-4 shrink-0" />
-            {!isCollapsed && <span className="truncate">Logout</span>}
-          </Button>
-        </div>
+        <NavContent collapsed={isCollapsed} />
+        
+        {/* Toggle Button for Desktop */}
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={toggleSidebar}
+          className="absolute -right-4 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full border bg-white shadow-sm hover:bg-primary hover:text-white transition-all z-50"
+        >
+          {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </Button>
       </aside>
 
-      {/* Floating Mobile Toggle (Visible only when sidebar is hidden on mobile) */}
-      {isMobile && isCollapsed && (
-        <Button 
-          variant="secondary" 
-          size="icon" 
-          onClick={toggleSidebar}
-          className="fixed bottom-6 left-6 rounded-full shadow-2xl z-50 h-14 w-14 lg:hidden bg-primary text-white hover:bg-primary/90 transition-transform active:scale-90"
-        >
-          <Menu className="h-7 w-7" />
-        </Button>
-      )}
+      {/* Mobile FAB and Sheet - No overlapping sidebar on mobile */}
+      <div className="lg:hidden">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button 
+              className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl z-50 bg-secondary text-white hover:bg-secondary/90 animate-pulse-glow border-none"
+              size="icon"
+            >
+              <Menu className="h-7 w-7" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[85vw] sm:max-w-md p-0 overflow-hidden border-none flex flex-col">
+            <SheetHeader className="p-8 pb-4 text-left border-b bg-muted/30">
+              <SheetTitle className="font-headline text-2xl text-secondary flex items-center gap-3">
+                <div className="relative w-10 h-10 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-primary rounded-xl animate-artisanal-rotation" />
+                    <span className="relative text-white font-bold text-xl">V</span>
+                </div>
+                <span>Admin Portal</span>
+              </SheetTitle>
+            </SheetHeader>
+            <div className="flex-1 overflow-y-auto">
+              <NavContent />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
     </>
   );
 }

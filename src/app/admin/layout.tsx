@@ -1,4 +1,3 @@
-
 'use client';
 
 import { AdminSidebar } from '@/components/AdminSidebar';
@@ -46,7 +45,7 @@ export default function AdminLayout({
           If you believe this is an error, please contact the platform owner.
         </p>
         <Link href="/">
-          <Button variant="default" className="bg-primary hover:bg-primary/90">
+          <Button variant="default" className="bg-primary hover:bg-primary/90 rounded-full px-8">
             Return to Marketplace
           </Button>
         </Link>
@@ -55,13 +54,14 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-background pt-20">
+    <div className="flex min-h-screen bg-background pt-20 overflow-x-hidden">
+      {/* Flex container ensures Sidebar and Main Content are siblings, preventing overlap */}
       <AdminSidebar />
-      <div className="flex-1 min-w-0 overflow-x-hidden">
-        <main className="w-full">
+      <main className="flex-1 min-w-0 bg-background/40 backdrop-blur-sm p-4 md:p-8 lg:p-12 animate-in fade-in duration-700">
+        <div className="max-w-7xl mx-auto space-y-8">
           {children}
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
