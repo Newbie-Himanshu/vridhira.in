@@ -6,6 +6,7 @@ import { MOCK_PRODUCTS } from '@/lib/mock-data';
 import { updateCartItemQuantityAction, removeCartItemAction, CartData } from '@/lib/cart-actions';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, Loader2, Sparkles, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -102,7 +103,7 @@ export default function CartPage() {
               key={`${item.productId}-${item.variantId}`} 
               className={cn(
                 "border-none shadow-xl shadow-black/5 overflow-hidden bg-white/60 backdrop-blur-xl rounded-[2.5rem] transition-all duration-500 hover:bg-white hover:-translate-y-1 animate-in fade-in slide-in-from-left-4",
-                "duration-500 delay-[" + (index * 100) + "ms]"
+                "duration-500"
               )}
             >
               <CardContent className="p-8">
