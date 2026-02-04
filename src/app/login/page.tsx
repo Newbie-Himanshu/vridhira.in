@@ -152,14 +152,17 @@ export default function LoginPage() {
     e.preventDefault();
     if (!user) return;
     setLoading(true);
+    setError(null);
     
     // Simulate OTP verification logic
     if (otp === '123456') {
       const customerRef = doc(db, 'customers', user.uid);
       updateDocumentNonBlocking(customerRef, { isVerified: true });
+      // Wait for a moment to allow the Firestore update to propagate locally
+      // and then unset loading so the useEffect can perform the redirection.
       setTimeout(() => {
-        router.push('/');
-      }, 500);
+        setLoading(false);
+      }, 1000);
     } else {
       setError({ message: 'Invalid OTP', hint: 'Please use the test code provided in the hint below.' });
       setLoading(false);
