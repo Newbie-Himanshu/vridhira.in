@@ -9,11 +9,10 @@ import { updateCartItemQuantityAction, removeCartItemAction, getLocalCart, CartD
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, Loader2, Sparkles, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
 
 export default function CartPage() {
   const { user, isUserLoading } = useUser();
@@ -148,19 +147,29 @@ export default function CartPage() {
 
         <div className="lg:col-span-4">
           <div className="sticky top-32">
-            <Card className="border-none shadow-2xl bg-secondary text-secondary-foreground rounded-[3rem] overflow-hidden artisan-pattern">
-              <div className="p-10 space-y-10">
+            <Card className="border-none shadow-2xl bg-secondary text-secondary-foreground rounded-[3rem] overflow-hidden artisan-pattern relative">
+              <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+              <div className="p-10 space-y-10 relative z-10">
                 <div className="space-y-2">
-                  <h2 className="text-3xl font-headline font-bold">Collection Summary</h2>
-                  <p className="text-sm opacity-60">Complete your acquisition to support Indian artisans.</p>
+                  <h2 className="text-3xl font-headline font-bold text-white">Collection Summary</h2>
+                  <p className="text-sm text-white/80">Complete your acquisition to support Indian artisans.</p>
                 </div>
                 <div className="space-y-6">
-                  <div className="flex justify-between items-center"><span className="text-lg opacity-80">Subtotal</span><span className="text-xl font-bold">${subtotal.toFixed(2)}</span></div>
-                  <div className="flex justify-between items-center"><span className="text-lg opacity-80">Heritage Platform Fee</span><span className="text-xl font-bold">${platformFee.toFixed(2)}</span></div>
-                  <Separator className="bg-white/10" />
+                  <div className="flex justify-between items-center text-white">
+                    <span className="text-lg font-medium">Subtotal</span>
+                    <span className="text-xl font-bold">${subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-white">
+                    <span className="text-lg font-medium">Heritage Platform Fee</span>
+                    <span className="text-xl font-bold">${platformFee.toFixed(2)}</span>
+                  </div>
+                  <Separator className="bg-white/20" />
                   <div className="flex justify-between items-center pt-2">
-                    <div className="flex flex-col"><span className="font-headline text-3xl font-bold">Total</span><span className="text-[10px] uppercase tracking-widest opacity-50">Incl. all taxes</span></div>
-                    <span className="text-4xl font-bold text-primary">${total.toFixed(2)}</span>
+                    <div className="flex flex-col text-white">
+                      <span className="font-headline text-3xl font-bold">Total</span>
+                      <span className="text-[10px] uppercase tracking-widest text-white/70">Incl. all taxes</span>
+                    </div>
+                    <span className="text-4xl font-bold text-primary drop-shadow-sm">${total.toFixed(2)}</span>
                   </div>
                 </div>
                 <Button className="w-full h-20 rounded-3xl bg-primary hover:bg-primary/90 text-white font-bold text-xl shadow-2xl animate-pulse-glow shine-effect overflow-hidden">
