@@ -1,10 +1,12 @@
+
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { ShoppingBag, LayoutDashboard, Store, Menu, Home, User, Search, ChevronRight, LogOut } from 'lucide-react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { ShoppingBag, LayoutDashboard, Store, Menu, Home, User, Search, ChevronRight, LogOut, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect } from 'react';
+import { Input } from '@/components/ui/input';
+import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useUser, useDoc, useMemoFirebase, useFirestore, useAuth } from '@/firebase';
 import { doc } from 'firebase/firestore';
@@ -30,12 +32,16 @@ import {
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [localCart, setLocalCart] = useState<CartItem[]>([]);
   const { user } = useUser();
   const auth = useAuth();
   const db = useFirestore();
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -51,6 +57,12 @@ export function Navbar() {
       window.removeEventListener('cart-updated', updateLocal);
     };
   }, []);
+
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
 
   const customerRef = useMemoFirebase(() => 
     user ? doc(db, 'customers', user.uid) : null, 
@@ -85,6 +97,15 @@ export function Navbar() {
     router.push('/');
   };
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+      setSearchQuery('');
+    }
+  };
+
   return (
     <div className="fixed top-0 left-0 w-full z-50 pointer-events-none flex justify-center pt-0 transition-all duration-700 ease-in-out">
       <header className={cn(
@@ -99,15 +120,20 @@ export function Navbar() {
         )}>
           
           <div className="flex-[1_0_0] flex justify-start">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-primary/10 rounded-lg animate-artisanal-rotation" />
-                  <span className="relative font-headline font-bold text-2xl text-primary">V</span>
-              </div>
-            </Link>
+            {!isSearchOpen && (
+              <Link href="/" className="flex items-center gap-2 group">
+                <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-primary/10 rounded-lg animate-artisanal-rotation" />
+                    <span className="relative font-headline font-bold text-2xl text-primary">V</span>
+                </div>
+              </Link>
+            )}
           </div>
 
-          <nav className="hidden lg:flex items-center justify-center gap-10 absolute left-1/2 -translate-x-1/2">
+          <nav className={cn(
+            "hidden lg:flex items-center justify-center gap-10 absolute left-1/2 -translate-x-1/2 transition-opacity duration-300",
+            isSearchOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+          )}>
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -127,9 +153,41 @@ export function Navbar() {
           </nav>
 
           <div className="flex-[1_0_0] flex justify-end items-center gap-1 sm:gap-4">
-            <Button variant="ghost" size="icon" className="flex text-muted-foreground hover:text-primary transition-all">
-              <Search className="h-5 w-5" />
-            </Button>
+            <div className={cn(
+              "flex items-center transition-all duration-500 ease-in-out",
+              isSearchOpen ? "w-full md:w-64 opacity-100" : "w-10 opacity-100"
+            )}>
+              {isSearchOpen ? (
+                <form onSubmit={handleSearchSubmit} className="relative w-full flex items-center animate-in slide-in-from-right-4">
+                  <Input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Search collection..."
+                    className="h-10 w-full rounded-full pl-4 pr-10 border-primary/20 bg-white/50 focus:ring-primary"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="absolute right-1 text-muted-foreground hover:text-destructive"
+                    onClick={() => setIsSearchOpen(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </form>
+              ) : (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="text-muted-foreground hover:text-primary transition-all"
+                  onClick={() => setIsSearchOpen(true)}
+                >
+                  <Search className="h-5 w-5" />
+                </Button>
+              )}
+            </div>
 
             <Button variant="ghost" size="icon" className="relative group text-muted-foreground hover:text-primary transition-all" asChild>
               <Link href="/cart">
@@ -191,20 +249,24 @@ export function Navbar() {
                     </SheetTitle>
                   </SheetHeader>
                   <div className="flex-1 px-8 py-10 space-y-10 overflow-y-auto">
-                      {/* Quick Access Section */}
                       <div className="space-y-4">
                           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1">Quick Access</p>
-                          <div className="grid grid-cols-2 gap-3">
-                              <Button variant="outline" className="h-16 rounded-2xl border-muted-foreground/20 gap-3 justify-start px-6 group">
-                                  <Search className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                                  <span className="font-bold text-sm">Search</span>
-                              </Button>
+                          <form onSubmit={handleSearchSubmit} className="relative w-full">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+                            <Input
+                              placeholder="Search collections..."
+                              className="h-16 rounded-2xl border-muted-foreground/20 pl-12 bg-muted/50 focus:bg-white"
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                          </form>
+                          <div className="grid grid-cols-1 gap-3">
                               <Button variant="outline" className="h-16 rounded-2xl border-muted-foreground/20 gap-3 justify-start px-6 relative group" asChild>
                                   <Link href="/cart">
                                       <ShoppingBag className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                                      <span className="font-bold text-sm">Cart</span>
+                                      <span className="font-bold text-sm">View Cart</span>
                                       {cartCount > 0 && (
-                                        <span className="absolute top-3 right-3 w-5 h-5 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-bold shadow-sm">
+                                        <span className="absolute top-1/2 -translate-y-1/2 right-6 w-6 h-6 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-bold shadow-sm">
                                           {cartCount}
                                         </span>
                                       )}

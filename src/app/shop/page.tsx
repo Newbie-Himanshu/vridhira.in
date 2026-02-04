@@ -1,7 +1,8 @@
 
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { MOCK_PRODUCTS, CATEGORIES, Category } from '@/lib/mock-data';
 import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
@@ -9,8 +10,19 @@ import { Button } from '@/components/ui/button';
 import { Search, SlidersHorizontal, Sparkles } from 'lucide-react';
 
 export default function ShopPage() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
+
+  // Sync search state with URL query parameter
+  useEffect(() => {
+    const query = searchParams.get('q');
+    if (query !== null) {
+      setSearchQuery(query);
+    }
+  }, [searchParams]);
 
   const filteredProducts = useMemo(() => {
     return MOCK_PRODUCTS.filter((product) => {
@@ -24,6 +36,18 @@ export default function ShopPage() {
       return matchesSearch && matchesCategory;
     });
   }, [searchQuery, selectedCategory]);
+
+  const handleSearchChange = (val: string) => {
+    setSearchQuery(val);
+    // Optional: update URL as user types for shareability
+    const params = new URLSearchParams(window.location.search);
+    if (val) {
+      params.set('q', val);
+    } else {
+      params.delete('q');
+    }
+    router.replace(`/shop?${params.toString()}`, { scroll: false });
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -49,7 +73,7 @@ export default function ShopPage() {
             placeholder="Search products, descriptions, or categories..."
             className="pl-10"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
         <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
@@ -89,7 +113,7 @@ export default function ShopPage() {
           <Button
             variant="link"
             onClick={() => {
-              setSearchQuery('');
+              handleSearchChange('');
               setSelectedCategory('All');
             }}
           >
