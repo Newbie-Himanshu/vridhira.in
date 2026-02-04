@@ -13,7 +13,10 @@ service cloud.firestore {
     }
 
     function getRole(userId) {
-      return get(/databases/$(database)/documents/customers/$(userId)).data.role;
+      // Use exists() to prevent errors if the document hasn't been created yet
+      return exists(/databases/$(database)/documents/customers/$(userId)) 
+        ? get(/databases/$(database)/documents/customers/$(userId)).data.role 
+        : 'user';
     }
 
     function isAdmin() {
@@ -29,40 +32,41 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow get: if isOwner(userId) || isAdmin();
-      allow list: if isAdmin();
+      allow get: if isOwner(userId) || isAdmin() || isSpecialAdmin();
+      allow list: if isAdmin() || isSpecialAdmin();
       allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
+      allow update: if isOwner(userId) || isSpecialAdmin();
     }
 
     match /customers/{userId} {
-      allow get: if isOwner(userId) || isAdmin();
-      allow list: if isAdmin();
+      allow get: if isOwner(userId) || isAdmin() || isSpecialAdmin();
+      allow list: if isAdmin() || isSpecialAdmin();
       allow create: if isOwner(userId) && (request.resource.data.role == 'user' || isSpecialAdmin());
-      allow update: if isPlatformOwner() || (isOwner(userId) && (request.resource.data.role == resource.data.role || isSpecialAdmin()));
+      allow update: if isPlatformOwner() || (isOwner(userId) && (request.resource.data.role == resource.data.role || isSpecialAdmin())) || isSpecialAdmin();
     }
 
     match /user_preferences/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read, write: if isOwner(userId) || isSpecialAdmin();
     }
 
     match /page_customizations/{document} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if isAdmin() || isSpecialAdmin();
     }
 
     match /products/{productId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if isAdmin() || isSpecialAdmin();
     }
 
-    match /categories/{categoryId} {
-      allow read: if true;
-      allow write: if isAdmin();
+    match /orders/{orderId} {
+      allow get: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin() || isSpecialAdmin());
+      allow list: if isAdmin() || isSpecialAdmin();
+      allow write: if isAdmin() || isSpecialAdmin();
     }
 
     match /carts/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read, write: if isOwner(userId) || isSpecialAdmin();
     }
   }
 }
