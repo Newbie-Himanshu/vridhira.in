@@ -1,10 +1,9 @@
-
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, Star, ShieldCheck, Heart, Sparkles } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Heart, Sparkles } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { cn } from '@/lib/utils';
 
 export default function LandingPage() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-artisan');
@@ -13,7 +12,7 @@ export default function LandingPage() {
     <div className="flex flex-col gap-20 pb-20">
       {/* Hero Section */}
       <section className="relative w-full h-[85vh] flex items-center justify-center overflow-hidden">
-        {heroImage && (
+        {heroImage?.imageUrl && (
           <Image
             src={heroImage.imageUrl}
             alt={heroImage.description}
@@ -96,12 +95,18 @@ export default function LandingPage() {
             const img = PlaceHolderImages.find(i => i.id === cat.id);
             return (
               <Link key={cat.id} href={`/shop?category=${cat.name}`} className="group relative aspect-[4/5] overflow-hidden rounded-2xl shadow-lg">
-                <Image
-                  src={img?.imageUrl || ''}
-                  alt={cat.name}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
+                {img?.imageUrl ? (
+                  <Image
+                    src={img.imageUrl}
+                    alt={cat.name}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-muted flex items-center justify-center">
+                    <Sparkles className="h-12 w-12 text-muted-foreground/20" />
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-transparent to-transparent flex flex-col justify-end p-8">
                   <h3 className="text-2xl font-headline font-bold text-white">{cat.name}</h3>
                   <p className="text-white/80 text-sm mt-2">{cat.desc}</p>
@@ -171,12 +176,10 @@ export default function LandingPage() {
   );
 }
 
-function Badge({ children, className }: { children: React.ReactNode; className?: string }) {
+function Badge({ children, className, variant }: { children: React.ReactNode; className?: string; variant?: "default" | "secondary" | "destructive" | "outline" }) {
   return (
     <div className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", className)}>
       {children}
     </div>
   );
 }
-
-import { cn } from '@/lib/utils';
