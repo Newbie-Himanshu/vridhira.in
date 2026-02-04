@@ -1,107 +1,70 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /**
-     * Vridhira Marketplace Security Rules
-     * 
-     * Core Philosophy:
-     * This ruleset implements a strict user-ownership model for customer data and orders 
-     * while maintaining a public-read catalog for products and categories. It follows 
-     * a "Prototyping Mode" approach: authorization is strictly enforced based on 
-     * identity and path-based ownership, but data schemas are kept flexible to 
-     * facilitate rapid development.
-     * 
-     * Data Structure:
-     * - Public Catalog: /products and /categories are publicly readable.
-     * - User Data: All customer-specific data is rooted under /customers/{customerId}.
-     * - Order Hierarchy: Orders and their line items are nested under the customer 
-     *   to establish clear, hierarchical ownership.
-     * - Configuration: Page customization settings are stored in a top-level collection.
-     * 
-     * Key Security Decisions:
-     * - Ownership-Based Access: Writing to customer profiles or orders requires 
-     *   the requester's UID to match the customerId in the path.
-     * - Read-Only Catalog: Products and categories are currently read-only for 
-     *   all users.
-     * - Configuration Access: Page customization settings are publicly readable and 
-     *   writable for prototyping purposes to allow immediate visual feedback.
-     */
-
     // --- Helper Functions ---
 
-    /** @description Checks if the request is from an authenticated user. */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /** @description Checks if the authenticated user matches the provided userId. */
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+    function getUserRole() {
+      return get(/databases/$(database)/documents/customers/$(request.auth.uid)).data.role;
     }
 
-    /** @description Checks if the authenticated user is the owner of an existing document. */
-    function isExistingOwner(userId) {
-      return resource != null && isOwner(userId);
+    function isOwner() {
+      return isSignedIn() && getUserRole() == 'owner';
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (getUserRole() == 'store admin' || getUserRole() == 'owner');
+    }
+
+    function isUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
     }
 
     // --- Collection Rules ---
 
-    /**
-     * @description Publicly readable product catalog. Writes are currently restricted.
-     * @path /products/{productId}
-     */
     match /products/{productId} {
-      allow get, list: if true;
-      allow create, update, delete: if false; 
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
-    /**
-     * @description Publicly readable categories for product filtering.
-     * @path /categories/{categoryId}
-     */
     match /categories/{categoryId} {
-      allow get, list: if true;
-      allow create, update, delete: if false; 
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
-    /**
-     * @description Stores sensitive customer profile information.
-     * @path /customers/{customerId}
-     */
     match /customers/{customerId} {
-      allow get, list: if isOwner(customerId);
-      allow create: if isOwner(customerId) && request.resource.data.id == customerId;
-      allow update: if isExistingOwner(customerId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(customerId);
+      // Users can see their own profile, admins/owners can see all
+      allow read: if isUser(customerId) || isAdmin();
+      
+      // Users can create their own profile as 'user'
+      // Owner can update anyone's role.
+      // Store admin cannot update roles.
+      allow create: if isUser(customerId) && request.resource.data.role == 'user';
+      allow update: if isOwner() || (isUser(customerId) && request.resource.data.role == resource.data.role);
+      allow delete: if isOwner();
     }
 
-    /**
-     * @description Customer-owned orders. Nested for clear hierarchical authorization.
-     * @path /customers/{customerId}/orders/{orderId}
-     */
     match /customers/{customerId}/orders/{orderId} {
-      allow get, list: if isOwner(customerId);
-      allow create: if isOwner(customerId) && request.resource.data.customerId == customerId;
-      allow update: if isExistingOwner(customerId) && request.resource.data.customerId == resource.data.customerId;
-      allow delete: if isExistingOwner(customerId);
+      allow read: if isUser(customerId) || isAdmin();
+      allow create: if isUser(customerId);
+      allow update: if isAdmin(); // Admins update status
+      allow delete: if isOwner();
 
       match /order_items/{orderItemId} {
-        allow get, list: if isOwner(customerId);
-        allow create: if isOwner(customerId);
-        allow update: if isExistingOwner(customerId);
-        allow delete: if isExistingOwner(customerId);
+        allow read: if isUser(customerId) || isAdmin();
+        allow create: if isUser(customerId);
+        allow update, delete: if isAdmin();
       }
     }
 
-    /**
-     * @description Admin configuration for marketplace appearance and template versions.
-     * @path /page_customizations/{pageCustomizationId}
-     * @principle Allowed for prototyping to facilitate template switching in the UI.
-     */
     match /page_customizations/{pageCustomizationId} {
-      allow get, list: if true;
-      allow create, update, delete: if true; 
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }

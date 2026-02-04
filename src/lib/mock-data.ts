@@ -1,6 +1,7 @@
 
 export type Category = 'Pottery' | 'Textiles' | 'Decor' | 'Art' | 'Fashion';
 export type ProductType = 'single' | 'variable' | 'group';
+export type UserRole = 'owner' | 'store admin' | 'user';
 
 export interface ProductVariant {
   id: string;
@@ -39,6 +40,15 @@ export interface PageSettings {
   showRelatedProducts: boolean;
   enableZoom: boolean;
   accentColor: string;
+}
+
+export interface Customer {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  address: string;
+  role: UserRole;
 }
 
 export const CATEGORIES: Category[] = ['Pottery', 'Textiles', 'Decor', 'Art', 'Fashion'];

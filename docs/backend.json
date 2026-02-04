@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "Product": {
@@ -163,6 +164,15 @@
         "address": {
           "type": "string",
           "description": "Shipping address of the customer."
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "owner",
+            "store admin",
+            "user"
+          ],
+          "description": "The role of the customer which determines access levels."
         }
       },
       "required": [
@@ -170,7 +180,8 @@
         "firstName",
         "lastName",
         "email",
-        "address"
+        "address",
+        "role"
       ]
     },
     "PageCustomization": {
@@ -214,7 +225,7 @@
           "schema": {
             "$ref": "#/backend/entities/Product"
           },
-          "description": "Stores product information. The 'productId' is the unique identifier for each product.",
+          "description": "Stores product information. Publicly readable, writeable by owner/admin.",
           "params": [
             {
               "name": "productId",
@@ -230,7 +241,7 @@
           "schema": {
             "$ref": "#/backend/entities/Category"
           },
-          "description": "Stores product category information. The 'categoryId' is the unique identifier for each category.",
+          "description": "Stores product category information. Publicly readable, writeable by owner/admin.",
           "params": [
             {
               "name": "categoryId",
@@ -246,7 +257,7 @@
           "schema": {
             "$ref": "#/backend/entities/Order"
           },
-          "description": "Stores order information for each customer.  Nested under /customers/{customerId} to clearly establish ownership. Includes 'customerId' in the order document itself for denormalized access.",
+          "description": "Stores order information. Readable by owner/admin and the owning customer.",
           "params": [
             {
               "name": "customerId",
@@ -255,30 +266,6 @@
             {
               "name": "orderId",
               "description": "The unique identifier of the order."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/customers/{customerId}/orders/{orderId}/order_items/{orderItemId}",
-        "definition": {
-          "entityName": "OrderItem",
-          "schema": {
-            "$ref": "#/backend/entities/OrderItem"
-          },
-          "description": "Stores order item information for each order. Nested under /customers/{customerId}/orders/{orderId} to maintain hierarchical ownership.",
-          "params": [
-            {
-              "name": "customerId",
-              "description": "The unique identifier of the customer."
-            },
-            {
-              "name": "orderId",
-              "description": "The unique identifier of the order."
-            },
-            {
-              "name": "orderItemId",
-              "description": "The unique identifier of the order item."
             }
           ]
         }
@@ -290,7 +277,7 @@
           "schema": {
             "$ref": "#/backend/entities/Customer"
           },
-          "description": "Stores customer information.  The 'customerId' is the unique identifier for each customer.",
+          "description": "Stores customer profile and role. Profile is writeable by user, role is only writeable by owner.",
           "params": [
             {
               "name": "customerId",
@@ -306,7 +293,7 @@
           "schema": {
             "$ref": "#/backend/entities/PageCustomization"
           },
-          "description": "Stores page customization options, allowing admins to select product page templates and configurations. The 'pageCustomizationId' is the unique identifier.",
+          "description": "Stores page customization options. Readable by all, writeable by owner/admin.",
           "params": [
             {
               "name": "pageCustomizationId",
@@ -315,7 +302,6 @@
           ]
         }
       }
-    ],
-    "reasoning": "The Firestore data structure is designed to support the Vridhira Marketplace application, focusing on product listing, shop functionality, order management, and admin customization of product page templates. The design adheres to the core principles of Authorization Independence, Clarity of Intent, DBAC, and QAPs.  Authorization independence is achieved by avoiding `get()` calls in the security rules and denormalizing data where necessary. Hierarchical paths are used for user-owned data (orders), while membership maps are used for collaborative data (though not explicitly required in this design). Segregation is implemented by storing configuration data in a dedicated `page_customizations` collection. The design supports listing operations by ensuring that all documents within a collection share the same security requirements."
+    ]
   }
 }

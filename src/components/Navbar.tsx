@@ -3,21 +3,38 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, LayoutDashboard, Store, Menu, X, Home, Palette } from 'lucide-react';
+import { ShoppingBag, LayoutDashboard, Store, Menu, X, Home, Palette, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useUser, useDoc, useMemoFirebase, useFirestore } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import { Customer } from '@/lib/mock-data';
 
 export function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useUser();
+  const db = useFirestore();
+
+  const customerRef = useMemoFirebase(() => 
+    user ? doc(db, 'customers', user.uid) : null, 
+    [db, user]
+  );
+  
+  const { data: customer } = useDoc<Customer>(customerRef);
+
+  const isAdmin = customer?.role === 'owner' || customer?.role === 'store admin';
 
   const navLinks = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/shop', label: 'Shop', icon: Store },
-    { href: '/admin/dashboard', label: 'Admin', icon: LayoutDashboard },
-    { href: '/admin/customization', label: 'Customize', icon: Palette },
   ];
+
+  if (isAdmin) {
+    navLinks.push({ href: '/admin/dashboard', label: 'Admin', icon: LayoutDashboard });
+    navLinks.push({ href: '/admin/customization', label: 'Customize', icon: Palette });
+  }
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -41,10 +58,22 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
-          <Button variant="secondary" size="sm" className="bg-secondary text-secondary-foreground">
-            <ShoppingBag className="mr-2 h-4 w-4" />
-            Cart
-          </Button>
+          <div className="flex items-center gap-2 ml-4">
+             {user ? (
+               <Button variant="ghost" size="sm" className="gap-2">
+                 <User className="h-4 w-4" />
+                 {customer?.firstName || 'Account'}
+               </Button>
+             ) : (
+               <Link href="/login">
+                 <Button variant="ghost" size="sm">Sign In</Button>
+               </Link>
+             )}
+             <Button variant="secondary" size="sm" className="bg-secondary text-secondary-foreground">
+              <ShoppingBag className="mr-2 h-4 w-4" />
+              Cart
+            </Button>
+          </div>
         </div>
 
         {/* Mobile Nav Toggle */}
