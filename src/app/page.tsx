@@ -98,46 +98,48 @@ export default function LandingPage() {
       </section>
 
       {/* Featured Collections Preview */}
-      <section className="container mx-auto px-4 space-y-12 relative z-10">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-          <div className="space-y-2">
-            <h2 className="text-3xl md:text-5xl font-headline font-bold text-secondary">Featured Collections</h2>
-            <p className="text-base md:text-lg text-muted-foreground max-w-xl">Handpicked selections from our diverse craft categories.</p>
+      <section className="container mx-auto px-4 py-20 md:py-32 space-y-16 relative z-10 bg-background/80 backdrop-blur-sm rounded-[4rem] shadow-2xl border border-white/10">
+        <div className="max-w-6xl mx-auto px-4 space-y-12">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+            <div className="space-y-2">
+              <h2 className="text-3xl md:text-5xl font-headline font-bold text-secondary">Featured Collections</h2>
+              <p className="text-base md:text-lg text-muted-foreground max-w-xl">Handpicked selections from our diverse craft categories.</p>
+            </div>
+            <Link href="/shop" className="flex items-center gap-2 text-primary text-lg font-bold hover:gap-4 transition-all duration-300 hover:underline">
+              View All <ArrowRight className="h-5 w-5" />
+            </Link>
           </div>
-          <Link href="/shop" className="flex items-center gap-2 text-primary text-lg font-bold hover:gap-4 transition-all duration-300 hover:underline">
-            View All <ArrowRight className="h-5 w-5" />
-          </Link>
-        </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-          {[
-            { id: 'silk-saree', name: 'Royal Textiles', desc: 'Hand-woven silks from Varanasi' },
-            { id: 'terracotta-pot', name: 'Earth & Clay', desc: 'Terracotta from the Gangetic plains' },
-            { id: 'mural-painting', name: 'Sacred Art', desc: 'Madhubani & Pattachitra originals' }
-          ].map((cat) => {
-            const img = PlaceHolderImages.find(i => i.id === cat.id);
-            return (
-              <Link key={cat.id} href={`/shop?category=${cat.name}`} className="group relative aspect-[3/4] overflow-hidden rounded-[2.5rem] shadow-2xl transition-all duration-500 hover:shadow-primary/20 hover:-translate-y-4">
-                {img?.imageUrl ? (
-                  <Image
-                    src={img.imageUrl}
-                    alt={cat.name}
-                    fill
-                    className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                    data-ai-hint={img.imageHint}
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-muted flex items-center justify-center">
-                    <Sparkles className="h-10 w-10 text-muted-foreground/20" />
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+            {[
+              { id: 'silk-saree', name: 'Royal Textiles', desc: 'Hand-woven silks from Varanasi' },
+              { id: 'terracotta-pot', name: 'Earth & Clay', desc: 'Terracotta from the Gangetic plains' },
+              { id: 'mural-painting', name: 'Sacred Art', desc: 'Madhubani & Pattachitra originals' }
+            ].map((cat) => {
+              const img = PlaceHolderImages.find(i => i.id === cat.id);
+              return (
+                <Link key={cat.id} href={`/shop?category=${cat.name}`} className="group relative aspect-[3/4] overflow-hidden rounded-[2.5rem] shadow-2xl transition-all duration-500 hover:shadow-primary/20 hover:-translate-y-4">
+                  {img?.imageUrl ? (
+                    <Image
+                      src={img.imageUrl}
+                      alt={cat.name}
+                      fill
+                      className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                      data-ai-hint={img.imageHint}
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-muted flex items-center justify-center">
+                      <Sparkles className="h-10 w-10 text-muted-foreground/20" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-secondary/95 via-secondary/20 to-transparent flex flex-col justify-end p-8 transition-opacity duration-300">
+                    <h3 className="text-2xl md:text-3xl font-headline font-bold text-white group-hover:translate-x-2 transition-transform duration-300">{cat.name}</h3>
+                    <p className="text-white/90 text-xs md:text-base mt-3 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 font-light">{cat.desc}</p>
                   </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-secondary/95 via-secondary/20 to-transparent flex flex-col justify-end p-8 transition-opacity duration-300">
-                  <h3 className="text-2xl md:text-3xl font-headline font-bold text-white group-hover:translate-x-2 transition-transform duration-300">{cat.name}</h3>
-                  <p className="text-white/90 text-xs md:text-base mt-3 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 font-light">{cat.desc}</p>
-                </div>
-              </Link>
-            )
-          })}
+                </Link>
+              )
+            })}
+          </div>
         </div>
       </section>
 
