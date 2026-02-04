@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Lock, User, Loader2, ShieldCheck, AlertCircle, PhoneIncoming, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, Loader2, ShieldCheck, AlertCircle, PhoneIncoming, CheckCircle2, Info } from 'lucide-react';
 import { doc, serverTimestamp } from 'firebase/firestore';
 import { syncLocalCartToCloud } from '@/lib/cart-actions';
 import { Separator } from '@/components/ui/separator';
@@ -138,8 +138,8 @@ export default function LoginPage() {
           email: u.email,
           firstName: u.displayName?.split(' ')[0] || 'Artisan',
           lastName: u.displayName?.split(' ')[1] || 'Enthusiast',
-          role: 'user'
-          // Note: isVerified is purposely omitted here to trigger OTP for all registrations
+          role: 'user',
+          isVerified: false
         }, { merge: true });
       })
       .catch((err: any) => {
@@ -161,7 +161,7 @@ export default function LoginPage() {
         router.push('/');
       }, 500);
     } else {
-      setError({ message: 'Invalid OTP', hint: 'Please use the test code: 123456' });
+      setError({ message: 'Invalid OTP', hint: 'Please use the test code provided in the hint below.' });
       setLoading(false);
     }
   };
@@ -193,7 +193,7 @@ export default function LoginPage() {
                 <PhoneIncoming className="h-8 w-8 text-primary" />
               </div>
               <CardTitle className="text-2xl font-headline font-bold text-secondary">Verify Identity</CardTitle>
-              <CardDescription>A 6-digit verification code was sent to your email.</CardDescription>
+              <CardDescription>A 6-digit verification code was sent to your account.</CardDescription>
             </CardHeader>
             <CardContent className="p-8 space-y-6">
               {error && (
@@ -203,6 +203,15 @@ export default function LoginPage() {
                   <AlertDescription>{error.hint}</AlertDescription>
                 </Alert>
               )}
+              
+              <Alert className="bg-primary/5 border-primary/20 rounded-2xl">
+                <Info className="h-4 w-4 text-primary" />
+                <AlertTitle className="text-xs font-bold uppercase tracking-wider">Heritage Verification</AlertTitle>
+                <AlertDescription className="text-xs italic">
+                  Note: This is a prototype. Please use the test code: <strong className="text-primary font-bold">123456</strong> to proceed.
+                </AlertDescription>
+              </Alert>
+
               <form onSubmit={handleVerifyOtp} className="space-y-6">
                 <div className="space-y-3">
                   <Label className="uppercase tracking-[0.2em] text-[10px] font-bold text-muted-foreground">One-Time Password</Label>
