@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -132,6 +133,14 @@ export function Navbar() {
     }
   };
 
+  const isLandingPage = pathname === '/';
+  const showTransparent = isLandingPage && !isScrolled;
+
+  const textColor = showTransparent ? "text-white" : "text-secondary";
+  const mutedTextColor = showTransparent ? "text-white/70" : "text-muted-foreground";
+  const logoTextColor = showTransparent ? "text-white" : "text-primary";
+  const navUnderline = showTransparent ? "bg-white" : "bg-primary";
+
   const normalizedQuery = searchQuery.toLowerCase().trim();
   const hasMinQuery = normalizedQuery.length > 1;
 
@@ -151,8 +160,8 @@ export function Navbar() {
       <header className={cn(
         "pointer-events-auto transition-all duration-700 ease-in-out flex items-center justify-center",
         isScrolled 
-          ? "mt-4 w-[92%] md:w-[70%] max-w-6xl h-16 bg-background/80 backdrop-blur-md rounded-full border border-border/50 shadow-2xl" 
-          : "w-full h-20 bg-background border-b border-transparent shadow-none rounded-none"
+          ? "mt-4 w-[92%] md:w-[70%] max-w-6xl h-16 bg-background/60 backdrop-blur-2xl rounded-full border border-white/20 shadow-2xl" 
+          : "w-full h-20 bg-transparent border-b border-transparent shadow-none rounded-none"
       )}>
         <div className={cn(
           "w-full px-6 h-full flex items-center relative transition-all duration-700",
@@ -162,8 +171,14 @@ export function Navbar() {
           <div className="flex-[1_0_0] flex justify-start">
             <Link href="/" className="flex items-center gap-2 group pointer-events-auto">
               <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-primary/10 rounded-lg animate-artisanal-rotation" />
-                  <span className="relative font-headline font-bold text-2xl text-primary">V</span>
+                  <div className={cn(
+                    "absolute inset-0 rounded-lg animate-artisanal-rotation transition-colors duration-500",
+                    showTransparent ? "bg-white/20" : "bg-primary/10"
+                  )} />
+                  <span className={cn(
+                    "relative font-headline font-bold text-2xl transition-colors duration-500",
+                    logoTextColor
+                  )}>V</span>
               </div>
             </Link>
           </div>
@@ -172,12 +187,17 @@ export function Navbar() {
             {isSearchOpen ? (
               <div className="w-full max-w-lg animate-in fade-in zoom-in-95 duration-300 relative">
                 <form onSubmit={handleSearchSubmit} className="relative w-full flex items-center">
-                  <Search className="absolute left-4 h-4 w-4 text-primary" />
+                  <Search className={cn("absolute left-4 h-4 w-4", showTransparent ? "text-white" : "text-primary")} />
                   <Input
                     ref={searchInputRef}
                     type="text"
                     placeholder="Search treasures, categories, origins..."
-                    className="h-11 w-full rounded-full pl-11 pr-12 border-primary/30 bg-white/50 focus:ring-primary shadow-lg backdrop-blur-sm"
+                    className={cn(
+                      "h-11 w-full rounded-full pl-11 pr-12 border-transparent transition-all duration-500 shadow-lg backdrop-blur-sm",
+                      showTransparent 
+                        ? "bg-white/10 text-white placeholder:text-white/50 focus:bg-white/20" 
+                        : "bg-white/50 border-primary/30 text-secondary focus:ring-primary"
+                    )}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -185,7 +205,10 @@ export function Navbar() {
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="absolute right-1.5 h-8 w-8 text-muted-foreground hover:text-destructive rounded-full"
+                    className={cn(
+                      "absolute right-1.5 h-8 w-8 rounded-full",
+                      showTransparent ? "text-white/70 hover:text-white" : "text-muted-foreground hover:text-destructive"
+                    )}
                     onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}
                   >
                     <X className="h-4 w-4" />
@@ -255,13 +278,14 @@ export function Navbar() {
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      "relative py-1 text-xs font-bold transition-all hover:text-primary tracking-widest uppercase group pointer-events-auto",
-                      pathname === link.href ? "text-primary" : "text-muted-foreground"
+                      "relative py-1 text-xs font-bold transition-all tracking-widest uppercase group pointer-events-auto duration-500",
+                      pathname === link.href ? (showTransparent ? "text-white" : "text-primary") : (showTransparent ? "text-white/70 hover:text-white" : "text-muted-foreground hover:text-primary")
                     )}
                   >
                     {link.label}
                     <span className={cn(
-                      "absolute -bottom-1 left-0 h-0.5 bg-primary rounded-full transition-all duration-300",
+                      "absolute -bottom-1 left-0 h-0.5 rounded-full transition-all duration-300",
+                      navUnderline,
                       pathname === link.href ? "w-full" : "w-0 group-hover:w-full"
                     )} />
                   </Link>
@@ -276,7 +300,10 @@ export function Navbar() {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="text-muted-foreground hover:text-primary transition-all rounded-full"
+                  className={cn(
+                    "transition-all rounded-full",
+                    showTransparent ? "text-white/80 hover:text-white" : "text-muted-foreground hover:text-primary"
+                  )}
                   onClick={() => setIsSearchOpen(true)}
                 >
                   <Search className="h-5 w-5" />
@@ -284,11 +311,22 @@ export function Navbar() {
               )}
             </div>
 
-            <Button variant="ghost" size="icon" className="relative group text-muted-foreground hover:text-primary transition-all rounded-full pointer-events-auto" asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className={cn(
+                "relative group transition-all rounded-full pointer-events-auto",
+                showTransparent ? "text-white/80 hover:text-white" : "text-muted-foreground hover:text-primary"
+              )} 
+              asChild
+            >
               <Link href="/cart">
                 <ShoppingBag className="h-5 w-5" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-bold shadow-lg ring-2 ring-background">
+                  <span className={cn(
+                    "absolute -top-1 -right-1 w-4 h-4 text-[10px] flex items-center justify-center rounded-full font-bold shadow-lg ring-2",
+                    showTransparent ? "bg-white text-secondary ring-black/20" : "bg-primary text-white ring-background"
+                  )}>
                     {cartCount}
                   </span>
                 )}
@@ -300,7 +338,16 @@ export function Navbar() {
                 {user ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="secondary" size="sm" className="gap-2 bg-secondary text-secondary-foreground hover:opacity-90 rounded-full px-5 h-10 shadow-md">
+                      <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        className={cn(
+                          "gap-2 rounded-full px-5 h-10 shadow-md transition-all duration-500",
+                          showTransparent 
+                            ? "bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm" 
+                            : "bg-secondary text-secondary-foreground hover:opacity-90"
+                        )}
+                      >
                         <User className="h-4 w-4" />
                         <span className="max-w-[100px] truncate">{user.displayName || 'Account'}</span>
                       </Button>
@@ -318,7 +365,16 @@ export function Navbar() {
                   </DropdownMenu>
                 ) : (
                   <Link href="/login">
-                    <Button variant="secondary" size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-7 h-10 font-bold uppercase text-[11px] shadow-lg animate-pulse-glow shine-effect">
+                    <Button 
+                      variant="secondary" 
+                      size="sm" 
+                      className={cn(
+                        "rounded-full px-7 h-10 font-bold uppercase text-[11px] shadow-lg animate-pulse-glow shine-effect transition-all duration-500",
+                        showTransparent 
+                          ? "bg-white text-secondary hover:bg-white/90" 
+                          : "bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                      )}
+                    >
                       Sign In
                     </Button>
                   </Link>
@@ -329,7 +385,14 @@ export function Navbar() {
             <div className="lg:hidden pointer-events-auto">
               <Sheet onOpenChange={(open) => { if(!open) setIsMobileSearchActive(false); }}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-secondary rounded-full">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={cn(
+                      "rounded-full transition-all duration-500",
+                      showTransparent ? "text-white" : "text-secondary"
+                    )}
+                  >
                     <Menu className="h-7 w-7" />
                   </Button>
                 </SheetTrigger>
