@@ -113,7 +113,10 @@ export default function ProductsManagementPage() {
 
   const handleSaveProduct = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingProduct?.title || !editingProduct?.price) return;
+    if (!editingProduct?.title) {
+        toast({ variant: "destructive", title: "Validation Error", description: "Product title is required." });
+        return;
+    }
 
     const id = editingProduct.id || doc(collection(db, 'products')).id;
     const productRef = doc(db, 'products', id);
@@ -121,20 +124,24 @@ export default function ProductsManagementPage() {
     const finalData: Product = {
       ...editingProduct as Product,
       id,
-      price: Number(editingProduct.price),
-      salePrice: editingProduct.salePrice ? Number(editingProduct.salePrice) : undefined,
-      discountPercentage: editingProduct.discountPercentage ? Number(editingProduct.discountPercentage) : undefined,
-      stock: Number(editingProduct.stock || 0),
+      price: editingProduct.price !== undefined ? Number(editingProduct.price) : 0,
+      salePrice: editingProduct.salePrice !== undefined ? Number(editingProduct.salePrice) : undefined,
+      discountPercentage: editingProduct.discountPercentage !== undefined ? Number(editingProduct.discountPercentage) : undefined,
+      stock: editingProduct.stock !== undefined ? Number(editingProduct.stock) : 0,
       type: (editingProduct.type || 'single') as ProductType,
       category: (editingProduct.category || 'Decor') as Category,
-      tags: typeof editingProduct.tags === 'string' ? (editingProduct.tags as string).split(',').map(t => t.trim()) : (editingProduct.tags || []),
+      tags: typeof editingProduct.tags === 'string' 
+        ? (editingProduct.tags as string).split(',').map(t => t.trim()).filter(Boolean) 
+        : (editingProduct.tags || []),
+      variants: editingProduct.variants || [],
+      specs: editingProduct.specs || {},
     };
 
     setDocumentNonBlocking(productRef, finalData, { merge: true });
     
     toast({
-      title: editingProduct.id ? "Product Updated" : "Product Created",
-      description: `${finalData.title} has been saved to the heritage catalog.`,
+      title: editingProduct.id ? "Listing Updated" : "New Listing Created",
+      description: `"${finalData.title}" has been saved to the heritage catalog.`,
     });
     
     setIsDialogOpen(false);
@@ -461,7 +468,7 @@ export default function ProductsManagementPage() {
                             id="price" 
                             type="number" 
                             step="0.01"
-                            value={editingProduct?.price || ''} 
+                            value={editingProduct?.price !== undefined ? editingProduct.price : ''} 
                             onChange={(e) => handlePriceChange('price', Number(e.target.value))}
                             required
                           />
@@ -471,7 +478,7 @@ export default function ProductsManagementPage() {
                           <Input 
                             id="stock" 
                             type="number" 
-                            value={editingProduct?.stock || ''} 
+                            value={editingProduct?.stock !== undefined ? editingProduct.stock : ''} 
                             onChange={(e) => setEditingProduct({ ...editingProduct, stock: Number(e.target.value) })}
                             required
                           />
@@ -487,7 +494,7 @@ export default function ProductsManagementPage() {
                             id="salePrice" 
                             type="number" 
                             step="0.01"
-                            value={editingProduct?.salePrice || ''} 
+                            value={editingProduct?.salePrice !== undefined ? editingProduct.salePrice : ''} 
                             onChange={(e) => handlePriceChange('salePrice', Number(e.target.value))}
                             className="border-primary/20 focus:border-primary bg-white"
                             placeholder="Optional"
@@ -500,7 +507,7 @@ export default function ProductsManagementPage() {
                           <Input 
                             id="discount" 
                             type="number" 
-                            value={editingProduct?.discountPercentage || ''} 
+                            value={editingProduct?.discountPercentage !== undefined ? editingProduct.discountPercentage : ''} 
                             onChange={(e) => handlePriceChange('discountPercentage', Number(e.target.value))}
                             className="border-primary/20 focus:border-primary bg-white"
                             placeholder="Auto-calc"
@@ -701,7 +708,7 @@ export default function ProductsManagementPage() {
                       </span>
                     </TableCell>
                     <TableCell className="text-right px-8">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex justify-end gap-2">
                         <Button 
                           variant="ghost" 
                           size="icon" 
