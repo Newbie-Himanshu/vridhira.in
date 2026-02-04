@@ -240,7 +240,7 @@ export function Navbar() {
                     </div>
                   ) : (
                     <Link href="/login">
-                      <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold shadow-lg hover:opacity-90 transition-all active:scale-95 shine-effect animate-pulse-glow">
+                      <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold shadow-[0_0_20px_hsl(var(--primary)/0.4)] hover:opacity-90 transition-all active:scale-95 shine-effect animate-pulse-glow">
                         Sign In
                       </Button>
                     </Link>
