@@ -11,9 +11,9 @@ export default function LandingPage() {
   const heroMobile = PlaceHolderImages.find(img => img.id === 'hero-artisan-mobile');
 
   return (
-    <div className="flex flex-col gap-12 md:gap-20 pb-20">
+    <div className="flex flex-col gap-12 md:gap-24 pb-20">
       {/* Hero Section */}
-      <section className="relative w-full h-[75vh] md:h-[85vh] flex items-center justify-center overflow-hidden">
+      <section className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden py-20">
         <div className="absolute inset-0 z-0">
           {/* Desktop Image */}
           {heroDesktop && (
@@ -23,7 +23,7 @@ export default function LandingPage() {
                 alt={heroDesktop.description}
                 fill
                 priority
-                className="object-cover brightness-[0.45] scale-105 animate-in zoom-in-125 duration-1000"
+                className="object-cover brightness-[0.4] scale-105 animate-in zoom-in-125 duration-1000"
                 data-ai-hint={heroDesktop.imageHint}
               />
             </div>
@@ -36,84 +36,87 @@ export default function LandingPage() {
                 alt={heroMobile.description}
                 fill
                 priority
-                className="object-cover brightness-[0.45] scale-105 animate-in zoom-in-125 duration-1000"
+                className="object-cover brightness-[0.4] scale-105 animate-in zoom-in-125 duration-1000"
                 data-ai-hint={heroMobile.imageHint}
               />
             </div>
           )}
         </div>
         
-        <div className="container relative z-10 mx-auto px-4 text-center text-white space-y-6 md:space-y-8">
-          <Badge className="bg-primary hover:bg-primary text-white border-none px-4 py-1.5 text-xs md:text-sm uppercase tracking-[0.2em] animate-in fade-in slide-in-from-top-4 duration-700">
+        <div className="container relative z-10 mx-auto px-4 text-center text-white space-y-8">
+          <Badge className="bg-primary hover:bg-primary text-white border-none px-6 py-2 text-xs md:text-sm uppercase tracking-[0.3em] animate-in fade-in slide-in-from-top-4 duration-700">
             Handcrafted Heritage
           </Badge>
-          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-headline font-bold drop-shadow-2xl max-w-5xl mx-auto leading-[1.1] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+          <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-headline font-bold drop-shadow-2xl max-w-6xl mx-auto leading-[1] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
             Preserving Souls in Every Stitch
           </h1>
-          <p className="text-base md:text-xl max-w-2xl mx-auto opacity-90 font-body animate-in fade-in duration-1000 delay-500 line-clamp-3 md:line-clamp-none">
+          <p className="text-lg md:text-2xl max-w-3xl mx-auto opacity-90 font-body animate-in fade-in duration-1000 delay-500 leading-relaxed">
             Directly support authentic Indian artisans. Discover timeless treasures that carry the heartbeat of centuries-old traditions.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 md:pt-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700 w-full max-w-sm sm:max-w-none mx-auto">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700 w-full max-w-lg sm:max-w-none mx-auto">
             <Link href="/shop" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full bg-primary text-white hover:bg-primary/90 px-8 py-6 md:py-7 text-lg font-bold rounded-full shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect">
+              <Button size="lg" className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 px-12 h-16 md:h-20 text-xl font-bold rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect">
                 Shop the Collection
               </Button>
             </Link>
             <Link href="#our-story" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full text-white border-white hover:bg-white/10 px-8 py-6 md:py-7 text-lg rounded-full backdrop-blur-sm transition-all duration-300">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto text-white border-white/40 hover:bg-white/10 px-12 h-16 md:h-20 text-xl rounded-full backdrop-blur-md transition-all duration-300">
                 Our Story
               </Button>
             </Link>
           </div>
         </div>
+        
+        {/* Subtle Bottom Fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-10" />
       </section>
 
       {/* Trust Markers */}
       <section className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 text-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16 text-center">
           {[
             { icon: ShieldCheck, title: "100% Authentic", text: "Certified products directly sourced from verified master craftsmen." },
             { icon: Heart, title: "Fair Trade", text: "85%+ of the sale value goes directly back to the artisan community." },
             { icon: Sparkles, title: "Heirloom Quality", text: "Slow-made pieces designed to last generations, not just seasons." }
           ].map((item, idx) => (
-            <div key={idx} className="space-y-3 group hover:scale-105 transition-transform duration-300 p-6 rounded-3xl hover:bg-white hover:shadow-xl">
-              <div className="mx-auto w-14 h-14 md:w-16 md:h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-500">
-                <item.icon className="h-7 w-7 md:h-8 md:w-8" />
+            <div key={idx} className="space-y-4 group hover:scale-105 transition-transform duration-300 p-8 rounded-3xl hover:bg-white hover:shadow-2xl">
+              <div className="mx-auto w-16 h-16 md:w-20 md:h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-500">
+                <item.icon className="h-8 w-8 md:h-10 md:w-10" />
               </div>
-              <h3 className="text-lg md:text-xl font-headline font-bold text-secondary">{item.title}</h3>
-              <p className="text-sm md:text-base text-muted-foreground">{item.text}</p>
+              <h3 className="text-xl md:text-2xl font-headline font-bold text-secondary">{item.title}</h3>
+              <p className="text-base text-muted-foreground leading-relaxed">{item.text}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Featured Collections Preview */}
-      <section className="container mx-auto px-4 space-y-8 md:space-y-10">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+      <section className="container mx-auto px-4 space-y-12">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
-            <h2 className="text-3xl md:text-4xl font-headline font-bold text-secondary">Featured Collections</h2>
-            <p className="text-muted-foreground">Handpicked selections from our diverse craft categories.</p>
+            <h2 className="text-4xl md:text-5xl font-headline font-bold text-secondary">Featured Collections</h2>
+            <p className="text-lg text-muted-foreground mt-2">Handpicked selections from our diverse craft categories.</p>
           </div>
-          <Link href="/shop" className="flex items-center gap-2 text-primary font-bold hover:gap-4 transition-all duration-300 hover:underline">
-            View All <ArrowRight className="h-4 w-4" />
+          <Link href="/shop" className="flex items-center gap-2 text-primary text-lg font-bold hover:gap-4 transition-all duration-300 hover:underline">
+            View All <ArrowRight className="h-5 w-5" />
           </Link>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
           {[
             { id: 'silk-saree', name: 'Royal Textiles', desc: 'Hand-woven silks from Varanasi' },
             { id: 'terracotta-pot', name: 'Earth & Clay', desc: 'Terracotta from the Gangetic plains' },
             { id: 'mural-painting', name: 'Sacred Art', desc: 'Madhubani & Pattachitra originals' }
-          ].map((cat, idx) => {
+          ].map((cat) => {
             const img = PlaceHolderImages.find(i => i.id === cat.id);
             return (
-              <Link key={cat.id} href={`/shop?category=${cat.name}`} className="group relative aspect-[4/5] overflow-hidden rounded-3xl shadow-lg transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
+              <Link key={cat.id} href={`/shop?category=${cat.name}`} className="group relative aspect-[3/4] overflow-hidden rounded-[2.5rem] shadow-xl transition-all duration-500 hover:shadow-2xl hover:-translate-y-3">
                 {img?.imageUrl ? (
                   <Image
                     src={img.imageUrl}
                     alt={cat.name}
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="object-cover transition-transform duration-1000 group-hover:scale-110"
                     data-ai-hint={img.imageHint}
                   />
                 ) : (
@@ -121,9 +124,9 @@ export default function LandingPage() {
                     <Sparkles className="h-12 w-12 text-muted-foreground/20" />
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-secondary/90 via-secondary/20 to-transparent flex flex-col justify-end p-6 md:p-8 transition-opacity duration-300">
-                  <h3 className="text-xl md:text-2xl font-headline font-bold text-white group-hover:translate-x-2 transition-transform duration-300">{cat.name}</h3>
-                  <p className="text-white/80 text-xs md:text-sm mt-2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">{cat.desc}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-secondary/95 via-secondary/30 to-transparent flex flex-col justify-end p-8 md:p-10 transition-opacity duration-300">
+                  <h3 className="text-2xl md:text-3xl font-headline font-bold text-white group-hover:translate-x-2 transition-transform duration-300">{cat.name}</h3>
+                  <p className="text-white/80 text-sm md:text-base mt-3 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">{cat.desc}</p>
                 </div>
               </Link>
             )
@@ -132,11 +135,11 @@ export default function LandingPage() {
       </section>
 
       {/* Impact Story */}
-      <section id="our-story" className="bg-secondary text-secondary-foreground py-16 md:py-24 artisan-pattern overflow-hidden relative">
-        <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 items-center">
-          <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl group order-2 lg:order-1">
+      <section id="our-story" className="bg-secondary text-secondary-foreground py-20 md:py-32 artisan-pattern overflow-hidden relative">
+        <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-24 items-center">
+          <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl group order-2 lg:order-1">
             <Image
-              src="https://picsum.photos/seed/artisan-portrait/800/800"
+              src="https://picsum.photos/seed/artisan-portrait/1000/1000"
               alt="Artisan Story"
               fill
               className="object-cover transition-transform duration-1000 group-hover:scale-105"
@@ -144,28 +147,28 @@ export default function LandingPage() {
             />
             <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </div>
-          <div className="space-y-6 md:space-y-8 order-1 lg:order-2">
-            <Badge variant="outline" className="border-primary text-primary px-4 py-1 animate-pulse">Our Mission</Badge>
-            <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight">
+          <div className="space-y-8 md:space-y-10 order-1 lg:order-2">
+            <Badge variant="outline" className="border-primary text-primary px-6 py-1.5 animate-pulse uppercase tracking-widest text-xs">Our Mission</Badge>
+            <h2 className="text-4xl md:text-6xl lg:text-7xl font-headline font-bold leading-[1.1]">
               Empowering the Hands that Create.
             </h2>
-            <p className="text-base md:text-lg opacity-80 leading-relaxed font-light">
+            <p className="text-lg md:text-xl opacity-80 leading-relaxed font-light">
               At Vridhira, we believe that luxury isn't found in mass production, but in the deliberate, rhythmic motion of a weaver's loom or the steady hand of a sculptor. 
               We bridge the gap between global homes and local villages, ensuring that traditional skills remain economically viable for the next generation.
             </p>
-            <div className="flex gap-8 md:gap-12">
+            <div className="flex gap-12 md:gap-20">
               <div className="group">
-                <div className="text-4xl md:text-5xl font-bold text-primary group-hover:scale-110 transition-transform">500+</div>
-                <div className="text-[10px] md:text-sm opacity-60 font-bold uppercase tracking-widest mt-1">Artisans</div>
+                <div className="text-5xl md:text-7xl font-bold text-primary group-hover:scale-110 transition-transform">500+</div>
+                <div className="text-xs md:text-sm opacity-60 font-bold uppercase tracking-[0.2em] mt-2">Artisans</div>
               </div>
-              <div className="w-px bg-white/20" />
+              <div className="w-px bg-white/10" />
               <div className="group">
-                <div className="text-4xl md:text-5xl font-bold text-primary group-hover:scale-110 transition-transform">24+</div>
-                <div className="text-[10px] md:text-sm opacity-60 font-bold uppercase tracking-widest mt-1">States</div>
+                <div className="text-5xl md:text-7xl font-bold text-primary group-hover:scale-110 transition-transform">24+</div>
+                <div className="text-xs md:text-sm opacity-60 font-bold uppercase tracking-[0.2em] mt-2">States</div>
               </div>
             </div>
-            <Link href="/shop" className="inline-block pt-4">
-              <Button className="bg-primary hover:bg-primary/90 text-white font-bold rounded-full px-10 h-14 shadow-xl hover:scale-105 active:scale-95 transition-all shine-effect w-full sm:w-auto">
+            <Link href="/shop" className="inline-block pt-6">
+              <Button className="bg-primary hover:bg-primary/90 text-white font-bold rounded-full px-12 h-16 md:h-20 text-lg shadow-2xl hover:scale-105 active:scale-95 transition-all shine-effect w-full sm:w-auto">
                 Experience the Craft
               </Button>
             </Link>
@@ -175,17 +178,17 @@ export default function LandingPage() {
 
       {/* CTA Section */}
       <section className="container mx-auto px-4">
-        <div className="bg-primary/5 border border-primary/20 rounded-3xl p-10 md:p-16 text-center space-y-6 md:space-y-8 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-32 -mt-32 transition-transform duration-1000 group-hover:scale-150" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl -ml-32 -mb-32 transition-transform duration-1000 group-hover:scale-150" />
+        <div className="bg-primary/5 border border-primary/20 rounded-[3rem] p-12 md:p-24 text-center space-y-8 md:space-y-10 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[100px] -mr-48 -mt-48 transition-transform duration-1000 group-hover:scale-150" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/5 rounded-full blur-[100px] -ml-48 -mb-48 transition-transform duration-1000 group-hover:scale-150" />
           
-          <h2 className="text-2xl md:text-5xl font-headline font-bold text-secondary relative z-10">Bring Heritage Home</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-lg relative z-10">
+          <h2 className="text-4xl md:text-7xl font-headline font-bold text-secondary relative z-10 leading-tight">Bring Heritage Home</h2>
+          <p className="text-muted-foreground max-w-3xl mx-auto text-lg md:text-xl relative z-10 leading-relaxed">
             Join thousands of collectors who are transforming their spaces with items that tell a story.
           </p>
           <div className="relative z-10">
             <Link href="/shop" className="w-full sm:w-auto inline-block">
-              <Button size="lg" className="w-full sm:w-auto rounded-full px-16 h-14 bg-secondary hover:bg-secondary/90 text-lg font-bold shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect">
+              <Button size="lg" className="w-full sm:w-auto rounded-full px-20 h-16 md:h-20 bg-secondary hover:bg-secondary/90 text-xl font-bold shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect">
                 Go to Marketplace
               </Button>
             </Link>
