@@ -1,212 +1,47 @@
-
 {
   "entities": {
-    "Product": {
+    "User": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Product",
+      "title": "User",
       "type": "object",
-      "description": "Represents a product listed on the Vridhira Marketplace.",
+      "description": "Represents a user account in the Vridhira Marketplace.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the Product entity."
-        },
-        "title": {
-          "type": "string",
-          "description": "Title of the product."
-        },
-        "price": {
-          "type": "number",
-          "description": "Price of the product."
-        },
-        "stock": {
-          "type": "number",
-          "description": "Number of units currently in stock."
-        },
-        "categoryId": {
-          "type": "string",
-          "description": "Reference to Category. (Relationship: Category 1:N Product)"
-        },
-        "imageUrl": {
-          "type": "string",
-          "description": "URL of the product image.",
-          "format": "uri"
-        },
-        "description": {
-          "type": "string",
-          "description": "Full description of the product."
-        }
-      },
-      "required": [
-        "id",
-        "title",
-        "price",
-        "stock",
-        "categoryId",
-        "imageUrl",
-        "description"
-      ]
-    },
-    "Category": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Category",
-      "type": "object",
-      "description": "Represents a category of products.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Category entity."
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the category."
-        }
-      },
-      "required": [
-        "id",
-        "name"
-      ]
-    },
-    "Order": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Order",
-      "type": "object",
-      "description": "Represents an order placed by a customer.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Order entity."
-        },
-        "customerId": {
-          "type": "string",
-          "description": "Reference to Customer. (Relationship: Customer 1:N Order)"
-        },
-        "orderDate": {
-          "type": "string",
-          "description": "Date when the order was placed.",
-          "format": "date-time"
-        },
-        "status": {
-          "type": "string",
-          "description": "Current status of the order (e.g., pending, processing, shipped, delivered)."
-        },
-        "totalAmount": {
-          "type": "number",
-          "description": "Total amount of the order."
-        }
-      },
-      "required": [
-        "id",
-        "customerId",
-        "orderDate",
-        "status",
-        "totalAmount"
-      ]
-    },
-    "OrderItem": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "OrderItem",
-      "type": "object",
-      "description": "Represents an item within an order.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the OrderItem entity."
-        },
-        "orderId": {
-          "type": "string",
-          "description": "Reference to Order. (Relationship: Order 1:N OrderItem)"
-        },
-        "productId": {
-          "type": "string",
-          "description": "Reference to Product. (Relationship: Product 1:N OrderItem)"
-        },
-        "quantity": {
-          "type": "number",
-          "description": "Quantity of the product in the order item."
-        },
-        "itemPrice": {
-          "type": "number",
-          "description": "Price of the individual product in the order item."
-        }
-      },
-      "required": [
-        "id",
-        "orderId",
-        "productId",
-        "quantity",
-        "itemPrice"
-      ]
-    },
-    "Customer": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Customer",
-      "type": "object",
-      "description": "Represents a customer of the marketplace.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Customer entity."
-        },
-        "firstName": {
-          "type": "string",
-          "description": "First name of the customer."
-        },
-        "lastName": {
-          "type": "string",
-          "description": "Last name of the customer."
+          "description": "Unique identifier for the user entity."
         },
         "email": {
           "type": "string",
-          "description": "Email address of the customer.",
+          "description": "Email address of the user.",
           "format": "email"
         },
-        "address": {
+        "displayName": {
           "type": "string",
-          "description": "Shipping address of the customer."
+          "description": "Display name of the user."
         },
-        "role": {
+        "photoURL": {
           "type": "string",
-          "enum": [
-            "owner",
-            "store admin",
-            "user"
-          ],
-          "description": "The role of the customer which determines access levels."
+          "description": "URL of the user's profile photo, if available.",
+          "format": "uri"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "Phone number of the user."
+        },
+        "creationTime": {
+          "type": "string",
+          "description": "Timestamp of when the user account was created.",
+          "format": "date-time"
+        },
+        "lastSignInTime": {
+          "type": "string",
+          "description": "Timestamp of the user's last sign-in.",
+          "format": "date-time"
         }
       },
       "required": [
         "id",
-        "firstName",
-        "lastName",
-        "email",
-        "address",
-        "role"
-      ]
-    },
-    "PageCustomization": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "PageCustomization",
-      "type": "object",
-      "description": "Stores customization options for product pages, allowing admins to select templates and configurations.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the PageCustomization entity."
-        },
-        "templateVersion": {
-          "type": "string",
-          "description": "The version of the product page template selected (e.g., 'v0', 'modern')."
-        },
-        "options": {
-          "type": "string",
-          "description": "JSON string containing various display options for the template."
-        }
-      },
-      "required": [
-        "id",
-        "templateVersion",
-        "options"
+        "email"
       ]
     }
   },
@@ -219,89 +54,38 @@
   "firestore": {
     "structure": [
       {
-        "path": "/products/{productId}",
+        "path": "/users/{userId}",
         "definition": {
-          "entityName": "Product",
+          "entityName": "User",
           "schema": {
-            "$ref": "#/backend/entities/Product"
+            "$ref": "#/backend/entities/User"
           },
-          "description": "Stores product information. Publicly readable, writeable by owner/admin.",
+          "description": "Stores user profile information. Accessible only to the user themselves. Path-based ownership ensures that only the authenticated user (whose UID matches userId) can read or write their data.",
           "params": [
             {
-              "name": "productId",
-              "description": "The unique identifier of the product."
+              "name": "userId",
+              "description": "The unique identifier of the user, matching the Firebase Authentication UID."
             }
           ]
         }
       },
       {
-        "path": "/categories/{categoryId}",
+        "path": "/roles_admin/{userId}",
         "definition": {
-          "entityName": "Category",
+          "entityName": "AdminRole",
           "schema": {
-            "$ref": "#/backend/entities/Category"
+            "$ref": "#/backend/entities/User"
           },
-          "description": "Stores product category information. Publicly readable, writeable by owner/admin.",
+          "description": "Collection to store admin roles. The existence of a document with a user's ID in this collection grants them admin privileges. No data about the user needs to be duplicated here.",
           "params": [
             {
-              "name": "categoryId",
-              "description": "The unique identifier of the category."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/customers/{customerId}/orders/{orderId}",
-        "definition": {
-          "entityName": "Order",
-          "schema": {
-            "$ref": "#/backend/entities/Order"
-          },
-          "description": "Stores order information. Readable by owner/admin and the owning customer.",
-          "params": [
-            {
-              "name": "customerId",
-              "description": "The unique identifier of the customer."
-            },
-            {
-              "name": "orderId",
-              "description": "The unique identifier of the order."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/customers/{customerId}",
-        "definition": {
-          "entityName": "Customer",
-          "schema": {
-            "$ref": "#/backend/entities/Customer"
-          },
-          "description": "Stores customer profile and role. Profile is writeable by user, role is only writeable by owner.",
-          "params": [
-            {
-              "name": "customerId",
-              "description": "The unique identifier of the customer."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/page_customizations/{pageCustomizationId}",
-        "definition": {
-          "entityName": "PageCustomization",
-          "schema": {
-            "$ref": "#/backend/entities/PageCustomization"
-          },
-          "description": "Stores page customization options. Readable by all, writeable by owner/admin.",
-          "params": [
-            {
-              "name": "pageCustomizationId",
-              "description": "The unique identifier for the page customization settings."
+              "name": "userId",
+              "description": "The unique identifier of the user who has admin privileges. Presence of the document grants admin access."
             }
           ]
         }
       }
-    ]
+    ],
+    "reasoning": "This design prioritizes security and scalability for the Vridhira Marketplace. It leverages path-based ownership for user data and a dedicated collection for admin roles. The key principle is Authorization Independence.  User profiles are stored under `/users/{userId}`. This enables simple, secure rules based on `request.auth.uid == userId`.  To manage administrative access to revenue control and order management, a dedicated collection `/roles_admin/{uid}` is used. The existence of a document in this collection grants admin privileges.  This avoids complex role hierarchies. Because this application only deals with basic user information and admin access, denormalization is not applicable. QAPs are supported by segregating user data and admin roles into distinct collections, each with its own security rules, ensuring secure `list` operations. Path based user data is used to restrict user data visibility. DBAC is achieved via the `/roles_admin/{uid}` collection to determine administrative access."
   }
 }
