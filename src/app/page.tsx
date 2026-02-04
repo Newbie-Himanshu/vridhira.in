@@ -51,7 +51,7 @@ export default function LandingPage() {
             </Badge>
           </div>
           
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-headline font-bold drop-shadow-2xl max-w-5xl mx-auto leading-[1.1] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-headline font-bold drop-shadow-2xl max-w-5xl mx-auto leading-[1.1] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
             Preserving Souls in Every Stitch
           </h1>
           
