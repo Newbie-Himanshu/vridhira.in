@@ -28,13 +28,16 @@ export function ModernTemplate({ product }: { product: Product }) {
   const handleAddToCart = async () => {
     setIsAdding(true);
     try {
-      if (!user) {
+      let currentUid = auth.currentUser?.uid;
+      
+      if (!currentUid) {
         initiateAnonymousSignIn(auth);
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 800));
+        currentUid = auth.currentUser?.uid;
       }
       
-      if (user?.uid) {
-        await addToCartAction(db, user.uid, {
+      if (currentUid) {
+        await addToCartAction(db, currentUid, {
           productId: product.id,
           variantId: selectedVariant?.id,
           quantity: 1
@@ -113,12 +116,12 @@ export function ModernTemplate({ product }: { product: Product }) {
           <div className="flex gap-4">
             <Button 
               size="lg" 
-              className="flex-1 bg-secondary text-white hover:bg-secondary/90 py-8 text-xl font-bold rounded-2xl"
+              className="flex-1 bg-secondary text-white hover:bg-secondary/90 py-8 text-xl font-bold rounded-2xl shadow-[0_0_30px_hsl(var(--primary)/0.3)]"
               onClick={handleAddToCart}
               disabled={isAdding}
             >
               {isAdding ? <Loader2 className="h-6 w-6 animate-spin mr-3" /> : <ShoppingCart className="mr-3 h-6 w-6" />}
-              Buy Now
+              Add to Collection
             </Button>
           </div>
 

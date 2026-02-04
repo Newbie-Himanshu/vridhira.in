@@ -23,18 +23,18 @@ export function ProductCard({ product }: { product: Product }) {
   const handleAddToCart = async () => {
     setIsAdding(true);
     try {
-      let currentUserId = user?.uid;
+      let currentUid = auth.currentUser?.uid;
       
       // If no user, sign in anonymously first to have a UID for the cart
-      if (!currentUserId) {
+      if (!currentUid) {
         initiateAnonymousSignIn(auth);
-        // Wait briefly for auth state change
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Wait briefly for auth state to initialize if it's the very first action
+        await new Promise(resolve => setTimeout(resolve, 800));
+        currentUid = auth.currentUser?.uid;
       }
 
-      // Re-check user after potential anonymous login
-      if (user?.uid) {
-        await addToCartAction(db, user.uid, {
+      if (currentUid) {
+        await addToCartAction(db, currentUid, {
           productId: product.id,
           quantity: 1
         });
@@ -42,12 +42,15 @@ export function ProductCard({ product }: { product: Product }) {
           title: "Added to collection",
           description: `${product.title} is now in your cart.`
         });
+      } else {
+        throw new Error("User authentication failed.");
       }
     } catch (error) {
+      console.error(error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Could not add item to cart."
+        description: "Could not add item to cart. Please try again."
       });
     } finally {
       setIsAdding(false);

@@ -30,13 +30,16 @@ export function V0Template({ product }: { product: Product }) {
   const handleAddToCart = async () => {
     setIsAdding(true);
     try {
-      if (!user) {
+      let currentUid = auth.currentUser?.uid;
+      
+      if (!currentUid) {
         initiateAnonymousSignIn(auth);
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 800));
+        currentUid = auth.currentUser?.uid;
       }
       
-      if (user?.uid) {
-        await addToCartAction(db, user.uid, {
+      if (currentUid) {
+        await addToCartAction(db, currentUid, {
           productId: product.id,
           variantId: selectedVariant?.id,
           quantity: 1
@@ -51,9 +54,9 @@ export function V0Template({ product }: { product: Product }) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 bg-background p-6 rounded-xl border">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 bg-background p-6 rounded-xl border animate-in fade-in duration-700">
       <div className="space-y-4">
-        <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
+        <div className="relative aspect-square overflow-hidden rounded-lg bg-muted shadow-inner">
           <Image
             src={product.imageUrl}
             alt={product.title}
@@ -92,7 +95,7 @@ export function V0Template({ product }: { product: Product }) {
                     htmlFor={v.id}
                     className={`px-4 py-2 rounded-md border cursor-pointer transition-colors ${
                       selectedVariant?.id === v.id 
-                      ? 'bg-secondary text-white border-secondary' 
+                      ? 'bg-secondary text-white border-secondary shadow-md' 
                       : 'bg-white hover:bg-muted'
                     }`}
                   >
@@ -107,19 +110,19 @@ export function V0Template({ product }: { product: Product }) {
         <div className="flex flex-col gap-3 pt-4">
           <Button 
             size="lg" 
-            className="w-full bg-primary hover:bg-primary/90 text-lg py-6"
+            className="w-full bg-primary hover:bg-primary/90 text-lg py-6 shadow-[0_0_20px_hsl(var(--primary)/0.4)]"
             onClick={handleAddToCart}
             disabled={isAdding}
           >
             {isAdding ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <ShoppingCart className="mr-2 h-5 w-5" />}
-            Add to Cart
+            Add to Collection
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" className="flex-1">
+            <Button variant="outline" className="flex-1 rounded-xl">
               <Heart className="mr-2 h-4 w-4" />
               Wishlist
             </Button>
-            <Button variant="outline" className="flex-1">
+            <Button variant="outline" className="flex-1 rounded-xl">
               <Share2 className="mr-2 h-4 w-4" />
               Share
             </Button>
