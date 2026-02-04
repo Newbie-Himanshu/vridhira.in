@@ -32,8 +32,12 @@ export function ModernTemplate({ product }: { product: Product }) {
       
       if (!currentUid) {
         initiateAnonymousSignIn(auth);
-        await new Promise(r => setTimeout(r, 800));
-        currentUid = auth.currentUser?.uid;
+        let attempts = 0;
+        while (!currentUid && attempts < 20) {
+          await new Promise(r => setTimeout(r, 200));
+          currentUid = auth.currentUser?.uid;
+          attempts++;
+        }
       }
       
       if (currentUid) {
@@ -43,9 +47,11 @@ export function ModernTemplate({ product }: { product: Product }) {
           quantity: 1
         });
         toast({ title: "Masterpiece added", description: "Item is now in your collection." });
+      } else {
+        toast({ variant: "destructive", title: "Session Error", description: "Could not establish a secure collection link." });
       }
     } catch (e) {
-      toast({ variant: "destructive", title: "Error", description: "We couldn't add that piece." });
+      toast({ variant: "destructive", title: "Error", description: "We couldn't add that piece to your collection." });
     } finally {
       setIsAdding(false);
     }

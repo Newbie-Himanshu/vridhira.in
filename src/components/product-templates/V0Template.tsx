@@ -34,8 +34,12 @@ export function V0Template({ product }: { product: Product }) {
       
       if (!currentUid) {
         initiateAnonymousSignIn(auth);
-        await new Promise(r => setTimeout(r, 800));
-        currentUid = auth.currentUser?.uid;
+        let attempts = 0;
+        while (!currentUid && attempts < 20) {
+          await new Promise(r => setTimeout(r, 200));
+          currentUid = auth.currentUser?.uid;
+          attempts++;
+        }
       }
       
       if (currentUid) {
@@ -45,9 +49,11 @@ export function V0Template({ product }: { product: Product }) {
           quantity: 1
         });
         toast({ title: "Treasure secured", description: "Item added to your collection." });
+      } else {
+        toast({ variant: "destructive", title: "Oops", description: "We couldn't secure your collection link." });
       }
     } catch (e) {
-      toast({ variant: "destructive", title: "Oops", description: "Couldn't add that to your cart." });
+      toast({ variant: "destructive", title: "Error", description: "Couldn't add that to your collection." });
     } finally {
       setIsAdding(false);
     }

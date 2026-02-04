@@ -25,12 +25,18 @@ export function ProductCard({ product }: { product: Product }) {
     try {
       let currentUid = auth.currentUser?.uid;
       
-      // If no user, sign in anonymously first to have a UID for the cart
+      // If no user, initiate anonymous sign-in
       if (!currentUid) {
         initiateAnonymousSignIn(auth);
-        // Wait briefly for auth state to initialize if it's the very first action
-        await new Promise(resolve => setTimeout(resolve, 800));
-        currentUid = auth.currentUser?.uid;
+        
+        // Robust polling for the UID since the trigger is non-blocking
+        let attempts = 0;
+        const maxAttempts = 20; // 4 seconds total
+        while (!currentUid && attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+          currentUid = auth.currentUser?.uid;
+          attempts++;
+        }
       }
 
       if (currentUid) {
@@ -43,14 +49,19 @@ export function ProductCard({ product }: { product: Product }) {
           description: `${product.title} is now in your cart.`
         });
       } else {
-        throw new Error("User authentication failed.");
+        // If it still fails after polling, then we report the error
+        toast({
+          variant: "destructive",
+          title: "Connection Timeout",
+          description: "We couldn't secure your session. Please try again."
+        });
       }
     } catch (error) {
-      console.error(error);
+      console.error("Cart addition failed:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Could not add item to cart. Please try again."
+        description: "Could not add item to cart. Please check your connection."
       });
     } finally {
       setIsAdding(false);
