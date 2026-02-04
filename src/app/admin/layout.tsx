@@ -55,7 +55,7 @@ export default function AdminLayout({
 
   return (
     <div className="flex min-h-screen bg-background pt-20 overflow-x-hidden">
-      {/* Flex container ensures Sidebar and Main Content are siblings, preventing overlap */}
+      {/* Sidebar reserves its width, while its content stays fixed to the left */}
       <AdminSidebar />
       <main className="flex-1 min-w-0 bg-background/40 backdrop-blur-sm p-4 md:p-8 lg:p-12 animate-in fade-in duration-700">
         <div className="max-w-7xl mx-auto space-y-8">

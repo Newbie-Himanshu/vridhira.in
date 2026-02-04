@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   Home, 
   ShoppingCart, 
@@ -29,6 +29,8 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
 
 const mainNavItems = [
   { label: 'Dashboard', icon: Home, href: '/admin/dashboard' },
@@ -54,9 +56,16 @@ const secondaryNavItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const auth = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const toggleSidebar = () => setIsCollapsed(!isCollapsed);
+
+  const handleSignOut = async () => {
+    await signOut(auth);
+    router.push('/');
+  };
 
   const NavContent = ({ collapsed = false }: { collapsed?: boolean }) => (
     <div className="flex flex-col h-full bg-white">
@@ -131,6 +140,7 @@ export function AdminSidebar() {
       <div className="p-4 border-t bg-muted/10 space-y-2">
         <Button 
           variant="ghost" 
+          onClick={handleSignOut}
           className={cn(
             "w-full justify-start gap-3 text-muted-foreground hover:text-destructive transition-colors rounded-xl",
             collapsed && "justify-center px-0"
@@ -145,27 +155,34 @@ export function AdminSidebar() {
 
   return (
     <>
-      {/* Desktop Sidebar - A flex sibling to prevent overlap */}
+      {/* Desktop Sidebar */}
       <aside 
         className={cn(
-          "hidden lg:flex flex-col border-r bg-white sticky top-20 h-[calc(100vh-80px)] transition-all duration-300 shrink-0 z-30",
+          "hidden lg:block border-r bg-white transition-all duration-300 shrink-0 relative",
           isCollapsed ? "w-20" : "w-64"
         )}
       >
-        <NavContent collapsed={isCollapsed} />
-        
-        {/* Toggle Button for Desktop */}
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={toggleSidebar}
-          className="absolute -right-4 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full border bg-white shadow-sm hover:bg-primary hover:text-white transition-all z-50"
-        >
-          {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </Button>
+        <div className={cn(
+          "fixed top-20 bottom-0 border-r bg-white flex flex-col transition-all duration-300 z-30",
+          isCollapsed ? "w-20" : "w-64"
+        )}>
+          <NavContent collapsed={isCollapsed} />
+          
+          {/* Toggle Button for Desktop - Pinned to the bottom-right corner of the fixed sidebar */}
+          <div className="absolute -right-4 bottom-8 z-50">
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={toggleSidebar}
+              className="h-8 w-8 rounded-full border bg-white shadow-md hover:bg-primary hover:text-white transition-all"
+            >
+              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            </Button>
+          </div>
+        </div>
       </aside>
 
-      {/* Mobile FAB and Sheet - No overlapping sidebar on mobile */}
+      {/* Mobile FAB and Sheet */}
       <div className="lg:hidden">
         <Sheet>
           <SheetTrigger asChild>
