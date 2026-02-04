@@ -38,13 +38,16 @@ export function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl font-headline font-bold text-secondary">Vridhira</span>
-        </Link>
+      <div className="container mx-auto px-4 flex h-16 items-center">
+        {/* Left Section: Logo */}
+        <div className="flex-1 flex justify-start">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-2xl font-headline font-bold text-secondary">Vridhira</span>
+          </Link>
+        </div>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-6">
+        {/* Middle Section: Navigation Links (Desktop) */}
+        <div className="hidden md:flex items-center justify-center gap-6">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -58,29 +61,36 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
-          <div className="flex items-center gap-2 ml-4">
-             <Button variant="ghost" size="sm" className="gap-2">
+        </div>
+
+        {/* Right Section: Cart, Auth, and Toggle */}
+        <div className="flex-1 flex justify-end items-center gap-2">
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center gap-2">
+            <Button variant="ghost" size="sm" className="gap-2">
               <ShoppingBag className="h-4 w-4" />
               Cart
             </Button>
             
-             {user ? (
-               <Button variant="secondary" size="sm" className="gap-2 bg-secondary text-secondary-foreground">
-                 <User className="h-4 w-4" />
-                 {customer?.firstName || 'Account'}
-               </Button>
-             ) : (
-               <Link href="/login">
-                 <Button variant="secondary" size="sm" className="bg-secondary text-secondary-foreground">Sign In</Button>
-               </Link>
-             )}
+            {user ? (
+              <Button variant="secondary" size="sm" className="gap-2 bg-secondary text-secondary-foreground">
+                <User className="h-4 w-4" />
+                {customer?.firstName || 'Account'}
+              </Button>
+            ) : (
+              <Link href="/login">
+                <Button variant="secondary" size="sm" className="bg-secondary text-secondary-foreground px-6">
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
-        </div>
 
-        {/* Mobile Nav Toggle */}
-        <button className="md:hidden p-2" onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+          {/* Mobile Nav Toggle */}
+          <button className="md:hidden p-2" onClick={() => setIsOpen(!isOpen)}>
+            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Nav Menu */}
@@ -104,6 +114,11 @@ export function Navbar() {
             <ShoppingBag className="mr-2 h-5 w-5" />
             Cart
           </Button>
+          {!user && (
+            <Link href="/login" onClick={() => setIsOpen(false)}>
+              <Button variant="secondary" className="w-full bg-secondary text-secondary-foreground">Sign In</Button>
+            </Link>
+          )}
         </div>
       )}
     </nav>
