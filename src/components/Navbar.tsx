@@ -76,7 +76,11 @@ export function Navbar() {
 
   useEffect(() => {
     if (isSearchOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
+      // Small delay to ensure the element is painted before focusing
+      const timer = setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
     }
   }, [isSearchOpen]);
 
@@ -147,7 +151,7 @@ export function Navbar() {
   return (
     <div className="fixed top-0 left-0 w-full z-50 pointer-events-none flex justify-center pt-0 transition-all duration-700 ease-in-out">
       <header className={cn(
-        "pointer-events-auto transition-all duration-700 ease-in-out flex items-center justify-center overflow-hidden",
+        "pointer-events-auto transition-all duration-700 ease-in-out flex items-center justify-center",
         isScrolled 
           ? "mt-4 w-[92%] md:w-[70%] max-w-6xl h-16 bg-background/80 backdrop-blur-md rounded-full border border-border/50 shadow-2xl" 
           : "w-full h-20 bg-background border-b border-transparent shadow-none rounded-none"
@@ -158,7 +162,7 @@ export function Navbar() {
         )}>
           
           <div className="flex-[1_0_0] flex justify-start">
-            <Link href="/" className="flex items-center gap-2 group">
+            <Link href="/" className="flex items-center gap-2 group pointer-events-auto">
               <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
                   <div className="absolute inset-0 bg-primary/10 rounded-lg animate-artisanal-rotation" />
                   <span className="relative font-headline font-bold text-2xl text-primary">V</span>
@@ -167,9 +171,9 @@ export function Navbar() {
           </div>
 
           {/* Desktop Search Center Area */}
-          <div className="hidden lg:flex flex-1 justify-center relative px-8" ref={desktopSearchContainerRef}>
+          <div className="hidden lg:flex flex-[2_0_0] justify-center relative px-8" ref={desktopSearchContainerRef}>
             {isSearchOpen ? (
-              <div className="w-full max-w-md animate-in fade-in zoom-in-95 duration-500 relative">
+              <div className="w-full max-w-lg animate-in fade-in zoom-in-95 duration-300 relative">
                 <form onSubmit={handleSearchSubmit} className="relative w-full flex items-center">
                   <Search className="absolute left-4 h-4 w-4 text-primary" />
                   <Input
@@ -255,7 +259,7 @@ export function Navbar() {
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      "relative py-1 text-xs font-bold transition-all hover:text-primary tracking-widest uppercase group",
+                      "relative py-1 text-xs font-bold transition-all hover:text-primary tracking-widest uppercase group pointer-events-auto",
                       pathname === link.href ? "text-primary" : "text-muted-foreground"
                     )}
                   >
@@ -272,7 +276,7 @@ export function Navbar() {
 
           <div className="flex-[1_0_0] flex justify-end items-center gap-1 sm:gap-4">
             {/* Desktop Search Toggle (only if not already open) */}
-            <div className="hidden lg:block">
+            <div className="hidden lg:block pointer-events-auto">
               {!isSearchOpen && (
                 <Button 
                   variant="ghost" 
@@ -286,7 +290,7 @@ export function Navbar() {
             </div>
 
             {/* Mobile Search Button */}
-            <div className="lg:hidden">
+            <div className="lg:hidden pointer-events-auto">
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -297,7 +301,7 @@ export function Navbar() {
               </Button>
             </div>
 
-            <Button variant="ghost" size="icon" className="relative group text-muted-foreground hover:text-primary transition-all rounded-full" asChild>
+            <Button variant="ghost" size="icon" className="relative group text-muted-foreground hover:text-primary transition-all rounded-full pointer-events-auto" asChild>
               <Link href="/cart">
                 <ShoppingBag className="h-5 w-5" />
                 {cartCount > 0 && (
@@ -309,7 +313,7 @@ export function Navbar() {
             </Button>
 
             {mounted && (
-              <div className="hidden lg:block">
+              <div className="hidden lg:block pointer-events-auto">
                 {user ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -339,7 +343,7 @@ export function Navbar() {
               </div>
             )}
             
-            <div className="lg:hidden">
+            <div className="lg:hidden pointer-events-auto">
               <Sheet onOpenChange={(open) => { if(!open) setIsMobileSearchActive(false); }}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="text-secondary rounded-full">
