@@ -1,14 +1,16 @@
+
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, LayoutDashboard, Store, Menu, Home, User, Search, ChevronRight } from 'lucide-react';
+import { ShoppingBag, LayoutDashboard, Store, Menu, Home, User, Search, ChevronRight, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { useUser, useDoc, useMemoFirebase, useFirestore } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase, useFirestore, useAuth } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Customer } from '@/lib/mock-data';
+import { signOut } from 'firebase/auth';
 import {
   Sheet,
   SheetContent,
@@ -16,12 +18,21 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { user } = useUser();
+  const auth = useAuth();
   const db = useFirestore();
 
   useEffect(() => {
@@ -51,6 +62,10 @@ export function Navbar() {
     navLinks.push({ href: '/admin/dashboard', label: 'Admin', icon: LayoutDashboard });
   }
 
+  const handleSignOut = () => {
+    signOut(auth);
+  };
+
   return (
     <header className={cn(
       "sticky top-0 z-50 w-full transition-all duration-500 border-b",
@@ -64,7 +79,6 @@ export function Navbar() {
         <div className="flex-[1_0_0] flex justify-start">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
-                {/* Slow, constant artisanal rotation */}
                 <div className="absolute inset-0 bg-primary/10 rotate-45 rounded-lg animate-[spin_20s_linear_infinite]" />
                 <span className="relative font-headline font-bold text-2xl text-primary transition-transform duration-300 group-hover:scale-110">V</span>
             </div>
@@ -111,14 +125,31 @@ export function Navbar() {
           {mounted && (
             <div className="hidden lg:block">
               {user ? (
-                <Link href="/account">
-                  <Button variant="secondary" size="sm" className="gap-2 bg-secondary text-secondary-foreground hover:opacity-90 rounded-full px-5 h-10 border-none transition-all font-bold hover:scale-105 active:scale-95 shadow-md">
-                    <User className="h-4 w-4" />
-                    <span className="max-w-[100px] truncate">
-                        {customer?.firstName || 'Account'}
-                    </span>
-                  </Button>
-                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="secondary" size="sm" className="gap-2 bg-secondary text-secondary-foreground hover:opacity-90 rounded-full px-5 h-10 border-none transition-all font-bold hover:scale-105 active:scale-95 shadow-md">
+                      <User className="h-4 w-4" />
+                      <span className="max-w-[100px] truncate">
+                          {user.displayName || customer?.firstName || 'Account'}
+                      </span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 bg-white shadow-2xl border-none">
+                    <DropdownMenuLabel className="font-headline text-lg">My Profile</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <Link href="/account">
+                      <DropdownMenuItem className="rounded-xl cursor-pointer py-2 px-3 gap-2">
+                        <User className="h-4 w-4" /> Account Settings
+                      </DropdownMenuItem>
+                    </Link>
+                    <DropdownMenuItem 
+                      className="rounded-xl cursor-pointer py-2 px-3 gap-2 text-destructive focus:text-destructive focus:bg-destructive/5"
+                      onClick={handleSignOut}
+                    >
+                      <LogOut className="h-4 w-4" /> Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <Link href="/login">
                   <Button variant="secondary" size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-all rounded-full px-7 h-10 font-bold tracking-widest uppercase text-[11px] hover:scale-105 active:scale-95 shadow-lg animate-pulse-glow shine-effect">
@@ -141,11 +172,10 @@ export function Navbar() {
                 <SheetHeader className="p-8 pb-4 text-left border-b bg-muted/30">
                   <SheetTitle className="font-headline text-3xl text-secondary flex items-center gap-4">
                     <div className="relative w-10 h-10 flex items-center justify-center">
-                        {/* Indefinite artisanal rotation while menu is open */}
                         <div className="absolute inset-0 bg-primary rounded-lg animate-[spin_12s_linear_infinite]" />
-                        <span className="relative text-white font-bold text-xl animate-in fade-in zoom-in-50 delay-300 duration-500">V</span>
+                        <span className="relative text-white font-bold text-xl">V</span>
                     </div>
-                    <span className="font-headline font-bold text-2xl tracking-tight animate-in fade-in slide-in-from-left-4 duration-1000 delay-500">
+                    <span className="font-headline font-bold text-2xl tracking-tight">
                       Vridhira
                     </span>
                   </SheetTitle>
@@ -155,12 +185,12 @@ export function Navbar() {
                     <div className="space-y-4">
                         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground px-1">Discover</p>
                         <div className="grid gap-2">
-                            {navLinks.map((link, idx) => (
+                            {navLinks.map((link) => (
                                 <Link
                                     key={link.href}
                                     href={link.href}
                                     className={cn(
-                                        "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 animate-in slide-in-from-right-4",
+                                        "flex items-center justify-between p-4 rounded-2xl transition-all duration-300",
                                         pathname === link.href 
                                             ? "bg-primary text-white shadow-lg shadow-primary/20" 
                                             : "bg-muted/50 text-secondary hover:bg-muted"
@@ -195,24 +225,27 @@ export function Navbar() {
                     </div>
                 </div>
 
-                {mounted && (
-                  <div className="p-8 border-t bg-muted/30">
-                      {user ? (
-                          <Link href="/account">
-                              <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold gap-3 shadow-lg hover:opacity-90 transition-all active:scale-95">
-                                  <User className="h-5 w-5" />
-                                  My Account
-                              </Button>
-                          </Link>
-                      ) : (
-                          <Link href="/login">
-                              <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold shadow-lg hover:opacity-90 transition-all active:scale-95 shine-effect animate-pulse-glow">
-                                  Sign In
-                              </Button>
-                          </Link>
-                      )}
-                  </div>
-                )}
+                <div className="p-8 border-t bg-muted/30">
+                  {user ? (
+                    <div className="flex flex-col gap-3">
+                      <Link href="/account" className="w-full">
+                        <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold gap-3 shadow-lg hover:opacity-90 transition-all active:scale-95">
+                          <User className="h-5 w-5" />
+                          My Account
+                        </Button>
+                      </Link>
+                      <Button variant="outline" className="w-full h-12 rounded-xl text-destructive border-destructive/20 hover:bg-destructive/5 font-bold" onClick={handleSignOut}>
+                        Sign Out
+                      </Button>
+                    </div>
+                  ) : (
+                    <Link href="/login">
+                      <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold shadow-lg hover:opacity-90 transition-all active:scale-95 shine-effect animate-pulse-glow">
+                        Sign In
+                      </Button>
+                    </Link>
+                  )}
+                </div>
               </SheetContent>
             </Sheet>
           </div>
