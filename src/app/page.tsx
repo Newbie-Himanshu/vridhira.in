@@ -144,7 +144,7 @@ export default function LandingPage() {
       </section>
 
       {/* Impact Story */}
-      <section id="our-story" className="bg-secondary text-secondary-foreground py-20 md:py-32 artisan-pattern overflow-hidden relative z-10">
+      <section id="our-story" className="py-24 md:py-32 bg-white relative z-10 border-y border-border/20">
         <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-24 items-center">
           <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl group order-2 lg:order-1">
             <Image
@@ -154,30 +154,34 @@ export default function LandingPage() {
               className="object-cover transition-transform duration-1000 group-hover:scale-105"
               data-ai-hint="artisan portrait"
             />
-            <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </div>
-          <div className="space-y-8 order-1 lg:order-2">
-            <Badge variant="outline" className="border-primary text-primary px-6 py-2 animate-pulse uppercase tracking-[0.3em] text-[10px]">Our Mission</Badge>
-            <h2 className="text-3xl md:text-5xl lg:text-6xl font-headline font-bold leading-[1.1]">
-              Empowering the Hands that Create.
-            </h2>
-            <p className="text-base md:text-lg opacity-90 leading-relaxed font-light max-w-xl">
-              At Vridhira, we believe that luxury isn't found in mass production, but in the deliberate, rhythmic motion of a weaver's loom or the steady hand of a sculptor. 
-              We bridge the gap between global homes and local villages.
-            </p>
-            <div className="flex gap-12 md:gap-16">
-              <div className="group">
-                <div className="text-4xl md:text-6xl font-bold text-primary group-hover:scale-110 transition-transform">500+</div>
-                <div className="text-[10px] md:text-xs opacity-60 font-bold uppercase tracking-[0.2em] mt-2">Artisans</div>
+          <div className="space-y-10 order-1 lg:order-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-[0.2em] animate-pulse">
+               Our Mission
+            </div>
+            <div className="space-y-4">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-headline font-bold text-secondary leading-[1.1] tracking-tight">
+                Empowering the Hands that Create.
+              </h2>
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-light max-w-xl">
+                At Vridhira, we believe that luxury isn't found in mass production, but in the deliberate, rhythmic motion of a weaver's loom or the steady hand of a sculptor. 
+                We bridge the gap between global homes and local villages.
+              </p>
+            </div>
+            <div className="flex gap-12 md:gap-16 pt-4">
+              <div className="space-y-1">
+                <div className="text-4xl md:text-5xl font-bold text-primary">500+</div>
+                <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.1em]">Verified Artisans</div>
               </div>
-              <div className="w-px bg-white/20" />
-              <div className="group">
-                <div className="text-4xl md:text-6xl font-bold text-primary group-hover:scale-110 transition-transform">24+</div>
-                <div className="text-[10px] md:text-xs opacity-60 font-bold uppercase tracking-[0.2em] mt-2">States</div>
+              <div className="w-px bg-border h-12" />
+              <div className="space-y-1">
+                <div className="text-4xl md:text-5xl font-bold text-primary">24+</div>
+                <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.1em]">States Reached</div>
               </div>
             </div>
-            <Link href="/shop" className="inline-block pt-4">
-              <Button className="bg-primary hover:bg-primary/90 text-white font-bold rounded-full px-12 h-14 md:h-16 text-lg md:text-xl shadow-2xl hover:scale-105 active:scale-95 transition-all shine-effect w-full sm:w-auto">
+            <Link href="/shop" className="inline-block pt-6">
+              <Button size="lg" className="rounded-full px-12 h-14 md:h-16 bg-secondary hover:bg-secondary/90 text-white font-bold text-lg shadow-xl transition-all hover:scale-105 active:scale-95">
                 Experience the Craft
               </Button>
             </Link>
