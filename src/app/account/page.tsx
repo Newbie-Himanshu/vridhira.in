@@ -12,7 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { User, Mail, Shield, Calendar, Loader2, LogOut, Package, CheckCircle2, AlertTriangle, PhoneIncoming, Info, Clock } from 'lucide-react';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,6 +21,7 @@ export default function AccountPage() {
   const db = useFirestore();
   const auth = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
 
   const [otp, setOtp] = useState('');
@@ -37,7 +38,8 @@ export default function AccountPage() {
 
   useEffect(() => {
     if (!isUserLoading && !user) {
-      router.push('/login?returnTo=/account');
+      const currentPath = window.location.pathname;
+      router.push(`/login?returnTo=${encodeURIComponent(currentPath)}`);
     }
   }, [user, isUserLoading, router]);
 
@@ -98,6 +100,12 @@ export default function AccountPage() {
           title: "Account Verified",
           description: "Your heritage identity has been successfully confirmed.",
         });
+        
+        // Smart redirection after verification
+        const returnTo = searchParams.get('returnTo');
+        if (returnTo) {
+          router.push(returnTo);
+        }
       }, 500);
     } else {
       const newAttempts = (customer.failedAttempts || 0) + 1;
@@ -146,7 +154,7 @@ export default function AccountPage() {
   const isBanned = timeLeft !== null;
 
   return (
-    <div className="container mx-auto px-4 py-24 max-w-4xl">
+    <div className="container mx-auto px-4 py-32 max-w-4xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6 animate-in fade-in slide-in-from-top-4 duration-700">
         <div className="space-y-2">
           <Badge className="bg-primary/10 text-primary border-none uppercase tracking-widest px-4 py-1">Member Profile</Badge>

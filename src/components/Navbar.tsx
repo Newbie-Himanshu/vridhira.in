@@ -137,7 +137,6 @@ export function Navbar() {
   const showTransparent = isLandingPage && !isScrolled;
 
   const textColor = showTransparent ? "text-white" : "text-secondary";
-  const mutedTextColor = showTransparent ? "text-white/70" : "text-muted-foreground";
   const logoTextColor = showTransparent ? "text-white" : "text-primary";
   const navUnderline = showTransparent ? "bg-white" : "bg-primary";
 
@@ -154,6 +153,9 @@ export function Navbar() {
         p.category.toLowerCase().includes(normalizedQuery)
       ).slice(0, 3)
     : [];
+
+  // Create a smart login URL that redirects back to current page
+  const loginUrl = pathname === '/login' ? '/login' : `/login?returnTo=${encodeURIComponent(pathname)}`;
 
   return (
     <div className="fixed top-0 left-0 w-full z-50 pointer-events-none flex justify-center pt-0 transition-all duration-700 ease-in-out">
@@ -364,7 +366,7 @@ export function Navbar() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <Link href="/login">
+                  <Link href={loginUrl}>
                     <Button 
                       variant="secondary" 
                       size="sm" 
@@ -546,7 +548,7 @@ export function Navbar() {
                         <Button variant="outline" className="w-full h-12 rounded-xl text-destructive" onClick={handleSignOut}>Sign Out</Button>
                       </div>
                     ) : (
-                      <Link href="/login">
+                      <Link href={loginUrl}>
                         <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold shadow-lg animate-pulse-glow">Sign In</Button>
                       </Link>
                     )}

@@ -23,6 +23,8 @@ export default function LoginPage() {
   const db = useFirestore();
   const router = useRouter();
   const searchParams = useSearchParams();
+  
+  // Smart redirection rule: default to home if logged in from sign-in page directly
   const returnTo = searchParams.get('returnTo') || '/';
 
   const [loading, setLoading] = useState(false);
@@ -196,6 +198,7 @@ export default function LoginPage() {
       });
       setTimeout(() => {
         setLoading(false);
+        // redirection handled by the useEffect watching customer.isVerified
       }, 1000);
     } else {
       const newAttempts = (customer.failedAttempts || 0) + 1;
