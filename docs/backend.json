@@ -55,7 +55,9 @@
         "firstName": { "type": "string" },
         "lastName": { "type": "string" },
         "role": { "type": "string", "enum": ["user", "store admin", "owner"] },
-        "isVerified": { "type": "boolean" }
+        "isVerified": { "type": "boolean" },
+        "failedAttempts": { "type": "number", "description": "Count of failed OTP attempts" },
+        "banUntil": { "type": "string", "format": "date-time", "description": "Timestamp when the user can try again" }
       },
       "required": ["id", "email", "role"]
     },

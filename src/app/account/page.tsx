@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { User, Mail, Shield, Calendar, Loader2, LogOut, Package, CheckCircle2, AlertTriangle, PhoneIncoming, Info } from 'lucide-react';
+import { User, Mail, Shield, Calendar, Loader2, LogOut, Package, CheckCircle2, AlertTriangle, PhoneIncoming, Info, Clock } from 'lucide-react';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
@@ -26,6 +26,7 @@ export default function AccountPage() {
   const [otp, setOtp] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [showOtpInput, setShowOtpInput] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<string | null>(null);
 
   const customerRef = useMemoFirebase(() => 
     user ? doc(db, 'customers', user.uid) : null, 
@@ -34,12 +35,34 @@ export default function AccountPage() {
   
   const { data: customer, isLoading: isCustomerLoading } = useDoc<Customer>(customerRef);
 
-  // Use useEffect for redirection to avoid "Cannot update a component while rendering a different component"
   useEffect(() => {
     if (!isUserLoading && !user) {
-      router.push('/login');
+      router.push('/login?returnTo=/account');
     }
   }, [user, isUserLoading, router]);
+
+  // Timer for ban status
+  useEffect(() => {
+    if (!customer?.banUntil) return;
+    
+    const interval = setInterval(() => {
+      const until = new Date(customer.banUntil!).getTime();
+      const now = new Date().getTime();
+      const diff = until - now;
+      
+      if (diff <= 0) {
+        setTimeLeft(null);
+        clearInterval(interval);
+      } else {
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+      }
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [customer?.banUntil]);
 
   const handleSignOut = async () => {
     await signOut(auth);
@@ -48,13 +71,26 @@ export default function AccountPage() {
 
   const handleVerifyOtp = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !customer) return;
+
+    if (customer.banUntil && new Date(customer.banUntil) > new Date()) {
+      toast({
+        variant: "destructive",
+        title: "Access Restricted",
+        description: `Too many failed attempts. Try again in ${timeLeft}.`,
+      });
+      return;
+    }
+
     setVerifying(true);
     
-    // Simulate OTP verification logic
     if (otp === '123456') {
       const customerRef = doc(db, 'customers', user.uid);
-      updateDocumentNonBlocking(customerRef, { isVerified: true });
+      updateDocumentNonBlocking(customerRef, { 
+        isVerified: true,
+        failedAttempts: 0,
+        banUntil: null
+      });
       setTimeout(() => {
         setVerifying(false);
         setShowOtpInput(false);
@@ -64,12 +100,34 @@ export default function AccountPage() {
         });
       }, 500);
     } else {
-      setVerifying(false);
-      toast({
-        variant: "destructive",
-        title: "Invalid Code",
-        description: "The verification code you entered is incorrect. Please try 123456.",
-      });
+      const newAttempts = (customer.failedAttempts || 0) + 1;
+      const customerRef = doc(db, 'customers', user.uid);
+      
+      if (newAttempts >= 5) {
+        const banDate = new Date();
+        banDate.setHours(banDate.getHours() + 24);
+        updateDocumentNonBlocking(customerRef, { 
+          failedAttempts: newAttempts,
+          banUntil: banDate.toISOString()
+        });
+        toast({
+          variant: "destructive",
+          title: "Security Ban Triggered",
+          description: "5 failed attempts. Access restricted for 24 hours.",
+        });
+        setVerifying(false);
+        setTimeout(() => {
+          router.push('/login');
+        }, 2000);
+      } else {
+        updateDocumentNonBlocking(customerRef, { failedAttempts: newAttempts });
+        toast({
+          variant: "destructive",
+          title: "Invalid Code",
+          description: `Attempt ${newAttempts} of 5. Please enter the correct code.`,
+        });
+        setVerifying(false);
+      }
     }
   };
 
@@ -84,6 +142,8 @@ export default function AccountPage() {
   if (!user) {
     return null;
   }
+
+  const isBanned = timeLeft !== null;
 
   return (
     <div className="container mx-auto px-4 py-24 max-w-4xl">
@@ -110,22 +170,32 @@ export default function AccountPage() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl" />
             <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start">
               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm border border-primary/10">
-                <PhoneIncoming className="h-8 w-8 text-primary" />
+                {isBanned ? <Clock className="h-8 w-8 text-destructive" /> : <PhoneIncoming className="h-8 w-8 text-primary" />}
               </div>
               <div className="space-y-6 flex-1">
                 <div>
-                  <AlertTitle className="text-2xl font-headline font-bold text-secondary mb-2">Verify Your Heritage Identity</AlertTitle>
+                  <AlertTitle className="text-2xl font-headline font-bold text-secondary mb-2">
+                    {isBanned ? "Identity Verification Restricted" : "Verify Your Heritage Identity"}
+                  </AlertTitle>
                   <AlertDescription className="text-muted-foreground text-lg leading-relaxed">
-                    Unlock full access to the marketplace and secure your handcrafted acquisitions by completing our verification process.
+                    {isBanned 
+                      ? "Too many failed attempts. For your security, identity verification is temporarily locked." 
+                      : "Unlock full access to the marketplace and secure your handcrafted acquisitions by completing our verification process."}
                   </AlertDescription>
                 </div>
                 
-                {showOtpInput ? (
+                {isBanned ? (
+                  <div className="bg-white/50 backdrop-blur rounded-2xl p-6 border border-destructive/20 inline-block">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Time Remaining</p>
+                    <p className="text-3xl font-black text-destructive tabular-nums">{timeLeft}</p>
+                    <Button variant="ghost" className="mt-4 text-xs font-bold" onClick={handleSignOut}>Switch Account</Button>
+                  </div>
+                ) : showOtpInput ? (
                   <form onSubmit={handleVerifyOtp} className="space-y-6 max-w-sm animate-in fade-in slide-in-from-top-2 duration-300">
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-primary mb-1">
                         <Info className="h-3 w-3" />
-                        Prototype Code: 123456
+                        Prototype Code: 123456 • {5 - (customer?.failedAttempts || 0)} attempts left
                       </div>
                       <Input 
                         type="text" 

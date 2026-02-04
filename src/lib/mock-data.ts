@@ -50,6 +50,8 @@ export interface Customer {
   address?: string;
   role: UserRole;
   isVerified?: boolean;
+  failedAttempts?: number;
+  banUntil?: string;
 }
 
 export const CATEGORIES: Category[] = ['Pottery', 'Textiles', 'Decor', 'Art', 'Fashion'];

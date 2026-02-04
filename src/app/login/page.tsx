@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn, setDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Lock, User, Loader2, ShieldCheck, AlertCircle, PhoneIncoming, CheckCircle2, Info } from 'lucide-react';
+import { Mail, Lock, User, Loader2, ShieldCheck, AlertCircle, PhoneIncoming, CheckCircle2, Info, Clock } from 'lucide-react';
 import { doc, serverTimestamp } from 'firebase/firestore';
 import { syncLocalCartToCloud } from '@/lib/cart-actions';
 import { Separator } from '@/components/ui/separator';
@@ -22,6 +22,8 @@ export default function LoginPage() {
   const auth = useAuth();
   const db = useFirestore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('returnTo') || '/';
 
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -30,6 +32,7 @@ export default function LoginPage() {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState<{ message: string; hint: string } | null>(null);
   const [showOtpStep, setShowOtpStep] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<string | null>(null);
 
   const customerRef = useMemoFirebase(() => 
     user ? doc(db, 'customers', user.uid) : null,
@@ -42,12 +45,35 @@ export default function LoginPage() {
     if (user && customer && !loading) {
       if (customer.isVerified) {
         syncLocalCartToCloud(db, user.uid);
-        router.push('/');
+        router.push(returnTo);
       } else {
         setShowOtpStep(true);
       }
     }
-  }, [user, customer, loading, router, db]);
+  }, [user, customer, loading, router, db, returnTo]);
+
+  // Timer for ban status
+  useEffect(() => {
+    if (!customer?.banUntil) return;
+    
+    const interval = setInterval(() => {
+      const until = new Date(customer.banUntil!).getTime();
+      const now = new Date().getTime();
+      const diff = until - now;
+      
+      if (diff <= 0) {
+        setTimeLeft(null);
+        clearInterval(interval);
+      } else {
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+      }
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [customer?.banUntil]);
 
   const getAuthErrorDetails = (code: string) => {
     switch (code) {
@@ -63,8 +89,6 @@ export default function LoginPage() {
         return { message: 'Email Taken', hint: 'This email is already registered. Try Logging In instead.' };
       case 'auth/weak-password':
         return { message: 'Weak Password', hint: 'Your password is too simple. Try using at least 6 characters.' };
-      case 'auth/popup-closed-by-user':
-        return { message: 'Sign-in Cancelled', hint: 'The Google popup was closed before completion. Please try again.' };
       default:
         return { message: 'Authentication Error', hint: 'Something went wrong. Please check your connection and try again.' };
     }
@@ -105,7 +129,8 @@ export default function LoginPage() {
           firstName: displayName.split(' ')[0] || 'Artisan',
           lastName: displayName.split(' ')[1] || 'Enthusiast',
           role: 'user',
-          isVerified: false
+          isVerified: false,
+          failedAttempts: 0
         }, { merge: true });
         
         setShowOtpStep(true);
@@ -139,7 +164,8 @@ export default function LoginPage() {
           firstName: u.displayName?.split(' ')[0] || 'Artisan',
           lastName: u.displayName?.split(' ')[1] || 'Enthusiast',
           role: 'user',
-          isVerified: false
+          isVerified: false,
+          failedAttempts: 0
         }, { merge: true });
       })
       .catch((err: any) => {
@@ -150,22 +176,54 @@ export default function LoginPage() {
 
   const handleVerifyOtp = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !customer) return;
+    
+    // Check for ban
+    if (customer.banUntil && new Date(customer.banUntil) > new Date()) {
+      setError({ message: 'Account Restricted', hint: 'Too many failed attempts. Please try again after the timeout.' });
+      return;
+    }
+
     setLoading(true);
     setError(null);
     
-    // Simulate OTP verification logic
     if (otp === '123456') {
       const customerRef = doc(db, 'customers', user.uid);
-      updateDocumentNonBlocking(customerRef, { isVerified: true });
-      // Wait for a moment to allow the Firestore update to propagate locally
-      // and then unset loading so the useEffect can perform the redirection.
+      updateDocumentNonBlocking(customerRef, { 
+        isVerified: true,
+        failedAttempts: 0,
+        banUntil: null
+      });
       setTimeout(() => {
         setLoading(false);
       }, 1000);
     } else {
-      setError({ message: 'Invalid OTP', hint: 'Please use the test code provided in the hint below.' });
-      setLoading(false);
+      const newAttempts = (customer.failedAttempts || 0) + 1;
+      const customerRef = doc(db, 'customers', user.uid);
+      
+      if (newAttempts >= 5) {
+        const banDate = new Date();
+        banDate.setHours(banDate.getHours() + 24);
+        updateDocumentNonBlocking(customerRef, { 
+          failedAttempts: newAttempts,
+          banUntil: banDate.toISOString()
+        });
+        setError({ 
+          message: 'Security Ban Triggered', 
+          hint: '5 failed attempts. Access restricted for 24 hours. Returning to Sign-in.' 
+        });
+        setTimeout(() => {
+          setShowOtpStep(false);
+          setLoading(false);
+        }, 3000);
+      } else {
+        updateDocumentNonBlocking(customerRef, { failedAttempts: newAttempts });
+        setError({ 
+          message: 'Invalid Verification Code', 
+          hint: `Attempt ${newAttempts} of 5. Please enter the correct code.` 
+        });
+        setLoading(false);
+      }
     }
   };
 
@@ -187,6 +245,8 @@ export default function LoginPage() {
   );
 
   if (showOtpStep) {
+    const isBanned = timeLeft !== null;
+
     return (
       <div className="container mx-auto px-4 py-20 min-h-[calc(100vh-80px)] flex items-center justify-center">
         <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -195,47 +255,73 @@ export default function LoginPage() {
               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
                 <PhoneIncoming className="h-8 w-8 text-primary" />
               </div>
-              <CardTitle className="text-2xl font-headline font-bold text-secondary">Verify Identity</CardTitle>
-              <CardDescription>A 6-digit verification code was sent to your account.</CardDescription>
+              <CardTitle className="text-2xl font-headline font-bold text-secondary">
+                {isBanned ? "Access Restricted" : "Verify Identity"}
+              </CardTitle>
+              <CardDescription>
+                {isBanned ? "Security measure in effect." : "A 6-digit verification code was sent to your account."}
+              </CardDescription>
             </CardHeader>
             <CardContent className="p-8 space-y-6">
-              {error && (
-                <Alert variant="destructive" className="rounded-2xl border-2">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>{error.message}</AlertTitle>
-                  <AlertDescription>{error.hint}</AlertDescription>
-                </Alert>
-              )}
-              
-              <Alert className="bg-primary/5 border-primary/20 rounded-2xl">
-                <Info className="h-4 w-4 text-primary" />
-                <AlertTitle className="text-xs font-bold uppercase tracking-wider">Heritage Verification</AlertTitle>
-                <AlertDescription className="text-xs italic">
-                  Note: This is a prototype. Please use the test code: <strong className="text-primary font-bold">123456</strong> to proceed.
-                </AlertDescription>
-              </Alert>
-
-              <form onSubmit={handleVerifyOtp} className="space-y-6">
-                <div className="space-y-3">
-                  <Label className="uppercase tracking-[0.2em] text-[10px] font-bold text-muted-foreground">One-Time Password</Label>
-                  <Input 
-                    type="text" 
-                    maxLength={6} 
-                    className="h-16 text-center text-3xl font-black tracking-[0.5em] rounded-2xl border-2 focus:ring-primary focus:border-primary" 
-                    placeholder="000000"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    required
-                  />
+              {isBanned ? (
+                <div className="space-y-6 text-center">
+                  <Alert variant="destructive" className="rounded-2xl border-2">
+                    <Clock className="h-4 w-4" />
+                    <AlertTitle>Try again later</AlertTitle>
+                    <AlertDescription>Your account is temporarily locked due to excessive failed attempts.</AlertDescription>
+                  </Alert>
+                  <div className="bg-muted p-6 rounded-2xl">
+                    <p className="text-xs uppercase tracking-widest font-bold text-muted-foreground mb-2">Wait Time Remaining</p>
+                    <p className="text-4xl font-black text-secondary tabular-nums">{timeLeft}</p>
+                  </div>
+                  <Button variant="outline" className="w-full h-14 rounded-2xl" onClick={() => setShowOtpStep(false)}>
+                    Return to Sign-in
+                  </Button>
                 </div>
-                <Button className="w-full h-14 rounded-2xl bg-secondary hover:bg-secondary/90 text-white font-bold text-lg shadow-xl" disabled={loading}>
-                  {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Complete Registration"}
-                </Button>
-              </form>
+              ) : (
+                <>
+                  {error && (
+                    <Alert variant="destructive" className="rounded-2xl border-2">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>{error.message}</AlertTitle>
+                      <AlertDescription>{error.hint}</AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  <Alert className="bg-primary/5 border-primary/20 rounded-2xl">
+                    <Info className="h-4 w-4 text-primary" />
+                    <AlertTitle className="text-xs font-bold uppercase tracking-wider">Heritage Verification</AlertTitle>
+                    <AlertDescription className="text-xs italic">
+                      Note: Prototype test code: <strong className="text-primary font-bold">123456</strong>. You have {5 - (customer?.failedAttempts || 0)} attempts remaining.
+                    </AlertDescription>
+                  </Alert>
+
+                  <form onSubmit={handleVerifyOtp} className="space-y-6">
+                    <div className="space-y-3">
+                      <Label className="uppercase tracking-[0.2em] text-[10px] font-bold text-muted-foreground">One-Time Password</Label>
+                      <Input 
+                        type="text" 
+                        maxLength={6} 
+                        className="h-16 text-center text-3xl font-black tracking-[0.5em] rounded-2xl border-2 focus:ring-primary focus:border-primary" 
+                        placeholder="000000"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        required
+                        disabled={loading}
+                      />
+                    </div>
+                    <Button className="w-full h-14 rounded-2xl bg-secondary hover:bg-secondary/90 text-white font-bold text-lg shadow-xl" disabled={loading}>
+                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Complete Registration"}
+                    </Button>
+                  </form>
+                </>
+              )}
             </CardContent>
-            <CardFooter className="bg-muted/30 p-4 justify-center">
-              <p className="text-xs text-muted-foreground">Didn't receive the code? <button className="text-primary font-bold hover:underline" onClick={() => setError({ message: "Resent", hint: "Check your spam folder just in case." })}>Resend Code</button></p>
-            </CardFooter>
+            {!isBanned && (
+              <CardFooter className="bg-muted/30 p-4 justify-center">
+                <p className="text-xs text-muted-foreground">Didn't receive the code? <button className="text-primary font-bold hover:underline" onClick={() => setError({ message: "Resent", hint: "Check your spam folder just in case." })}>Resend Code</button></p>
+              </CardFooter>
+            )}
           </Card>
         </div>
       </div>
