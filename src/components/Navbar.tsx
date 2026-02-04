@@ -1,19 +1,26 @@
 
-"use client";
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, LayoutDashboard, Store, Menu, X, Home, Palette, User } from 'lucide-react';
+import { ShoppingBag, LayoutDashboard, Store, Menu, X, Home, Palette, User, Search, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useUser, useDoc, useMemoFirebase, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Customer } from '@/lib/mock-data';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 export function Navbar() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { user } = useUser();
   const db = useFirestore();
 
@@ -26,6 +33,14 @@ export function Navbar() {
 
   const isAdmin = customer?.role === 'owner' || customer?.role === 'store admin';
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const navLinks = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/shop', label: 'Shop', icon: Store },
@@ -33,94 +48,165 @@ export function Navbar() {
 
   if (isAdmin) {
     navLinks.push({ href: '/admin/dashboard', label: 'Admin', icon: LayoutDashboard });
-    navLinks.push({ href: '/admin/customization', label: 'Customize', icon: Palette });
   }
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 flex h-16 items-center">
-        {/* Left Section: Logo */}
-        <div className="flex-1 flex justify-start">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-headline font-bold text-secondary">Vridhira</span>
+    <header className={cn(
+      "sticky top-0 z-50 w-full transition-all duration-300 border-b",
+      isScrolled 
+        ? "bg-background/80 backdrop-blur-md h-16 shadow-sm" 
+        : "bg-background h-20 shadow-none"
+    )}>
+      <div className="container mx-auto px-4 h-full flex items-center relative">
+        
+        {/* Left: Logo - Fixed to the left */}
+        <div className="flex-[1_0_0] flex justify-start">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="relative w-9 h-9 md:w-11 md:h-11 flex items-center justify-center">
+                <div className="absolute inset-0 bg-primary/20 rotate-45 rounded-lg group-hover:rotate-90 transition-transform duration-500" />
+                <span className="relative font-headline font-bold text-2xl text-primary">V</span>
+            </div>
+            <span className="text-xl md:text-2xl font-headline font-bold text-secondary hidden sm:inline-block tracking-tight">
+              Vridhira
+            </span>
           </Link>
         </div>
 
-        {/* Middle Section: Navigation Links (Desktop) */}
-        <div className="hidden md:flex items-center justify-center gap-6">
+        {/* Center: Navigation (Desktop Only) - Perfectly centered */}
+        <nav className="hidden lg:flex items-center justify-center gap-10 absolute left-1/2 -translate-x-1/2">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary",
-                pathname === link.href ? "text-primary" : "text-muted-foreground"
+                "relative py-1 text-sm font-medium transition-all hover:text-primary tracking-wide uppercase text-[12px]",
+                pathname === link.href ? "text-primary font-bold" : "text-muted-foreground"
               )}
             >
-              <link.icon className="h-4 w-4" />
               {link.label}
-            </Link>
-          ))}
-        </div>
-
-        {/* Right Section: Cart, Auth, and Toggle */}
-        <div className="flex-1 flex justify-end items-center gap-2">
-          {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <ShoppingBag className="h-4 w-4" />
-              Cart
-            </Button>
-            
-            {user ? (
-              <Button variant="secondary" size="sm" className="gap-2 bg-secondary text-secondary-foreground">
-                <User className="h-4 w-4" />
-                {customer?.firstName || 'Account'}
-              </Button>
-            ) : (
-              <Link href="/login">
-                <Button variant="secondary" size="sm" className="bg-secondary text-secondary-foreground px-6">
-                  Sign In
-                </Button>
-              </Link>
-            )}
-          </div>
-
-          {/* Mobile Nav Toggle */}
-          <button className="md:hidden p-2" onClick={() => setIsOpen(!isOpen)}>
-            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Nav Menu */}
-      {isOpen && (
-        <div className="md:hidden border-t bg-background p-4 flex flex-col gap-4">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setIsOpen(false)}
-              className={cn(
-                "flex items-center gap-3 text-lg font-medium",
-                pathname === link.href ? "text-primary" : "text-muted-foreground"
+              {pathname === link.href && (
+                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary rounded-full" />
               )}
-            >
-              <link.icon className="h-5 w-5" />
-              {link.label}
             </Link>
           ))}
-          <Button variant="ghost" className="w-full justify-start">
-            <ShoppingBag className="mr-2 h-5 w-5" />
-            Cart
+        </nav>
+
+        {/* Right: Actions - Fixed to the right */}
+        <div className="flex-[1_0_0] flex justify-end items-center gap-2 sm:gap-4">
+          
+          <Button variant="ghost" size="icon" className="hidden sm:flex text-muted-foreground hover:text-primary">
+            <Search className="h-5 w-5" />
           </Button>
-          {!user && (
-            <Link href="/login" onClick={() => setIsOpen(false)}>
-              <Button variant="secondary" className="w-full bg-secondary text-secondary-foreground">Sign In</Button>
+
+          {/* Cart - Left of Sign In */}
+          <Button variant="ghost" size="icon" className="relative group text-muted-foreground hover:text-primary" asChild>
+            <Link href="/cart">
+              <ShoppingBag className="h-5 w-5 transition-transform group-hover:-translate-y-0.5" />
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-bold">
+                0
+              </span>
+            </Link>
+          </Button>
+
+          {/* User Auth - Far right, prominent blue button */}
+          {user ? (
+            <Link href="/account" className="hidden sm:block">
+              <Button variant="secondary" size="sm" className="gap-2 bg-secondary text-secondary-foreground hover:opacity-90 rounded-full px-5 h-10 border-none transition-all">
+                <User className="h-4 w-4" />
+                <span className="max-w-[120px] truncate font-medium">
+                    {customer?.firstName || 'Account'}
+                </span>
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/login" className="hidden sm:block">
+              <Button variant="secondary" size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-all rounded-full px-7 h-10 font-bold tracking-wide uppercase text-[12px]">
+                Sign In
+              </Button>
             </Link>
           )}
+
+          {/* Mobile Menu Toggle (Tablet/Mobile) */}
+          <div className="lg:hidden flex items-center">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-secondary hover:bg-primary/10">
+                  <Menu className="h-7 w-7" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full sm:max-w-md p-0 overflow-hidden border-none flex flex-col">
+                <SheetHeader className="p-8 pb-4 text-left border-b bg-muted/30">
+                  <SheetTitle className="font-headline text-3xl text-secondary flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white">V</div>
+                    Vridhira
+                  </SheetTitle>
+                </SheetHeader>
+                
+                <div className="flex-1 px-8 py-10 space-y-8 overflow-y-auto">
+                    <div className="space-y-4">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground px-1">Navigation</p>
+                        <div className="grid gap-2">
+                            {navLinks.map((link) => (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    className={cn(
+                                        "flex items-center justify-between p-4 rounded-2xl transition-all",
+                                        pathname === link.href 
+                                            ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                                            : "bg-muted/50 text-secondary hover:bg-muted"
+                                    )}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <link.icon className="h-5 w-5" />
+                                        <span className="text-lg font-bold">{link.label}</span>
+                                    </div>
+                                    <ChevronRight className={cn("h-5 w-5 opacity-50", pathname === link.href && "opacity-100")} />
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground px-1">Store Actions</p>
+                        <div className="grid grid-cols-2 gap-4">
+                            <Link href="/cart" className="flex flex-col items-center justify-center p-6 bg-muted/50 rounded-2xl gap-2 hover:bg-primary/5 transition-colors">
+                                <div className="p-3 bg-white rounded-xl shadow-sm">
+                                    <ShoppingBag className="h-6 w-6 text-primary" />
+                                </div>
+                                <span className="font-bold text-secondary">Cart</span>
+                            </Link>
+                            <Link href="/search" className="flex flex-col items-center justify-center p-6 bg-muted/50 rounded-2xl gap-2 hover:bg-primary/5 transition-colors">
+                                <div className="p-3 bg-white rounded-xl shadow-sm">
+                                    <Search className="h-6 w-6 text-primary" />
+                                </div>
+                                <span className="font-bold text-secondary">Search</span>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-8 border-t bg-muted/30">
+                    {user ? (
+                        <Link href="/account">
+                            <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold gap-3">
+                                <User className="h-5 w-5" />
+                                My Account
+                            </Button>
+                        </Link>
+                    ) : (
+                        <Link href="/login">
+                            <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold">
+                                Sign In to Explore
+                            </Button>
+                        </Link>
+                    )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
-      )}
-    </nav>
+      </div>
+    </header>
   );
 }
