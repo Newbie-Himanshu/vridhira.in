@@ -24,7 +24,6 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // Smart redirection rule: default to home if logged in from sign-in page directly
   const returnTo = searchParams.get('returnTo') || '/';
 
   const [loading, setLoading] = useState(false);
@@ -54,7 +53,6 @@ export default function LoginPage() {
     }
   }, [user, customer, loading, router, db, returnTo]);
 
-  // Timer for ban status
   useEffect(() => {
     if (!customer?.banUntil) return;
     
@@ -101,6 +99,13 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     initiateEmailSignIn(auth, email, password)
+      .then((cred) => {
+        // Promote specific email to owner on sign in
+        if (cred.user.email === 'hk8913114@gmail.com') {
+          const customerRef = doc(db, 'customers', cred.user.uid);
+          updateDocumentNonBlocking(customerRef, { role: 'owner' });
+        }
+      })
       .catch((err: any) => {
         setError(getAuthErrorDetails(err.code));
         setLoading(false);
@@ -130,7 +135,7 @@ export default function LoginPage() {
           email: u.email,
           firstName: displayName.split(' ')[0] || 'Artisan',
           lastName: displayName.split(' ')[1] || 'Enthusiast',
-          role: 'user',
+          role: u.email === 'hk8913114@gmail.com' ? 'owner' : 'user',
           isVerified: false,
           failedAttempts: 0
         }, { merge: true });
@@ -165,7 +170,7 @@ export default function LoginPage() {
           email: u.email,
           firstName: u.displayName?.split(' ')[0] || 'Artisan',
           lastName: u.displayName?.split(' ')[1] || 'Enthusiast',
-          role: 'user',
+          role: u.email === 'hk8913114@gmail.com' ? 'owner' : 'user',
           isVerified: false,
           failedAttempts: 0
         }, { merge: true });
@@ -180,7 +185,6 @@ export default function LoginPage() {
     e.preventDefault();
     if (!user || !customer) return;
     
-    // Check for ban
     if (customer.banUntil && new Date(customer.banUntil) > new Date()) {
       setError({ message: 'Account Restricted', hint: 'Too many failed attempts. Please try again after the timeout.' });
       return;
@@ -198,7 +202,6 @@ export default function LoginPage() {
       });
       setTimeout(() => {
         setLoading(false);
-        // redirection handled by the useEffect watching customer.isVerified
       }, 1000);
     } else {
       const newAttempts = (customer.failedAttempts || 0) + 1;
