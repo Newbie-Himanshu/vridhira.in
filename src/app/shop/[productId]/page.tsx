@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useParams } from 'next/navigation';
+import { use } from 'react';
 import { useDoc, useMemoFirebase, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { MOCK_PRODUCTS, Product, PageSettings } from '@/lib/mock-data';
@@ -12,8 +12,8 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
-export default function ProductPage() {
-  const { productId } = useParams();
+export default function ProductPage({ params }: { params: Promise<{ productId: string }> }) {
+  const { productId } = use(params);
   const db = useFirestore();
 
   // In a real app, we fetch from Firestore. For this prototype, we'll use MOCK_PRODUCTS
