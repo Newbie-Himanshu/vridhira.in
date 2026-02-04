@@ -36,7 +36,7 @@ export default function CartPage() {
 
   if (isUserLoading || (user && isCartLoading)) {
     return (
-      <div className="container mx-auto px-4 py-20 flex justify-center">
+      <div className="container mx-auto px-4 py-32 flex justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
@@ -84,7 +84,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-7xl">
+    <div className="container mx-auto px-4 pt-32 pb-12 max-w-7xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8 animate-in slide-in-from-top-4 duration-700">
         <div className="space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest">
@@ -120,8 +120,8 @@ export default function CartPage() {
                         <p className="text-2xl font-bold text-primary">${(item.price * item.quantity).toFixed(2)}</p>
                       </div>
                       <div className="flex flex-wrap gap-2 items-center">
-                        <Badge variant="outline" className="bg-white text-[10px] uppercase tracking-wider">{item.product?.category}</Badge>
-                        {item.variant && <Badge className="bg-secondary/10 text-secondary text-[10px] uppercase tracking-wider">Style: {item.variant.name}</Badge>}
+                        <Badge variant="outline" className="bg-white text-[10px] uppercase tracking-wider font-bold border-border/50">{item.product?.category}</Badge>
+                        {item.variant && <Badge className="bg-secondary/10 text-secondary text-[10px] uppercase tracking-wider font-bold">Style: {item.variant.name}</Badge>}
                       </div>
                     </div>
                     <div className="flex items-center justify-between mt-8 pt-6 border-t border-border/30">
