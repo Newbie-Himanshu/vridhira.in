@@ -1,0 +1,41 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "terracotta-pot",
+      "description": "Handcrafted terracotta pot with traditional motifs",
+      "imageUrl": "https://picsum.photos/seed/pot1/600/400",
+      "imageHint": "terracotta pottery"
+    },
+    {
+      "id": "silk-saree",
+      "description": "Elegant hand-woven Banarasi silk saree",
+      "imageUrl": "https://picsum.photos/seed/saree1/600/400",
+      "imageHint": "silk textile"
+    },
+    {
+      "id": "wooden-elephant",
+      "description": "Intricately carved sandalwood elephant",
+      "imageUrl": "https://picsum.photos/seed/elephant1/600/400",
+      "imageHint": "wooden craft"
+    },
+    {
+      "id": "brass-lamp",
+      "description": "Traditional brass oil lamp with peacock design",
+      "imageUrl": "https://picsum.photos/seed/lamp1/600/400",
+      "imageHint": "brass artifact"
+    },
+    {
+      "id": "mural-painting",
+      "description": "Madhubani style mural painting",
+      "imageUrl": "https://picsum.photos/seed/mural1/600/400",
+      "imageHint": "indian painting"
+    },
+    {
+      "id": "leather-juttis",
+      "description": "Hand-stitched leather juttis with embroidery",
+      "imageUrl": "https://picsum.photos/seed/shoes1/600/400",
+      "imageHint": "leather footwear"
+    }
+  ]
+}
