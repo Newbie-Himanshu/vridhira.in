@@ -190,7 +190,29 @@ export function Navbar() {
                       <span className="transition-colors duration-300 group-hover:text-primary">Vridhira</span>
                     </SheetTitle>
                   </SheetHeader>
-                  <div className="flex-1 px-8 py-10 space-y-8 overflow-y-auto">
+                  <div className="flex-1 px-8 py-10 space-y-10 overflow-y-auto">
+                      {/* Quick Access Section */}
+                      <div className="space-y-4">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1">Quick Access</p>
+                          <div className="grid grid-cols-2 gap-3">
+                              <Button variant="outline" className="h-16 rounded-2xl border-muted-foreground/20 gap-3 justify-start px-6 group">
+                                  <Search className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                                  <span className="font-bold text-sm">Search</span>
+                              </Button>
+                              <Button variant="outline" className="h-16 rounded-2xl border-muted-foreground/20 gap-3 justify-start px-6 relative group" asChild>
+                                  <Link href="/cart">
+                                      <ShoppingBag className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                                      <span className="font-bold text-sm">Cart</span>
+                                      {cartCount > 0 && (
+                                        <span className="absolute top-3 right-3 w-5 h-5 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-bold shadow-sm">
+                                          {cartCount}
+                                        </span>
+                                      )}
+                                  </Link>
+                              </Button>
+                          </div>
+                      </div>
+
                       <div className="space-y-4">
                           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1">Discover</p>
                           <div className="grid gap-2">
