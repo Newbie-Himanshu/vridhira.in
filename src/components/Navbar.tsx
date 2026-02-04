@@ -66,15 +66,15 @@ export function Navbar() {
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full z-50 pointer-events-none flex justify-center pt-0 transition-all duration-500 ease-in-out">
+    <div className="fixed top-0 left-0 w-full z-50 pointer-events-none flex justify-center pt-0 transition-all duration-700 ease-in-out">
       <header className={cn(
-        "pointer-events-auto transition-all duration-500 ease-in-out flex items-center justify-center",
+        "pointer-events-auto transition-all duration-700 ease-in-out flex items-center justify-center overflow-hidden",
         isScrolled 
-          ? "mt-4 w-[92%] md:w-auto md:min-w-[700px] max-w-6xl h-16 bg-background/80 backdrop-blur-md rounded-full border border-border/50 shadow-2xl" 
-          : "w-full h-20 bg-background border-b border-transparent shadow-none"
+          ? "mt-4 w-[92%] md:w-[70%] max-w-6xl h-16 bg-background/80 backdrop-blur-md rounded-full border border-border/50 shadow-2xl" 
+          : "w-full h-20 bg-background border-b border-transparent shadow-none rounded-none"
       )}>
         <div className={cn(
-          "w-full px-6 h-full flex items-center relative transition-all duration-500",
+          "w-full px-6 h-full flex items-center relative transition-all duration-700",
           isScrolled ? "max-w-none" : "container mx-auto"
         )}>
           
