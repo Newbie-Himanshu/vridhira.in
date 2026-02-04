@@ -59,7 +59,7 @@ export function Navbar() {
     )}>
       <div className="container mx-auto px-4 h-full flex items-center relative">
         
-        {/* Left: Logo - Fixed to the left */}
+        {/* Left Column: Logo & Brand */}
         <div className="flex-[1_0_0] flex justify-start">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="relative w-9 h-9 md:w-11 md:h-11 flex items-center justify-center">
@@ -72,7 +72,7 @@ export function Navbar() {
           </Link>
         </div>
 
-        {/* Center: Navigation (Desktop Only) - Perfectly centered */}
+        {/* Center Column: Navigation (Desktop Only) */}
         <nav className="hidden lg:flex items-center justify-center gap-10 absolute left-1/2 -translate-x-1/2">
           {navLinks.map((link) => (
             <Link
@@ -91,14 +91,14 @@ export function Navbar() {
           ))}
         </nav>
 
-        {/* Right: Actions - Fixed to the right */}
+        {/* Right Column: Actions (Dynamic spacing) */}
         <div className="flex-[1_0_0] flex justify-end items-center gap-2 sm:gap-4">
           
           <Button variant="ghost" size="icon" className="hidden sm:flex text-muted-foreground hover:text-primary">
             <Search className="h-5 w-5" />
           </Button>
 
-          {/* Cart - Left of Sign In */}
+          {/* Cart Section */}
           <Button variant="ghost" size="icon" className="relative group text-muted-foreground hover:text-primary" asChild>
             <Link href="/cart">
               <ShoppingBag className="h-5 w-5 transition-transform group-hover:-translate-y-0.5" />
@@ -108,7 +108,7 @@ export function Navbar() {
             </Link>
           </Button>
 
-          {/* User Auth - Far right, prominent blue button */}
+          {/* User Authentication (Hidden on small mobile, shown on tablet/desktop) */}
           {user ? (
             <Link href="/account" className="hidden sm:block">
               <Button variant="secondary" size="sm" className="gap-2 bg-secondary text-secondary-foreground hover:opacity-90 rounded-full px-5 h-10 border-none transition-all">
@@ -126,7 +126,7 @@ export function Navbar() {
             </Link>
           )}
 
-          {/* Mobile Menu Toggle (Tablet/Mobile) */}
+          {/* Mobile Menu (Sheet Component) */}
           <div className="lg:hidden flex items-center">
             <Sheet>
               <SheetTrigger asChild>
