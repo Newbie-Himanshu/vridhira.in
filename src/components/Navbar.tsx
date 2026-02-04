@@ -59,20 +59,21 @@ export function Navbar() {
             </Link>
           ))}
           <div className="flex items-center gap-2 ml-4">
+             <Button variant="ghost" size="sm" className="gap-2">
+              <ShoppingBag className="h-4 w-4" />
+              Cart
+            </Button>
+            
              {user ? (
-               <Button variant="ghost" size="sm" className="gap-2">
+               <Button variant="secondary" size="sm" className="gap-2 bg-secondary text-secondary-foreground">
                  <User className="h-4 w-4" />
                  {customer?.firstName || 'Account'}
                </Button>
              ) : (
                <Link href="/login">
-                 <Button variant="ghost" size="sm">Sign In</Button>
+                 <Button variant="secondary" size="sm" className="bg-secondary text-secondary-foreground">Sign In</Button>
                </Link>
              )}
-             <Button variant="secondary" size="sm" className="bg-secondary text-secondary-foreground">
-              <ShoppingBag className="mr-2 h-4 w-4" />
-              Cart
-            </Button>
           </div>
         </div>
 
@@ -99,7 +100,7 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
-          <Button variant="secondary" className="w-full">
+          <Button variant="ghost" className="w-full justify-start">
             <ShoppingBag className="mr-2 h-5 w-5" />
             Cart
           </Button>
