@@ -10,10 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sparkles, Mail, Lock, User, Loader2, ShieldCheck } from 'lucide-react';
+import { Sparkles, Mail, Lock, User, Loader2, ShieldCheck, AlertCircle } from 'lucide-react';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { syncLocalCartToCloud } from '@/lib/cart-actions';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function LoginPage() {
   const { user, isUserLoading } = useUser();
@@ -25,6 +26,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [error, setError] = useState<{ message: string; hint: string } | null>(null);
 
   useEffect(() => {
     if (user && !loading) {
@@ -33,21 +35,57 @@ export default function LoginPage() {
     }
   }, [user, loading, router, db]);
 
+  const getAuthErrorDetails = (code: string) => {
+    switch (code) {
+      case 'auth/invalid-email':
+        return { message: 'Invalid Email', hint: 'Please check your email format (e.g., name@example.com).' };
+      case 'auth/user-disabled':
+        return { message: 'Account Disabled', hint: 'This account has been suspended. Please contact heritage support.' };
+      case 'auth/user-not-found':
+        return { message: 'User Not Found', hint: 'We couldn\'t find an account with this email. Did you mean to Sign Up?' };
+      case 'auth/wrong-password':
+        return { message: 'Incorrect Password', hint: 'The password you entered is incorrect. Double-check your spelling or reset it.' };
+      case 'auth/email-already-in-use':
+        return { message: 'Email Taken', hint: 'This email is already registered. Try Logging In instead.' };
+      case 'auth/weak-password':
+        return { message: 'Weak Password', hint: 'Your password is too simple. Try using at least 6 characters.' };
+      case 'auth/popup-closed-by-user':
+        return { message: 'Sign-in Cancelled', hint: 'The Google popup was closed before completion. Please try again.' };
+      default:
+        return { message: 'Authentication Error', hint: 'Something went wrong. Please check your connection and try again.' };
+    }
+  };
+
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    initiateEmailSignIn(auth, email, password);
+    setError(null);
+    initiateEmailSignIn(auth, email, password)
+      .catch((err: any) => {
+        setError(getAuthErrorDetails(err.code));
+        setLoading(false);
+      });
   };
 
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    initiateEmailSignUp(auth, email, password);
+    setError(null);
+    initiateEmailSignUp(auth, email, password)
+      .catch((err: any) => {
+        setError(getAuthErrorDetails(err.code));
+        setLoading(false);
+      });
   };
 
   const handleGoogleSignIn = () => {
     setLoading(true);
-    initiateGoogleSignIn(auth);
+    setError(null);
+    initiateGoogleSignIn(auth)
+      .catch((err: any) => {
+        setError(getAuthErrorDetails(err.code));
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -63,8 +101,6 @@ export default function LoginPage() {
         creationTime: serverTimestamp(),
       }, { merge: true });
 
-      // By default, everyone is a 'user'. Admins must be promoted by Owner.
-      // We use setDoc with merge: true to avoid overwriting existing roles if logging back in
       setDoc(customerRef, {
         id: user.uid,
         email: user.email,
@@ -105,6 +141,16 @@ export default function LoginPage() {
           </div>
         </div>
 
+        {error && (
+          <Alert variant="destructive" className="rounded-2xl border-2 bg-destructive/5 animate-in slide-in-from-top-2 duration-300">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle className="font-bold">{error.message}</AlertTitle>
+            <AlertDescription className="text-xs italic opacity-90">
+              Hint: {error.hint}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="space-y-6">
           <Button 
             variant="outline" 
@@ -120,7 +166,7 @@ export default function LoginPage() {
             <div className="relative flex justify-center text-[10px] uppercase tracking-widest"><span className="bg-background px-4 text-muted-foreground">Or use email</span></div>
           </div>
 
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs defaultValue="login" className="w-full" onValueChange={() => setError(null)}>
             <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 p-1 rounded-full h-12">
               <TabsTrigger value="login" className="rounded-full">Login</TabsTrigger>
               <TabsTrigger value="signup" className="rounded-full">Sign Up</TabsTrigger>
@@ -130,9 +176,28 @@ export default function LoginPage() {
                 <CardHeader><CardTitle className="font-headline">Welcome Back</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                   <form onSubmit={handleSignIn} className="space-y-4">
-                    <div className="space-y-2"><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
-                    <div className="space-y-2"><Label>Password</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
-                    <Button className="w-full h-12 rounded-2xl bg-primary text-white font-bold animate-pulse-glow" disabled={loading}>{loading ? <Loader2 className="animate-spin" /> : "Sign In"}</Button>
+                    <div className="space-y-2">
+                      <Label>Email</Label>
+                      <Input 
+                        type="email" 
+                        value={email} 
+                        onChange={(e) => { setEmail(e.target.value); setError(null); }} 
+                        required 
+                        placeholder="artisan@vridhira.com"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Password</Label>
+                      <Input 
+                        type="password" 
+                        value={password} 
+                        onChange={(e) => { setPassword(e.target.value); setError(null); }} 
+                        required 
+                      />
+                    </div>
+                    <Button className="w-full h-12 rounded-2xl bg-primary text-white font-bold animate-pulse-glow" disabled={loading}>
+                      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign In"}
+                    </Button>
                   </form>
                 </CardContent>
               </Card>
@@ -142,10 +207,36 @@ export default function LoginPage() {
                 <CardHeader><CardTitle className="font-headline">Create Account</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                   <form onSubmit={handleSignUp} className="space-y-4">
-                    <div className="space-y-2"><Label>Display Name</Label><Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} required /></div>
-                    <div className="space-y-2"><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
-                    <div className="space-y-2"><Label>Password</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
-                    <Button className="w-full h-12 rounded-2xl bg-secondary text-white font-bold" disabled={loading}>{loading ? <Loader2 className="animate-spin" /> : "Start Journey"}</Button>
+                    <div className="space-y-2">
+                      <Label>Display Name</Label>
+                      <Input 
+                        value={displayName} 
+                        onChange={(e) => { setDisplayName(e.target.value); setError(null); }} 
+                        required 
+                        placeholder="Heritage Lover"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Email</Label>
+                      <Input 
+                        type="email" 
+                        value={email} 
+                        onChange={(e) => { setEmail(e.target.value); setError(null); }} 
+                        required 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Password</Label>
+                      <Input 
+                        type="password" 
+                        value={password} 
+                        onChange={(e) => { setPassword(e.target.value); setError(null); }} 
+                        required 
+                      />
+                    </div>
+                    <Button className="w-full h-12 rounded-2xl bg-secondary text-white font-bold" disabled={loading}>
+                      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Start Journey"}
+                    </Button>
                   </form>
                 </CardContent>
               </Card>
