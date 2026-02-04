@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, LayoutDashboard, Store, Menu, X } from 'lucide-react';
+import { ShoppingBag, LayoutDashboard, Store, Menu, X, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -13,7 +13,8 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { href: '/', label: 'Shop', icon: Store },
+    { href: '/', label: 'Home', icon: Home },
+    { href: '/shop', label: 'Shop', icon: Store },
     { href: '/admin/dashboard', label: 'Admin', icon: LayoutDashboard },
   ];
 

@@ -2,6 +2,12 @@
 {
   "placeholderImages": [
     {
+      "id": "hero-artisan",
+      "description": "An artisan meticulously weaving a traditional textile on a wooden loom",
+      "imageUrl": "https://picsum.photos/seed/artisan1/1200/800",
+      "imageHint": "artisan weaving"
+    },
+    {
       "id": "terracotta-pot",
       "description": "Handcrafted terracotta pot with traditional motifs",
       "imageUrl": "https://picsum.photos/seed/pot1/600/400",
