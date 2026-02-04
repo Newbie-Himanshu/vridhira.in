@@ -78,8 +78,8 @@ export function AdminSidebar() {
       {/* Spacer for Navbar on Desktop fixed sidebar */}
       {!isFloating && <div className="hidden lg:block h-20 shrink-0" />}
       
-      <div className="flex-1 py-6 px-4 space-y-4 overflow-y-auto scrollbar-hide">
-        <div className="space-y-1">
+      <div className="flex-1 py-6 px-4 space-y-6 overflow-y-auto scrollbar-hide">
+        <div className="space-y-2">
           {mainNavItems.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -89,16 +89,18 @@ export function AdminSidebar() {
                     <Link href={item.href}>
                       <div
                         className={cn(
-                          "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group",
+                          "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all group",
                           isActive 
-                            ? "bg-primary text-white shadow-lg" 
-                            : isFloating ? "text-white/70 hover:bg-white/10 hover:text-white" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                            ? "bg-primary text-white shadow-xl scale-[1.02]" 
+                            : isFloating 
+                              ? "text-white/80 hover:bg-white/10 hover:text-white" 
+                              : "text-muted-foreground hover:bg-muted hover:text-foreground",
                           collapsed && "justify-center px-0"
                         )}
                       >
-                        <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-white" : isFloating ? "text-white/60 group-hover:text-white" : "text-muted-foreground group-hover:text-foreground")} />
-                        {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
-                        {isActive && !collapsed && <ChevronRight className="h-4 w-4" />}
+                        <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-white" : isFloating ? "text-white/60 group-hover:text-white" : "text-muted-foreground group-hover:text-foreground")} />
+                        {!collapsed && <span className="flex-1 truncate tracking-tight">{item.label}</span>}
+                        {isActive && !collapsed && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
                       </div>
                     </Link>
                   </TooltipTrigger>
@@ -112,7 +114,8 @@ export function AdminSidebar() {
             );
           })}
         </div>
-        <div className={cn("pt-4 border-t space-y-1", isFloating ? "border-white/10" : "border-border")}>
+        
+        <div className={cn("pt-6 border-t space-y-2", isFloating ? "border-white/10" : "border-border")}>
           {secondaryNavItems.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -122,14 +125,16 @@ export function AdminSidebar() {
                     <Link href={item.href}>
                       <div
                         className={cn(
-                          "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group",
+                          "flex items-center gap-4 px-4 py-3 rounded-2xl text-sm font-medium transition-all group",
                           isActive 
                             ? "bg-primary text-white shadow-lg" 
-                            : isFloating ? "text-white/70 hover:bg-white/10 hover:text-white" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                            : isFloating 
+                              ? "text-white/60 hover:bg-white/10 hover:text-white" 
+                              : "text-muted-foreground hover:bg-muted hover:text-foreground",
                           collapsed && "justify-center px-0"
                         )}
                       >
-                        <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-white" : isFloating ? "text-white/60 group-hover:text-white" : "text-muted-foreground group-hover:text-foreground")} />
+                        <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-white" : isFloating ? "text-white/40 group-hover:text-white" : "text-muted-foreground group-hover:text-foreground")} />
                         {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
                       </div>
                     </Link>
@@ -146,18 +151,20 @@ export function AdminSidebar() {
         </div>
       </div>
 
-      <div className={cn("p-4 border-t space-y-2", isFloating ? "border-white/10 bg-white/5" : "bg-muted/10")}>
+      <div className={cn("p-6 border-t space-y-2", isFloating ? "border-white/10 bg-white/5" : "bg-muted/10")}>
         <Button 
           variant="ghost" 
           onClick={handleSignOut}
           className={cn(
-            "w-full justify-start gap-3 transition-colors rounded-xl",
-            isFloating ? "text-white/60 hover:text-red-400 hover:bg-white/10" : "text-muted-foreground hover:text-destructive",
+            "w-full justify-start gap-4 transition-all rounded-2xl h-14 font-bold",
+            isFloating 
+              ? "text-white/60 hover:text-red-400 hover:bg-white/10" 
+              : "text-muted-foreground hover:text-destructive",
             collapsed && "justify-center px-0"
           )}
         >
-          <LogOut className="h-4 w-4 shrink-0" />
-          {!collapsed && <span className="truncate">Sign Out</span>}
+          <LogOut className="h-5 w-5 shrink-0" />
+          {!collapsed && <span className="truncate tracking-widest uppercase text-[10px]">Secure Sign Out</span>}
         </Button>
       </div>
     </div>
@@ -199,23 +206,37 @@ export function AdminSidebar() {
           <>
             {/* Click-outside listener (backdrop) */}
             <div 
-              className="fixed inset-0 z-40 bg-black/5" 
+              className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm" 
               onClick={() => setIsMobileMenuOpen(false)} 
             />
             
             <div className={cn(
-              "fixed bottom-24 right-6 w-[85vw] max-w-[320px] h-[45vh] z-50 rounded-[2.5rem] overflow-hidden border border-white/20 bg-secondary/40 backdrop-blur-2xl shadow-2xl flex flex-col animate-in slide-in-from-bottom-4 fade-in duration-300",
-              "ring-1 ring-white/10"
+              "fixed bottom-24 left-4 right-4 h-[55vh] z-50 rounded-[3rem] overflow-hidden border border-white/30 bg-white/10 backdrop-blur-[40px] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] flex flex-col animate-in slide-in-from-bottom-8 fade-in duration-500 ease-out",
+              "ring-1 ring-white/20"
             )}>
-              <div className="p-6 pb-4 border-b border-white/10 bg-white/5 shrink-0">
-                <div className="flex items-center gap-3">
-                  <div className="relative w-8 h-8 flex items-center justify-center">
-                      <div className="absolute inset-0 bg-primary rounded-lg animate-artisanal-rotation" />
-                      <span className="relative text-white font-bold text-sm">V</span>
+              {/* Header inside floating window */}
+              <div className="p-8 pb-4 border-b border-white/10 bg-white/5 shrink-0 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="relative w-10 h-10 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-primary rounded-xl animate-artisanal-rotation shadow-lg shadow-primary/20" />
+                      <span className="relative text-white font-bold text-lg">V</span>
                   </div>
-                  <span className="font-headline font-bold text-white text-lg">Admin Menu</span>
+                  <div>
+                    <h2 className="font-headline font-bold text-white text-xl leading-none">Marketplace Admin</h2>
+                    <p className="text-[10px] uppercase tracking-widest text-white/40 mt-1">Management Portal</p>
+                  </div>
                 </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="rounded-full text-white/60 hover:bg-white/10 h-10 w-10"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <X className="h-5 w-5" />
+                </Button>
               </div>
+
+              {/* Scrollable Nav Area */}
               <div className="flex-1 overflow-y-auto scrollbar-hide py-2">
                 <NavContent isFloating />
               </div>
@@ -227,15 +248,15 @@ export function AdminSidebar() {
         <Button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className={cn(
-            "fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl z-50 bg-secondary text-white hover:bg-secondary/90 border-none transition-all duration-300",
-            isMobileMenuOpen ? "rotate-90 scale-90" : "animate-pulse-glow"
+            "fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl z-50 bg-secondary text-white hover:bg-secondary/90 border border-white/20 transition-all duration-500 ease-in-out",
+            isMobileMenuOpen ? "rotate-90 scale-90 bg-primary border-primary shadow-primary/40" : "animate-pulse-glow"
           )}
           size="icon"
         >
           {isMobileMenuOpen ? (
-            <X className="h-7 w-7" />
+            <X className="h-8 w-8" />
           ) : (
-            <Menu className="h-7 w-7" />
+            <Menu className="h-8 w-8" />
           )}
         </Button>
       </div>
