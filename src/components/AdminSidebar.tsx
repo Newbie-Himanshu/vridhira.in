@@ -154,7 +154,7 @@ export function AdminSidebar() {
         </div>
       </div>
 
-      <div className={cn("p-4 border-t space-y-2", isFloating ? "border-white/10 bg-white/5" : "bg-muted/10")}>
+      <div className={cn("p-1 border-t space-y-2", isFloating ? "border-white/10 bg-white/5" : "bg-muted/10")}>
         <Button 
           variant="ghost" 
           onClick={handleSignOut}
