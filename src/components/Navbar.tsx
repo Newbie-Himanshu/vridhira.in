@@ -79,7 +79,7 @@ export function Navbar() {
         <div className="flex-[1_0_0] flex justify-start">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
-                <div className="absolute inset-0 bg-primary/10 rotate-45 rounded-lg animate-[spin_8s_linear_infinite]" />
+                <div className="absolute inset-0 bg-primary/10 rotate-45 rounded-lg animate-[spin_6s_linear_infinite]" />
                 <span className="relative font-headline font-bold text-2xl text-primary transition-transform duration-300 group-hover:scale-110">V</span>
             </div>
           </Link>
@@ -172,7 +172,7 @@ export function Navbar() {
                 <SheetHeader className="p-8 pb-4 text-left border-b bg-muted/30">
                   <SheetTitle className="font-headline text-3xl text-secondary flex items-center gap-4">
                     <div className="relative w-10 h-10 flex items-center justify-center">
-                        <div className="absolute inset-0 bg-primary rounded-lg animate-[spin_8s_linear_infinite]" />
+                        <div className="absolute inset-0 bg-primary rounded-lg animate-[spin_6s_linear_infinite]" />
                         <span className="relative text-white font-bold text-xl">V</span>
                     </div>
                     <span className="font-headline font-bold text-2xl tracking-tight animate-in fade-in slide-in-from-left-4 duration-1000 delay-300">

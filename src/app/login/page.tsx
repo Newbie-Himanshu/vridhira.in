@@ -102,7 +102,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
         <div className="text-center space-y-4">
           <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
-            <div className="absolute inset-0 bg-primary/10 rotate-45 rounded-2xl animate-[spin_8s_linear_infinite]" />
+            <div className="absolute inset-0 bg-primary/10 rotate-45 rounded-2xl animate-[spin_6s_linear_infinite]" />
             <span className="relative font-headline font-bold text-4xl text-primary">V</span>
           </div>
           <h1 className="text-3xl font-headline font-bold text-secondary">Join the Heritage</h1>
