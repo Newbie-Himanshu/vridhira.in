@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -150,29 +149,29 @@ export default function CartPage() {
             <Card className="border-none shadow-2xl bg-secondary text-secondary-foreground rounded-[3rem] overflow-hidden artisan-pattern relative">
               <div className="absolute inset-0 bg-black/10 pointer-events-none" />
               <div className="p-10 space-y-10 relative z-10">
-                <div className="space-y-2">
-                  <h2 className="text-3xl font-headline font-bold text-white">Collection Summary</h2>
-                  <p className="text-sm text-white/80">Complete your acquisition to support Indian artisans.</p>
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-headline font-black text-white leading-tight">Collection Summary</h2>
+                  <p className="text-sm text-white/90 font-medium">Complete your acquisition to support Indian artisans.</p>
                 </div>
                 <div className="space-y-6">
                   <div className="flex justify-between items-center text-white">
-                    <span className="text-lg font-medium">Subtotal</span>
-                    <span className="text-xl font-bold">${subtotal.toFixed(2)}</span>
+                    <span className="text-lg font-bold">Subtotal</span>
+                    <span className="text-2xl font-black">${subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between items-center text-white">
-                    <span className="text-lg font-medium">Heritage Platform Fee</span>
-                    <span className="text-xl font-bold">${platformFee.toFixed(2)}</span>
+                    <span className="text-lg font-bold">Heritage Platform Fee</span>
+                    <span className="text-2xl font-black">${platformFee.toFixed(2)}</span>
                   </div>
-                  <Separator className="bg-white/20" />
+                  <Separator className="bg-white/30 h-[1.5px]" />
                   <div className="flex justify-between items-center pt-2">
                     <div className="flex flex-col text-white">
-                      <span className="font-headline text-3xl font-bold">Total</span>
-                      <span className="text-[10px] uppercase tracking-widest text-white/70">Incl. all taxes</span>
+                      <span className="font-headline text-4xl font-black tracking-tight">Total</span>
+                      <span className="text-[11px] uppercase tracking-[0.2em] font-black text-white/80">Incl. all taxes</span>
                     </div>
-                    <span className="text-4xl font-bold text-primary drop-shadow-sm">${total.toFixed(2)}</span>
+                    <span className="text-5xl font-black text-primary drop-shadow-2xl filter brightness-110">${total.toFixed(2)}</span>
                   </div>
                 </div>
-                <Button className="w-full h-20 rounded-3xl bg-primary hover:bg-primary/90 text-white font-bold text-xl shadow-2xl animate-pulse-glow shine-effect overflow-hidden">
+                <Button className="w-full h-20 rounded-3xl bg-primary hover:bg-primary/90 text-white font-bold text-xl shadow-2xl animate-pulse-glow shine-effect overflow-hidden border-none">
                   Complete Purchase <ArrowRight className="ml-3 h-6 w-6" />
                 </Button>
               </div>
