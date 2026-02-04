@@ -51,7 +51,8 @@ import {
   Edit2,
   MapPin,
   Mail,
-  User as UserIcon
+  User as UserIcon,
+  Filter
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -62,6 +63,7 @@ export default function AdminManagementPage() {
   const { toast } = useToast();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
   const [editingUser, setEditingUser] = useState<Partial<Customer> | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
@@ -75,12 +77,16 @@ export default function AdminManagementPage() {
 
   const filteredUsers = useMemo(() => {
     if (!allUsers) return [];
-    return allUsers.filter(u => 
-      `${u.firstName} ${u.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.username?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [allUsers, searchQuery]);
+    return allUsers.filter(u => {
+      const matchesSearch = `${u.firstName} ${u.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        u.username?.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesRole = roleFilter === 'all' || u.role === roleFilter;
+      
+      return matchesSearch && matchesRole;
+    });
+  }, [allUsers, searchQuery, roleFilter]);
 
   const handleUpdateUser = (userId: string, updates: Partial<Customer>) => {
     if (!isOwner) {
@@ -167,7 +173,23 @@ export default function AdminManagementPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="text-sm font-bold text-muted-foreground px-2">
+        
+        <div className="w-full sm:w-48 relative">
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="rounded-xl pl-10">
+              <SelectValue placeholder="Filter by Role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="user">User</SelectItem>
+              <SelectItem value="store admin">Store Admin</SelectItem>
+              <SelectItem value="owner">Owner</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="text-sm font-bold text-muted-foreground px-2 whitespace-nowrap">
           {filteredUsers.length} total users
         </div>
       </div>
