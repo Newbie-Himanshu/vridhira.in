@@ -1,7 +1,7 @@
 
 'use client';
 
-import { use } from 'react';
+import { use, useState, useEffect } from 'react';
 import { useDoc, useMemoFirebase, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { MOCK_PRODUCTS, Product, PageSettings } from '@/lib/mock-data';
@@ -10,14 +10,19 @@ import { ModernTemplate } from '@/components/product-templates/ModernTemplate';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
 
-export default function ProductPage({ params }: { params: Promise<{ productId: string }> }) {
-  const { productId } = use(params);
+export default function ProductPage(props: { 
+  params: Promise<{ productId: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  // In Next.js 15, params and searchParams are Promises that must be unwrapped with React.use()
+  const params = use(props.params);
+  const searchParams = use(props.searchParams);
+  const productId = params.productId;
+  
   const db = useFirestore();
 
-  // In a real app, we fetch from Firestore. For this prototype, we'll use MOCK_PRODUCTS
-  // but also fetch page settings from Firestore to demonstrate dynamic template switching.
+  // Fetch page settings from Firestore to demonstrate dynamic template switching.
   const settingsRef = useMemoFirebase(() => doc(db, 'page_customizations', 'global-settings'), [db]);
   const { data: settings, isLoading: settingsLoading } = useDoc<PageSettings>(settingsRef);
 
@@ -26,6 +31,7 @@ export default function ProductPage({ params }: { params: Promise<{ productId: s
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!productId) return;
     const found = MOCK_PRODUCTS.find(p => p.id === productId);
     setProduct(found || null);
     setLoading(false);
