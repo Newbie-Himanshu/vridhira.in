@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "User": {
@@ -73,7 +74,9 @@
         "sku": { "type": "string" },
         "brand": { "type": "string" },
         "title": { "type": "string" },
-        "price": { "type": "number" },
+        "price": { "type": "number", "description": "Original or MSRP price" },
+        "salePrice": { "type": "number", "description": "Discounted selling price" },
+        "discountPercentage": { "type": "number", "description": "Calculated or manual discount percent" },
         "stock": { "type": "number" },
         "category": { "type": "string" },
         "description": { "type": "string" },
@@ -89,6 +92,7 @@
               "id": { "type": "string" },
               "name": { "type": "string" },
               "price": { "type": "number" },
+              "salePrice": { "type": "number" },
               "stock": { "type": "number" }
             }
           }

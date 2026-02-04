@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { Product, CATEGORIES, Category, ProductType, ProductVariant } from '@/lib/mock-data';
@@ -41,7 +42,9 @@ import {
   Settings2,
   Tags,
   PlusCircle,
-  XCircle
+  XCircle,
+  Percent,
+  DollarSign
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -67,6 +70,44 @@ export default function ProductsManagementPage() {
     );
   }, [products, searchQuery]);
 
+  // Logic to calculate discount or sale price
+  useEffect(() => {
+    if (editingProduct) {
+      const price = Number(editingProduct.price || 0);
+      const salePrice = Number(editingProduct.salePrice || 0);
+      const discount = Number(editingProduct.discountPercentage || 0);
+
+      // If price and salePrice are set, update discount
+      if (price > 0 && salePrice > 0 && salePrice < price) {
+        const calculatedDiscount = Math.round(((price - salePrice) / price) * 100);
+        if (calculatedDiscount !== discount) {
+          // setEditingProduct(prev => ({ ...prev, discountPercentage: calculatedDiscount }));
+          // Avoiding recursive state updates in useEffect without care
+        }
+      }
+    }
+  }, [editingProduct?.price, editingProduct?.salePrice]);
+
+  const handlePriceChange = (field: 'price' | 'salePrice' | 'discountPercentage', value: number) => {
+    if (!editingProduct) return;
+    
+    let updates: Partial<Product> = { [field]: value };
+    const price = field === 'price' ? value : Number(editingProduct.price || 0);
+    
+    if (field === 'price' || field === 'salePrice') {
+      const sPrice = field === 'salePrice' ? value : Number(editingProduct.salePrice || 0);
+      if (price > 0 && sPrice > 0) {
+        updates.discountPercentage = Math.round(((price - sPrice) / price) * 100);
+      }
+    } else if (field === 'discountPercentage') {
+      if (price > 0 && value > 0) {
+        updates.salePrice = Number((price * (1 - value / 100)).toFixed(2));
+      }
+    }
+
+    setEditingProduct({ ...editingProduct, ...updates });
+  };
+
   const handleSaveProduct = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProduct?.title || !editingProduct?.price) return;
@@ -78,6 +119,8 @@ export default function ProductsManagementPage() {
       ...editingProduct as Product,
       id,
       price: Number(editingProduct.price),
+      salePrice: editingProduct.salePrice ? Number(editingProduct.salePrice) : undefined,
+      discountPercentage: editingProduct.discountPercentage ? Number(editingProduct.discountPercentage) : undefined,
       stock: Number(editingProduct.stock || 0),
       type: (editingProduct.type || 'single') as ProductType,
       category: (editingProduct.category || 'Decor') as Category,
@@ -146,7 +189,7 @@ export default function ProductsManagementPage() {
   const handleExportCSV = () => {
     if (!products || products.length === 0) return;
 
-    const headers = ['id', 'sku', 'brand', 'title', 'price', 'stock', 'category', 'description', 'imageUrl', 'type', 'tags'];
+    const headers = ['id', 'sku', 'brand', 'title', 'price', 'salePrice', 'discountPercentage', 'stock', 'category', 'description', 'imageUrl', 'type', 'tags'];
     const csvContent = [
       headers.join(','),
       ...products.map(p => [
@@ -155,6 +198,8 @@ export default function ProductsManagementPage() {
         p.brand || '',
         `"${p.title.replace(/"/g, '""')}"`,
         p.price,
+        p.salePrice || '',
+        p.discountPercentage || '',
         p.stock,
         p.category,
         `"${(p.description || '').replace(/"/g, '""')}"`,
@@ -209,6 +254,8 @@ export default function ProductsManagementPage() {
             ...productData,
             id,
             price: Number(productData.price || 0),
+            salePrice: productData.salePrice ? Number(productData.salePrice) : undefined,
+            discountPercentage: productData.discountPercentage ? Number(productData.discountPercentage) : undefined,
             stock: Number(productData.stock || 0),
             tags: productData.tags ? productData.tags.split(',') : []
           }, { merge: true });
@@ -274,7 +321,7 @@ export default function ProductsManagementPage() {
                 Add New Piece
               </Button>
             </DialogTrigger>
-            <DialogContent className="w-[95vw] sm:max-w-[800px] max-h-[90vh] rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden flex flex-col p-0">
+            <DialogContent className="w-[95vw] sm:max-w-[800px] h-[90vh] sm:h-auto max-h-[95vh] rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden flex flex-col p-0">
               <DialogHeader className="p-6 sm:p-8 pb-0 shrink-0">
                 <DialogTitle className="font-headline text-2xl">
                   {editingProduct?.id ? 'Edit Heritage Piece' : 'Catalogue New Masterpiece'}
@@ -282,7 +329,7 @@ export default function ProductsManagementPage() {
                 <p className="text-sm text-muted-foreground italic">Comprehensive marketplace listing details.</p>
               </DialogHeader>
               
-              <ScrollArea className="flex-1 px-6 sm:px-8 py-4">
+              <ScrollArea className="flex-1 px-6 sm:px-8 py-4 overflow-y-auto">
                 <form id="product-form" onSubmit={handleSaveProduct} className="space-y-8 pb-10">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Core Info */}
@@ -353,7 +400,7 @@ export default function ProductsManagementPage() {
                       </div>
                     </div>
 
-                    {/* Media & Pricing */}
+                    {/* Pricing & Media */}
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="imageUrl" className="text-xs font-bold uppercase tracking-wider">Hero Image URL</Label>
@@ -365,15 +412,18 @@ export default function ProductsManagementPage() {
                           required
                         />
                       </div>
+                      
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="price" className="text-xs font-bold uppercase tracking-wider">Base Price ($)</Label>
+                          <Label htmlFor="price" className="text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                            Original Price ($) <DollarSign className="h-3 w-3" />
+                          </Label>
                           <Input 
                             id="price" 
                             type="number" 
                             step="0.01"
                             value={editingProduct?.price || ''} 
-                            onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
+                            onChange={(e) => handlePriceChange('price', Number(e.target.value))}
                             required
                           />
                         </div>
@@ -388,18 +438,49 @@ export default function ProductsManagementPage() {
                           />
                         </div>
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="tags" className="text-xs font-bold uppercase tracking-wider">Search Tags (Comma separated)</Label>
-                        <div className="relative">
-                          <Tags className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-primary/5 p-4 rounded-xl border border-primary/10">
+                        <div className="space-y-2">
+                          <Label htmlFor="salePrice" className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1">
+                            Sale Price ($) <DollarSign className="h-3 w-3" />
+                          </Label>
                           <Input 
-                            id="tags" 
-                            value={Array.isArray(editingProduct?.tags) ? editingProduct.tags.join(', ') : editingProduct?.tags || ''} 
-                            onChange={(e) => setEditingProduct({ ...editingProduct, tags: e.target.value })}
-                            placeholder="handmade, vintage, gift"
-                            className="pl-10"
+                            id="salePrice" 
+                            type="number" 
+                            step="0.01"
+                            value={editingProduct?.salePrice || ''} 
+                            onChange={(e) => handlePriceChange('salePrice', Number(e.target.value))}
+                            className="border-primary/20 focus:border-primary"
+                            placeholder="Optional"
                           />
                         </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="discount" className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1">
+                            Discount (%) <Percent className="h-3 w-3" />
+                          </Label>
+                          <Input 
+                            id="discount" 
+                            type="number" 
+                            value={editingProduct?.discountPercentage || ''} 
+                            onChange={(e) => handlePriceChange('discountPercentage', Number(e.target.value))}
+                            className="border-primary/20 focus:border-primary"
+                            placeholder="Auto-calc"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-span-1 md:col-span-2 space-y-2">
+                      <Label htmlFor="tags" className="text-xs font-bold uppercase tracking-wider">Search Tags (Comma separated)</Label>
+                      <div className="relative">
+                        <Tags className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="tags" 
+                          value={Array.isArray(editingProduct?.tags) ? editingProduct.tags.join(', ') : editingProduct?.tags || ''} 
+                          onChange={(e) => setEditingProduct({ ...editingProduct, tags: e.target.value })}
+                          placeholder="handmade, vintage, gift"
+                          className="pl-10"
+                        />
                       </div>
                     </div>
 
@@ -429,19 +510,23 @@ export default function ProductsManagementPage() {
                         <div className="grid gap-4">
                           {editingProduct.variants?.map((v) => (
                             <div key={v.id} className="flex flex-col sm:grid sm:grid-cols-12 gap-4 sm:gap-3 items-start sm:items-end bg-muted/30 p-4 rounded-xl">
-                              <div className="w-full sm:col-span-5 space-y-1">
+                              <div className="w-full sm:col-span-4 space-y-1">
                                 <Label className="text-[10px] font-bold">Variant Name</Label>
                                 <Input value={v.name} onChange={(e) => handleUpdateVariant(v.id, { name: e.target.value })} placeholder="Large / Blue" />
                               </div>
-                              <div className="w-full sm:col-span-3 space-y-1">
+                              <div className="w-full sm:col-span-2 space-y-1">
                                 <Label className="text-[10px] font-bold">Price ($)</Label>
                                 <Input type="number" value={v.price} onChange={(e) => handleUpdateVariant(v.id, { price: Number(e.target.value) })} />
                               </div>
-                              <div className="w-full sm:col-span-3 space-y-1">
+                              <div className="w-full sm:col-span-2 space-y-1">
+                                <Label className="text-[10px] font-bold">Sale ($)</Label>
+                                <Input type="number" value={v.salePrice} onChange={(e) => handleUpdateVariant(v.id, { salePrice: Number(e.target.value) })} />
+                              </div>
+                              <div className="w-full sm:col-span-2 space-y-1">
                                 <Label className="text-[10px] font-bold">Stock</Label>
                                 <Input type="number" value={v.stock} onChange={(e) => handleUpdateVariant(v.id, { stock: Number(e.target.value) })} />
                               </div>
-                              <div className="w-full sm:col-span-1 flex justify-end">
+                              <div className="w-full sm:col-span-2 flex justify-end">
                                 <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(v.id)} className="text-destructive h-10 w-10">
                                   <XCircle className="h-5 w-5" />
                                 </Button>
@@ -489,12 +574,12 @@ export default function ProductsManagementPage() {
                 </form>
               </ScrollArea>
 
-              <DialogFooter className="p-6 sm:p-8 bg-muted/30 border-t shrink-0 flex-row gap-2 sm:gap-4">
+              <DialogFooter className="p-6 sm:p-8 bg-muted/30 border-t shrink-0 flex flex-row gap-2 sm:gap-4">
                 <DialogClose asChild>
                   <Button type="button" variant="ghost" className="flex-1 sm:flex-none rounded-xl">Cancel</Button>
                 </DialogClose>
                 <Button form="product-form" type="submit" className="flex-1 sm:flex-none bg-secondary text-white rounded-xl px-8 sm:px-12 shadow-lg hover:scale-[1.02] transition-all">
-                  Save Listing
+                  Save Heritage Listing
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -542,7 +627,10 @@ export default function ProductsManagementPage() {
                         </div>
                         <div className="min-w-0">
                           <p className="font-bold text-secondary truncate">{product.title}</p>
-                          <p className="text-[10px] text-muted-foreground uppercase font-medium opacity-60">{product.brand || 'Vridhira Heritage'}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-[10px] text-muted-foreground uppercase font-medium opacity-60">{product.brand || 'Vridhira Heritage'}</p>
+                            {product.salePrice && <Badge variant="secondary" className="h-4 text-[8px] px-1 bg-primary/10 text-primary border-none">Sale</Badge>}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
@@ -552,7 +640,16 @@ export default function ProductsManagementPage() {
                         {product.category}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-bold text-secondary">${product.price.toFixed(2)}</TableCell>
+                    <TableCell className="font-bold text-secondary">
+                      {product.salePrice ? (
+                        <div className="flex flex-col">
+                          <span className="line-through text-muted-foreground text-xs font-normal">${product.price.toFixed(2)}</span>
+                          <span className="text-primary">${product.salePrice.toFixed(2)}</span>
+                        </div>
+                      ) : (
+                        <span>${product.price.toFixed(2)}</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <span className={product.stock < 5 ? 'text-destructive font-black' : 'font-medium'}>
                         {product.stock}

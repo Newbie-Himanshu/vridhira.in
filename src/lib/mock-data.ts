@@ -1,3 +1,4 @@
+
 export type Category = 'Pottery' | 'Textiles' | 'Decor' | 'Art' | 'Fashion';
 export type ProductType = 'single' | 'variable' | 'group';
 export type UserRole = 'owner' | 'store admin' | 'user';
@@ -6,6 +7,7 @@ export interface ProductVariant {
   id: string;
   name: string;
   price: number;
+  salePrice?: number;
   stock: number;
 }
 
@@ -15,6 +17,8 @@ export interface Product {
   brand?: string;
   title: string;
   price: number;
+  salePrice?: number;
+  discountPercentage?: number;
   stock: number;
   category: Category;
   description: string;
@@ -70,6 +74,8 @@ export const MOCK_PRODUCTS: Product[] = [
     brand: 'Vridhira Heritage',
     title: 'Terracotta Hand-Painted Pot',
     price: 45.0,
+    salePrice: 39.0,
+    discountPercentage: 13,
     stock: 12,
     category: 'Pottery',
     description: 'Beautiful hand-painted pot using traditional earthy pigments. Perfect for indoor decor.',
