@@ -158,143 +158,126 @@ export function Navbar() {
         )}>
           
           <div className="flex-[1_0_0] flex justify-start">
-            {!isSearchOpen && (
-              <Link href="/" className="flex items-center gap-2 group">
-                <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-primary/10 rounded-lg animate-artisanal-rotation" />
-                    <span className="relative font-headline font-bold text-2xl text-primary">V</span>
-                </div>
-              </Link>
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-primary/10 rounded-lg animate-artisanal-rotation" />
+                  <span className="relative font-headline font-bold text-2xl text-primary">V</span>
+              </div>
+            </Link>
+          </div>
+
+          {/* Desktop Search Center Area */}
+          <div className="hidden lg:flex flex-1 justify-center relative px-8" ref={desktopSearchContainerRef}>
+            {isSearchOpen ? (
+              <div className="w-full max-w-md animate-in fade-in zoom-in-95 duration-500 relative">
+                <form onSubmit={handleSearchSubmit} className="relative w-full flex items-center">
+                  <Search className="absolute left-4 h-4 w-4 text-primary" />
+                  <Input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Search treasures, categories, origins..."
+                    className="h-11 w-full rounded-full pl-11 pr-12 border-primary/30 bg-white/50 focus:ring-primary shadow-lg backdrop-blur-sm"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="absolute right-1.5 h-8 w-8 text-muted-foreground hover:text-destructive rounded-full"
+                    onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </form>
+
+                {/* Desktop Results Dropdown */}
+                {(matchedCategories.length > 0 || suggestions.length > 0) && (
+                  <div className="absolute top-14 left-0 w-full bg-white/95 backdrop-blur-xl rounded-[2.5rem] border border-border/50 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300 z-50">
+                    {matchedCategories.length > 0 && (
+                      <div className="p-5 border-b bg-primary/5">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Suggested Collections</p>
+                        <div className="flex flex-wrap gap-2">
+                          {matchedCategories.map((cat) => (
+                            <Link 
+                              key={cat} 
+                              href={`/shop?q=${cat}`}
+                              onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}
+                              className="flex items-center gap-2 px-4 py-2 bg-white border border-primary/10 rounded-full text-xs font-bold text-secondary hover:bg-primary hover:text-white transition-all shadow-sm"
+                            >
+                              <Tag className="h-3 w-3" />
+                              {cat}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {suggestions.length > 0 && (
+                      <div className="divide-y divide-border/30">
+                        <div className="p-4 px-6 bg-muted/20">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Handcrafted Matches</p>
+                        </div>
+                        {suggestions.map((product) => (
+                          <Link 
+                            key={product.id} 
+                            href={`/shop/${product.id}`}
+                            className="flex items-center gap-4 p-4 px-6 hover:bg-muted/50 transition-colors group"
+                            onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}
+                          >
+                            <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-sm shrink-0 border border-border/20">
+                              <Image src={product.imageUrl} alt={product.title} fill className="object-cover" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold text-sm truncate group-hover:text-primary transition-colors">{product.title}</p>
+                              <p className="text-[10px] text-muted-foreground uppercase font-medium">{product.category} • ${product.price}</p>
+                            </div>
+                            <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <Button 
+                      variant="ghost" 
+                      className="w-full h-14 rounded-none text-primary font-bold text-xs gap-2 hover:bg-primary/5 border-t"
+                      onClick={() => handleSearchSubmit()}
+                    >
+                      Explore Complete Collection <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <nav className="flex items-center gap-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      "relative py-1 text-xs font-bold transition-all hover:text-primary tracking-widest uppercase group",
+                      pathname === link.href ? "text-primary" : "text-muted-foreground"
+                    )}
+                  >
+                    {link.label}
+                    <span className={cn(
+                      "absolute -bottom-1 left-0 h-0.5 bg-primary rounded-full transition-all duration-300",
+                      pathname === link.href ? "w-full" : "w-0 group-hover:w-full"
+                    )} />
+                  </Link>
+                ))}
+              </nav>
             )}
           </div>
 
-          <nav className={cn(
-            "hidden lg:flex items-center justify-center gap-10 absolute left-1/2 -translate-x-1/2 transition-opacity duration-300",
-            isSearchOpen ? "opacity-0 pointer-events-none" : "opacity-100"
-          )}>
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "relative py-1 text-xs font-bold transition-all hover:text-primary tracking-widest uppercase group",
-                  pathname === link.href ? "text-primary" : "text-muted-foreground"
-                )}
-              >
-                {link.label}
-                <span className={cn(
-                  "absolute -bottom-1 left-0 h-0.5 bg-primary rounded-full transition-all duration-300",
-                  pathname === link.href ? "w-full" : "w-0 group-hover:w-full"
-                )} />
-              </Link>
-            ))}
-          </nav>
-
           <div className="flex-[1_0_0] flex justify-end items-center gap-1 sm:gap-4">
-            {/* Desktop Dynamic Search Container */}
-            <div 
-              ref={desktopSearchContainerRef}
-              className={cn(
-                "hidden md:flex items-center transition-all duration-500 ease-in-out relative",
-                isSearchOpen ? "w-64 opacity-100" : "w-10 opacity-100"
-              )}
-            >
-              {isSearchOpen ? (
-                <div className="relative w-full">
-                  <form onSubmit={handleSearchSubmit} className="relative w-full flex items-center animate-in slide-in-from-right-4">
-                    <Input
-                      ref={searchInputRef}
-                      type="text"
-                      placeholder="Search treasures..."
-                      className="h-10 w-full rounded-full pl-4 pr-10 border-primary/20 bg-white/50 focus:ring-primary shadow-sm"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="icon" 
-                      className="absolute right-1 text-muted-foreground hover:text-destructive"
-                      onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </form>
-
-                  {/* Desktop Dynamic Suggestions Dropdown */}
-                  {(matchedCategories.length > 0 || suggestions.length > 0) && (
-                    <div className="absolute top-12 right-0 w-[20rem] bg-white/95 backdrop-blur-xl rounded-[2rem] border border-border/50 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 z-50">
-                      {/* Categories Section */}
-                      {matchedCategories.length > 0 && (
-                        <div className="p-4 border-b bg-primary/5">
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Matching Categories</p>
-                          <div className="flex flex-wrap gap-2">
-                            {matchedCategories.map((cat) => (
-                              <Link 
-                                key={cat} 
-                                href={`/shop?q=${cat}`}
-                                onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-primary/20 rounded-full text-[10px] font-bold text-secondary hover:bg-primary hover:text-white transition-all shadow-sm"
-                              >
-                                <Tag className="h-3 w-3" />
-                                {cat}
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Products Section */}
-                      {suggestions.length > 0 && (
-                        <>
-                          <div className="p-4 border-b bg-muted/20">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Top Results</p>
-                          </div>
-                          <div className="divide-y divide-border/30">
-                            {suggestions.map((product) => (
-                              <Link 
-                                key={product.id} 
-                                href={`/shop/${product.id}`}
-                                className="flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors group"
-                                onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}
-                              >
-                                <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-sm shrink-0">
-                                  <Image src={product.imageUrl} alt={product.title} fill className="object-cover" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-bold text-xs truncate group-hover:text-primary transition-colors">{product.title}</p>
-                                  <p className="text-[9px] text-muted-foreground uppercase font-medium">{product.category} • ${product.price}</p>
-                                </div>
-                                <ChevronRight className="h-3 w-3 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-                              </Link>
-                            ))}
-                          </div>
-                        </>
-                      )}
-                      
-                      <Button 
-                        variant="ghost" 
-                        className="w-full h-10 rounded-none text-primary font-bold text-[10px] gap-2 hover:bg-primary/5 border-t"
-                        onClick={() => handleSearchSubmit()}
-                      >
-                        Explore All Results <ArrowRight className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  )}
-
-                  {/* Empty Results State */}
-                  {searchQuery.trim().length > 1 && matchedCategories.length === 0 && suggestions.length === 0 && (
-                    <div className="absolute top-12 right-0 w-[20rem] bg-white rounded-3xl border border-border/50 shadow-2xl p-6 text-center animate-in zoom-in-95 duration-300 z-50">
-                      <Search className="h-6 w-6 text-muted-foreground/20 mx-auto mb-2" />
-                      <p className="text-xs text-muted-foreground italic">No treasures match your search.</p>
-                    </div>
-                  )}
-                </div>
-              ) : (
+            {/* Desktop Search Toggle (only if not already open) */}
+            <div className="hidden lg:block">
+              {!isSearchOpen && (
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="text-muted-foreground hover:text-primary transition-all ml-auto"
+                  className="text-muted-foreground hover:text-primary transition-all rounded-full"
                   onClick={() => setIsSearchOpen(true)}
                 >
                   <Search className="h-5 w-5" />
@@ -302,23 +285,23 @@ export function Navbar() {
               )}
             </div>
 
-            {/* Mobile Search Button (only shown when menu is closed) */}
-            <div className="md:hidden">
+            {/* Mobile Search Button */}
+            <div className="lg:hidden">
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="text-muted-foreground hover:text-primary transition-all"
+                className="text-muted-foreground hover:text-primary transition-all rounded-full"
                 onClick={() => setIsMobileSearchActive(true)}
               >
                 <Search className="h-5 w-5" />
               </Button>
             </div>
 
-            <Button variant="ghost" size="icon" className="relative group text-muted-foreground hover:text-primary transition-all" asChild>
+            <Button variant="ghost" size="icon" className="relative group text-muted-foreground hover:text-primary transition-all rounded-full" asChild>
               <Link href="/cart">
                 <ShoppingBag className="h-5 w-5" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-bold">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-bold shadow-lg ring-2 ring-background">
                     {cartCount}
                   </span>
                 )}
@@ -359,7 +342,7 @@ export function Navbar() {
             <div className="lg:hidden">
               <Sheet onOpenChange={(open) => { if(!open) setIsMobileSearchActive(false); }}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-secondary">
+                  <Button variant="ghost" size="icon" className="text-secondary rounded-full">
                     <Menu className="h-7 w-7" />
                   </Button>
                 </SheetTrigger>
