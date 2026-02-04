@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo } from 'react';
@@ -64,8 +65,8 @@ export default function AdminDashboard() {
   const avgOrderValue = totalRevenue / (MOCK_ORDERS.length || 1);
 
   return (
-    <div className="p-8 space-y-8 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center">
+    <div className="p-4 md:p-8 space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-headline font-bold text-secondary">Overview</h1>
           <p className="text-muted-foreground">Welcome back. Here's what's happening in your marketplace today.</p>
@@ -77,14 +78,14 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border-none shadow-sm bg-white">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="border-none shadow-sm bg-white min-w-0">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-primary" />
+            <DollarSign className="h-4 w-4 text-primary shrink-0" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalRevenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold truncate">${totalRevenue.toLocaleString()}</div>
             <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
               <TrendingUp className="h-3 w-3" />
               <span>+12.5% from last month</span>
@@ -92,10 +93,10 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-none shadow-sm bg-white">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <Card className="border-none shadow-sm bg-white min-w-0">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Orders</CardTitle>
-            <ShoppingBag className="h-4 w-4 text-primary" />
+            <ShoppingBag className="h-4 w-4 text-primary shrink-0" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{MOCK_ORDERS.length}</div>
@@ -106,13 +107,13 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-none shadow-sm bg-white">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <Card className="border-none shadow-sm bg-white min-w-0">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">Average Order Value</CardTitle>
-            <TrendingUp className="h-4 w-4 text-primary" />
+            <TrendingUp className="h-4 w-4 text-primary shrink-0" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${avgOrderValue.toFixed(2)}</div>
+            <div className="text-2xl font-bold truncate">${avgOrderValue.toFixed(2)}</div>
             <div className="flex items-center gap-1 text-xs text-red-600 mt-1">
               <TrendingDown className="h-3 w-3" />
               <span>-2.1% from last month</span>
@@ -120,10 +121,10 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-none shadow-sm bg-white">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <Card className="border-none shadow-sm bg-white min-w-0">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">Active Artisans</CardTitle>
-            <Users className="h-4 w-4 text-primary" />
+            <Users className="h-4 w-4 text-primary shrink-0" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">142</div>
@@ -136,7 +137,7 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Sales Chart */}
-        <Card className="lg:col-span-2 border-none shadow-sm bg-white">
+        <Card className="lg:col-span-2 border-none shadow-sm bg-white min-w-0">
           <CardHeader>
             <CardTitle className="font-headline">Sales Performance</CardTitle>
             <CardDescription>Monthly revenue growth and trends.</CardDescription>
@@ -170,25 +171,25 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Top Products */}
-        <Card className="border-none shadow-sm bg-white">
-          <CardHeader className="flex flex-row items-center justify-between">
+        <Card className="border-none shadow-sm bg-white min-w-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <div>
               <CardTitle className="font-headline">Top Products</CardTitle>
               <CardDescription>By revenue this month.</CardDescription>
             </div>
-            <Button variant="ghost" size="sm" className="text-primary">View All</Button>
+            <Button variant="ghost" size="sm" className="text-primary shrink-0">View All</Button>
           </CardHeader>
           <CardContent className="space-y-4">
             {MOCK_PRODUCTS.slice(0, 4).map((product, i) => (
               <div key={product.id} className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded bg-muted flex items-center justify-center font-bold text-muted-foreground">
+                <div className="w-10 h-10 rounded bg-muted flex items-center justify-center font-bold text-muted-foreground shrink-0">
                   {i + 1}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{product.title}</p>
                   <p className="text-xs text-muted-foreground">{product.category}</p>
                 </div>
-                <div className="text-sm font-bold">${product.price.toFixed(2)}</div>
+                <div className="text-sm font-bold shrink-0">${product.price.toFixed(2)}</div>
               </div>
             ))}
           </CardContent>
@@ -196,13 +197,13 @@ export default function AdminDashboard() {
       </div>
 
       {/* Recent Activity */}
-      <Card className="border-none shadow-sm bg-white">
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="border-none shadow-sm bg-white min-w-0">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <CardTitle className="font-headline text-xl">Recent Orders</CardTitle>
             <CardDescription>Review the latest customer transactions.</CardDescription>
           </div>
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2 w-full sm:w-auto">
             View All Orders
             <ArrowUpRight className="h-4 w-4" />
           </Button>
@@ -222,17 +223,17 @@ export default function AdminDashboard() {
               {MOCK_ORDERS.map((order) => (
                 <TableRow key={order.id} className="hover:bg-muted/20">
                   <TableCell className="font-medium text-primary">{order.id}</TableCell>
-                  <TableCell>{order.customerName}</TableCell>
+                  <TableCell className="max-w-[150px] truncate">{order.customerName}</TableCell>
                   <TableCell>
                     <Badge variant="secondary" className={cn(
-                      "border-none px-2.5 py-0.5 rounded-full text-xs font-semibold",
+                      "border-none px-2.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap",
                       order.status === 'Delivered' ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
                     )}>
                       {order.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{order.date}</TableCell>
-                  <TableCell className="text-right font-bold text-secondary">${order.totalAmount.toFixed(2)}</TableCell>
+                  <TableCell className="text-muted-foreground whitespace-nowrap">{order.date}</TableCell>
+                  <TableCell className="text-right font-bold text-secondary whitespace-nowrap">${order.totalAmount.toFixed(2)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

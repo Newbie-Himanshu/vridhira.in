@@ -36,7 +36,7 @@ export default function AdminLayout({
 
   if (!user || !isAuthorized) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4 text-center space-y-6">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4 text-center space-y-6 pt-24">
         <div className="bg-destructive/10 p-4 rounded-full">
           <ShieldAlert className="h-12 w-12 text-destructive" />
         </div>
@@ -55,7 +55,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background pt-20">
       <AdminSidebar />
       <div className="flex-1 overflow-y-auto">
         {children}
