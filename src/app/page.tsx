@@ -161,22 +161,22 @@ export default function LandingPage() {
                Our Mission
             </div>
             <div className="space-y-4">
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-headline font-bold text-secondary leading-[1.1] tracking-tight">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-headline font-bold text-secondary leading-[1.1] tracking-tight">
                 Empowering the Hands that Create.
               </h2>
-              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-light max-w-xl">
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed font-light max-w-xl">
                 At Vridhira, we believe that luxury isn't found in mass production, but in the deliberate, rhythmic motion of a weaver's loom or the steady hand of a sculptor. 
                 We bridge the gap between global homes and local villages.
               </p>
             </div>
             <div className="flex gap-12 md:gap-16 pt-4">
               <div className="space-y-1">
-                <div className="text-4xl md:text-5xl font-bold text-primary">500+</div>
+                <div className="text-3xl md:text-4xl font-bold text-primary">500+</div>
                 <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.1em]">Verified Artisans</div>
               </div>
               <div className="w-px bg-border h-12" />
               <div className="space-y-1">
-                <div className="text-4xl md:text-5xl font-bold text-primary">24+</div>
+                <div className="text-3xl md:text-4xl font-bold text-primary">24+</div>
                 <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.1em]">States Reached</div>
               </div>
             </div>
