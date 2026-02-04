@@ -7,7 +7,7 @@ import { Customer } from '@/lib/mock-data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { User, Mail, Shield, Calendar, Loader2, LogOut, Package } from 'lucide-react';
+import { User, Mail, Shield, Calendar, Loader2, LogOut, Package, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
@@ -80,17 +80,24 @@ export default function AccountPage() {
           <CardContent className="p-8 -mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-white rounded-2xl p-6 border border-border/50 shadow-sm space-y-4">
-                <div className="flex items-center gap-2 text-primary font-bold uppercase tracking-tighter text-xs">
-                  <Shield className="h-4 w-4" />
-                  Role & Status
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-primary font-bold uppercase tracking-tighter text-xs">
+                    <Shield className="h-4 w-4" />
+                    Access Level
+                  </div>
+                  <Badge variant="secondary" className="bg-secondary/10 text-secondary capitalize font-bold">{customer?.role || 'user'}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Access Level</span>
-                  <Badge variant="secondary" className="bg-secondary/10 text-secondary capitalize">{customer?.role || 'user'}</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Verification</span>
-                  <span className="font-bold">{user.emailVerified ? 'Verified' : 'Unverified'}</span>
+                  <span className="text-muted-foreground text-sm">Identity Status</span>
+                  {customer?.isVerified ? (
+                    <Badge className="bg-green-100 text-green-700 border-none gap-1 font-bold">
+                      <CheckCircle2 className="h-3 w-3" /> Verified
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-destructive border-destructive/20 gap-1 font-bold">
+                      <AlertTriangle className="h-3 w-3" /> Unverified
+                    </Badge>
+                  )}
                 </div>
               </div>
 
@@ -100,12 +107,12 @@ export default function AccountPage() {
                   Membership
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Joined</span>
+                  <span className="text-muted-foreground text-sm">Joined</span>
                   <span className="font-bold">{user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'Recently'}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Last Visit</span>
-                  <span className="font-bold">Just now</span>
+                  <span className="text-muted-foreground text-sm">Account Type</span>
+                  <span className="font-bold">{user.providerData[0]?.providerId === 'google.com' ? 'Google linked' : 'Standard'}</span>
                 </div>
               </div>
             </div>

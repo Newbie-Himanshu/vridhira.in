@@ -33,8 +33,10 @@ service cloud.firestore {
     match /customers/{userId} {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
-      // Public can create as 'user', but ONLY owner can update roles to admin
+      // Public can create as 'user', but ONLY owner can update roles to admin or owner
+      // This enforces that "full access" cannot be self-assigned during registration
       allow create: if isOwner(userId) && request.resource.data.role == 'user';
+      // Only platform owner can change roles. Users can update their own profile but not their role.
       allow update: if isPlatformOwner() || (isOwner(userId) && request.resource.data.role == resource.data.role);
     }
 

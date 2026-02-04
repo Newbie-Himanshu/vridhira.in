@@ -139,6 +139,7 @@ export default function LoginPage() {
           firstName: u.displayName?.split(' ')[0] || 'Artisan',
           lastName: u.displayName?.split(' ')[1] || 'Enthusiast',
           role: 'user'
+          // Note: isVerified is purposely omitted here to trigger OTP for all registrations
         }, { merge: true });
       })
       .catch((err: any) => {

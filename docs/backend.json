@@ -45,6 +45,20 @@
         "email"
       ]
     },
+    "Customer": {
+      "title": "Customer",
+      "type": "object",
+      "description": "Represents a marketplace customer with roles and verification status.",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "store admin", "owner"] },
+        "isVerified": { "type": "boolean" }
+      },
+      "required": ["id", "email", "role"]
+    },
     "Cart": {
       "title": "Cart",
       "type": "object",
@@ -90,8 +104,8 @@
       "description": "Stores user profile information."
     },
     "/customers/{userId}": {
-      "schema": { "type": "object" },
-      "description": "Stores extended user profile and role info."
+      "schema": { "$ref": "#/backend/entities/Customer" },
+      "description": "Stores extended user profile, role info, and verification status."
     },
     "/page_customizations/{settingsId}": {
       "schema": { "$ref": "#/backend/entities/PageCustomization" },
