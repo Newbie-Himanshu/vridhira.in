@@ -12,7 +12,7 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col gap-24 md:gap-32 pb-32">
       {/* Hero Section */}
-      <section className="relative w-full min-h-[95vh] flex items-center justify-center overflow-hidden py-24 px-4">
+      <section className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden py-24 px-4">
         <div className="absolute inset-0 z-0">
           {/* Desktop Image */}
           {heroDesktop && (
@@ -22,7 +22,7 @@ export default function LandingPage() {
                 alt={heroDesktop.description}
                 fill
                 priority
-                className="object-cover brightness-[0.7] transition-all duration-1000"
+                className="object-cover brightness-[0.5] transition-all duration-1000"
                 data-ai-hint={heroDesktop.imageHint}
               />
             </div>
@@ -35,41 +35,42 @@ export default function LandingPage() {
                 alt={heroMobile.description}
                 fill
                 priority
-                className="object-cover brightness-[0.7] transition-all duration-1000"
+                className="object-cover brightness-[0.5] transition-all duration-1000"
                 data-ai-hint={heroMobile.imageHint}
               />
             </div>
           )}
-          {/* Overlay to ensure text readability */}
-          <div className="absolute inset-0 bg-black/30" />
+          {/* Subtle Overlay */}
+          <div className="absolute inset-0 bg-black/20" />
         </div>
         
-        <div className="container relative z-10 mx-auto text-center text-white space-y-8 md:space-y-10">
-          <div className="animate-in fade-in slide-in-from-top-4 duration-700">
-            <Badge className="bg-primary hover:bg-primary text-white border-none px-6 py-2 text-[10px] md:text-sm uppercase tracking-[0.3em] shadow-lg animate-subtle-float">
-              Handcrafted Heritage
-            </Badge>
-          </div>
-          
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-headline font-bold drop-shadow-2xl max-w-5xl mx-auto leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
-            Buy The Story & <br /> Collect The Unseen.
-          </h1>
-          
-          <p className="text-base md:text-lg lg:text-xl max-w-2xl mx-auto opacity-95 font-body animate-in fade-in duration-1000 delay-500 leading-relaxed px-4 drop-shadow-md">
-            Directly support authentic Indian artisans. Discover timeless treasures that carry the heartbeat of centuries-old traditions.
-          </p>
-          
-          <div className="flex flex-row gap-4 justify-center items-center pt-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700 w-full mx-auto">
-            <Link href="/shop" className="w-auto">
-              <Button size="lg" className="bg-primary text-white hover:bg-primary/90 px-8 md:px-12 h-12 text-sm md:text-base font-bold rounded-full shadow-xl hover:scale-105 hover:shadow-primary/20 active:scale-95 transition-all duration-300 shine-effect border-none">
-                Shop
-              </Button>
-            </Link>
-            <Link href="#our-story" className="w-auto">
-              <Button size="lg" variant="outline" className="text-white border-white/80 hover:bg-white/10 px-6 md:px-10 h-12 text-sm md:text-base font-medium rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95">
-                Our Story
-              </Button>
-            </Link>
+        <div className="container relative z-10 mx-auto max-w-4xl text-left">
+          <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-left-4 duration-1000">
+            <div className="space-y-1">
+              <p className="text-[10px] md:text-xs font-bold text-white/60 tracking-[0.3em] uppercase">
+                CERAMICS • TEXTILES • WOODWORK
+              </p>
+              <h1 className="text-[36px] font-outfit font-semibold text-white leading-[1.3] drop-shadow-xl">
+                Buy The Story & <br /> Collect The Unseen.
+              </h1>
+            </div>
+            
+            <p className="text-sm md:text-base text-white/80 max-w-lg font-body leading-relaxed">
+              Directly support authentic Indian artisans. Discover timeless treasures that carry the heartbeat of centuries-old traditions.
+            </p>
+            
+            <div className="flex flex-row gap-4 pt-4">
+              <Link href="/shop">
+                <Button size="lg" className="bg-white text-secondary hover:bg-white/90 px-8 h-12 text-sm font-bold rounded-full shadow-2xl transition-all duration-300 border-none">
+                  Shop
+                </Button>
+              </Link>
+              <Link href="#our-story">
+                <Button size="lg" variant="outline" className="bg-transparent text-white border-white/60 hover:bg-white hover:text-secondary px-8 h-12 text-sm font-bold rounded-full transition-all duration-300">
+                  Our Story
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -82,7 +83,7 @@ export default function LandingPage() {
             { icon: Heart, title: "Fair Trade", text: "85%+ of the sale value goes directly back to the artisan community." },
             { icon: Sparkles, title: "Heirloom Quality", text: "Slow-made pieces designed to last generations, not just seasons." }
           ].map((item, idx) => (
-            <div key={idx} className="space-y-4 group hover:scale-105 transition-transform duration-300 p-8 rounded-[2rem] hover:bg-white hover:shadow-2xl">
+            <div key={idx} className="space-y-4 group transition-all duration-300 p-8 rounded-[2rem] hover:bg-white hover:shadow-2xl">
               <div className="mx-auto w-16 h-16 md:w-20 md:h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-500 shadow-inner">
                 <item.icon className="h-8 w-8 md:h-10 md:w-10" />
               </div>
