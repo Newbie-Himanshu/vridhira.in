@@ -69,6 +69,9 @@ export function AdminSidebar() {
 
   const NavContent = ({ collapsed = false }: { collapsed?: boolean }) => (
     <div className="flex flex-col h-full bg-white">
+      {/* Spacer for Navbar on Desktop fixed sidebar */}
+      <div className="hidden lg:block h-20 shrink-0" />
+      
       <div className="flex-1 py-6 px-4 space-y-4 overflow-y-auto scrollbar-hide">
         <div className="space-y-1">
           {mainNavItems.map((item) => {
@@ -163,7 +166,7 @@ export function AdminSidebar() {
         )}
       >
         <div className={cn(
-          "fixed top-20 bottom-0 border-r bg-white flex flex-col transition-all duration-300 z-30",
+          "fixed top-0 bottom-0 border-r bg-white flex flex-col transition-all duration-300 z-30",
           isCollapsed ? "w-20" : "w-64"
         )}>
           <NavContent collapsed={isCollapsed} />
