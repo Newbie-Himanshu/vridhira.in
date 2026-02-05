@@ -96,12 +96,12 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
         )}>
           <div className="relative w-10 h-10 flex items-center justify-center shrink-0">
             <div className="absolute inset-0 bg-primary/10 rounded-xl animate-artisanal-rotation" />
-            <Command className="relative h-5 w-5 text-primary" />
+            <span className="relative font-headline font-bold text-xl text-primary">V</span>
           </div>
           {!isCollapsed && (
             <div className="flex flex-col animate-in fade-in slide-in-from-left-2 duration-500 overflow-hidden">
-              <span className="font-headline font-black text-lg text-secondary leading-none whitespace-nowrap">Command</span>
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 whitespace-nowrap">Terminal v2.0</span>
+              <span className="font-headline font-black text-xl text-secondary leading-none whitespace-nowrap uppercase tracking-tighter">Vridhira</span>
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 whitespace-nowrap">Admin Dashboard</span>
             </div>
           )}
         </div>
