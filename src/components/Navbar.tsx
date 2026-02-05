@@ -408,7 +408,7 @@ export function Navbar() {
                 </SheetTrigger>
                 <SheetContent side="right" className="w-full sm:max-w-md p-0 overflow-hidden border-none flex flex-col">
                   <SheetHeader className="px-6 pt-10 pb-8 flex items-center justify-center bg-transparent border-none">
-                    <div className="inline-flex items-center gap-4 px-8 py-3 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-full shadow-2xl transition-all duration-500 hover:bg-white/20 group cursor-pointer">
+                    <div className="inline-flex items-center gap-4 px-10 md:px-14 py-3.5 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-full shadow-2xl transition-all duration-500 hover:bg-white/20 group cursor-pointer w-auto max-w-[90%]">
                       <div className="relative w-10 h-10 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
                           <div className="absolute inset-0 bg-primary rounded-xl animate-artisanal-rotation shadow-lg" />
                           <span className="relative text-white font-black text-xl">V</span>
