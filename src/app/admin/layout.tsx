@@ -83,8 +83,6 @@ export default function AdminLayout({
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!touchStart) return;
-    // We mainly handle the state transition on End for performance, 
-    // but move could be used for real-time tracking if needed.
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
@@ -168,15 +166,15 @@ export default function AdminLayout({
           "fixed bottom-6 z-[60] md:hidden transition-all duration-700 ease-quint",
           isFabExpanded 
             ? "left-6 right-6 w-[calc(100%-3rem)]" 
-            : "right-6 w-14 h-14"
+            : "right-6 w-16 h-16"
         )}
       >
         <div 
           className={cn(
-            "bg-white/40 backdrop-blur-md border border-white/40 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden relative transition-all duration-700 ease-quint will-change-[height,width,padding]",
+            "bg-white/40 backdrop-blur-md border border-white/40 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden relative transition-all duration-700 ease-quint will-change-[height,width,padding,opacity]",
             isFabExpanded 
               ? (isExtended ? "p-6 h-[90vh] opacity-100" : "p-6 h-[60vh] opacity-100") 
-              : "p-0 h-14 opacity-100"
+              : "p-0 h-16 opacity-100"
           )}
         >
           <div className={cn(
@@ -270,7 +268,7 @@ export default function AdminLayout({
             <div className="relative w-full h-full flex items-center justify-center group">
               <div className="absolute inset-0 bg-primary/10 rounded-full animate-pulse-glow" />
               <Command className={cn(
-                "h-6 w-6 text-primary transition-transform duration-500 group-hover:scale-110",
+                "h-7 w-7 text-primary transition-transform duration-500 group-hover:scale-110",
                 "animate-artisanal-rotation"
               )} />
             </div>
