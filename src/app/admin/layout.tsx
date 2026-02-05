@@ -199,7 +199,7 @@ export default function AdminLayout({
                   </div>
                   <div className="flex flex-col">
                     <span className="font-headline font-black text-secondary tracking-tight text-lg leading-none uppercase">Vridhira</span>
-                    <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.2em] mt-1">Registry Terminal</span>
+                    <span className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.2em] mt-1">Registry Terminal</span>
                   </div>
                 </div>
                 <Link 
@@ -234,12 +234,12 @@ export default function AdminLayout({
                     <div className="flex items-center gap-4">
                       <div className={cn(
                         "p-2 rounded-xl transition-colors",
-                        isActive ? "bg-primary text-white" : "bg-primary/10 text-primary"
+                        isActive ? "bg-primary text-white shadow-lg shadow-primary/20" : "bg-primary/10 text-primary"
                       )}>
                         <item.icon className={cn("h-5 w-5", isActive ? "animate-pulse" : "")} />
                       </div>
                       <span className={cn(
-                        "text-[11px] font-bold uppercase tracking-[0.15em] leading-tight",
+                        "text-[11px] font-black uppercase tracking-[0.15em] leading-tight",
                         isActive ? "text-primary" : "text-secondary"
                       )}>
                         {item.name}
