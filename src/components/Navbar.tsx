@@ -124,6 +124,7 @@ export function Navbar() {
 
   const handleSignOut = async () => {
     await signOut(auth);
+    setIsMenuOpen(false);
     router.push('/');
   };
 
@@ -417,9 +418,9 @@ export function Navbar() {
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/50 via-white/5 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] scrollbar-none"
+                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/50 via-white/5 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] scrollbar-none"
                 >
-                  <div className="animate-subtle-float h-full flex flex-col">
+                  <div className="animate-subtle-float h-full flex flex-col will-change-transform">
                     <div 
                       onScroll={(e) => setIsMenuScrolled(e.currentTarget.scrollTop > 20)}
                       className="flex-1 px-6 pt-4 pb-8 space-y-5 overflow-y-auto relative z-0 scrollbar-none"
@@ -537,7 +538,7 @@ export function Navbar() {
                                     </Button>
                                     <Button variant="outline" className="h-16 rounded-[2rem] bg-white/20 backdrop-blur-xl border-white/20 gap-3 justify-start px-6 relative group hover:bg-white/30 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shine-effect overflow-hidden" asChild>
                                         <Link href="/cart" onClick={() => setIsMenuOpen(false)}>
-                                            <Search className="h-5 w-5 text-primary group-hover:scale-110 transition-transform relative z-10" />
+                                            <ShoppingBag className="h-5 w-5 text-primary group-hover:scale-110 transition-transform relative z-10" />
                                             <span className="font-black text-xs uppercase tracking-widest text-secondary relative z-10">Cart</span>
                                             {cartCount > 0 && (
                                               <span className="absolute top-1/2 -translate-y-1/2 right-6 w-6 h-6 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-black shadow-lg ring-4 ring-white/20 z-20">
@@ -581,10 +582,7 @@ export function Navbar() {
                           <Button 
                             variant="ghost" 
                             className="flex-1 h-11 rounded-2xl text-destructive font-bold text-xs border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 hover:scale-[1.02] active:scale-[0.98] transition-all gap-2 shine-effect overflow-hidden" 
-                            onClick={async () => {
-                              await handleSignOut();
-                              setIsMenuOpen(false);
-                            }}
+                            onClick={handleSignOut}
                           >
                             <LogOut className="h-4 w-4 relative z-10" />
                             <span className="relative z-10">Sign Out</span>
