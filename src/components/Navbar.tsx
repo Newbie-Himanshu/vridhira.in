@@ -49,6 +49,14 @@ export function Navbar() {
   const mobileSearchRef = useRef<HTMLInputElement>(null);
   const desktopSearchContainerRef = useRef<HTMLDivElement>(null);
 
+  // Close menu on navigation
+  useEffect(() => {
+    setIsMenuOpen(false);
+    setIsMobileSearchActive(false);
+    setIsMenuScrolled(false);
+    setSearchQuery('');
+  }, [pathname]);
+
   useEffect(() => {
     setMounted(true);
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -231,7 +239,6 @@ export function Navbar() {
                             <Link 
                               key={cat.id} 
                               href={`/shop?q=${cat.name}`}
-                              onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}
                               className="flex items-center gap-2 px-4 py-2 bg-white border border-primary/10 rounded-full text-xs font-bold text-secondary hover:bg-primary hover:text-white transition-all shadow-sm"
                             >
                               <Tag className="h-3 w-3" />
@@ -252,7 +259,6 @@ export function Navbar() {
                             key={product.id} 
                             href={`/shop/${product.id}`}
                             className="flex items-center gap-4 p-4 px-6 hover:bg-muted/50 transition-colors group"
-                            onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}
                           >
                             <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-sm shrink-0 border border-border/20">
                               <Image src={product.imageUrl} alt={product.title} fill className="object-cover" />
@@ -397,13 +403,7 @@ export function Navbar() {
             )}
             
             <div className="lg:hidden pointer-events-auto">
-              <Sheet open={isMenuOpen} onOpenChange={(open) => { 
-                setIsMenuOpen(open);
-                if(!open) {
-                  setIsMobileSearchActive(false);
-                  setIsMenuScrolled(false);
-                }
-              }}>
+              <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
                 <SheetTrigger asChild>
                   <Button 
                     variant="ghost" 
@@ -418,9 +418,9 @@ export function Navbar() {
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/50 via-white/5 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] scrollbar-none"
+                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/50 via-white/5 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] scrollbar-none"
                 >
-                  <div className="animate-subtle-float h-full flex flex-col will-change-transform">
+                  <div className="animate-subtle-float h-full flex flex-col will-change-transform relative">
                     <div 
                       onScroll={(e) => setIsMenuScrolled(e.currentTarget.scrollTop > 20)}
                       className="flex-1 px-6 pt-4 pb-8 space-y-5 overflow-y-auto relative z-0 scrollbar-none"
@@ -432,7 +432,7 @@ export function Navbar() {
                               ? "py-3 px-6 bg-white/30 backdrop-blur-3xl border border-white/30 rounded-full shadow-2xl scale-90 -translate-y-1" 
                               : "py-6 bg-transparent"
                           )}
-                          onClick={() => { router.push('/'); setIsMenuOpen(false); }}
+                          onClick={() => router.push('/')}
                         >
                           <div className="relative w-8 h-8 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
                               <div className="absolute inset-0 bg-primary rounded-lg animate-artisanal-rotation shadow-lg" />
@@ -462,7 +462,7 @@ export function Navbar() {
                                       type="button"
                                       variant="ghost" 
                                       className="absolute right-4 top-1/2 -translate-y-1/2 h-8 w-8 p-0 rounded-full hover:bg-white/20"
-                                      onClick={() => { setIsMobileSearchActive(false); setSearchQuery(''); }}
+                                      onClick={() => setIsMobileSearchActive(false)}
                                     >
                                       <X className="h-4 w-4" />
                                     </Button>
@@ -478,7 +478,6 @@ export function Navbar() {
                                               <Link 
                                                 key={cat.id} 
                                                 href={`/shop?q=${cat.name}`}
-                                                onClick={() => { setIsMobileSearchActive(false); setSearchQuery(''); setIsMenuOpen(false); }}
                                                 className="flex items-center gap-2 px-3 py-2 bg-white/20 border border-white/10 rounded-full text-xs font-bold text-secondary hover:bg-primary hover:text-white transition-all shadow-sm"
                                               >
                                                 <Tag className="h-3 w-3" />
@@ -500,7 +499,6 @@ export function Navbar() {
                                                 key={product.id} 
                                                 href={`/shop/${product.id}`}
                                                 className="flex items-center gap-4 p-4 hover:bg-white/10 transition-colors group"
-                                                onClick={() => { setIsMobileSearchActive(false); setSearchQuery(''); setIsMenuOpen(false); }}
                                               >
                                                 <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-md shrink-0 border border-border/20">
                                                   <Image src={product.imageUrl} alt={product.title} fill className="object-cover" />
@@ -519,7 +517,7 @@ export function Navbar() {
                                       <Button 
                                         variant="ghost" 
                                         className="w-full h-14 rounded-none text-primary font-bold text-xs gap-2 hover:bg-primary/20 border-t border-white/10"
-                                        onClick={() => { handleSearchSubmit(); setIsMenuOpen(false); }}
+                                        onClick={() => handleSearchSubmit()}
                                       >
                                         View Archive <ArrowRight className="h-4 w-4" />
                                       </Button>
@@ -537,7 +535,7 @@ export function Navbar() {
                                         <span className="font-black text-xs uppercase tracking-widest text-secondary relative z-10">Find</span>
                                     </Button>
                                     <Button variant="outline" className="h-16 rounded-[2rem] bg-white/20 backdrop-blur-xl border-white/20 gap-3 justify-start px-6 relative group hover:bg-white/30 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shine-effect overflow-hidden" asChild>
-                                        <Link href="/cart" onClick={() => setIsMenuOpen(false)}>
+                                        <Link href="/cart">
                                             <ShoppingBag className="h-5 w-5 text-primary group-hover:scale-110 transition-transform relative z-10" />
                                             <span className="font-black text-xs uppercase tracking-widest text-secondary relative z-10">Cart</span>
                                             {cartCount > 0 && (
@@ -556,7 +554,7 @@ export function Navbar() {
                             <p className="text-[8px] font-black uppercase tracking-[0.2em] text-primary/80 px-2">Discover</p>
                             <div className="grid gap-3">
                                 {navLinks.map((link) => (
-                                    <Link key={link.href} href={link.href} onClick={() => setIsMenuOpen(false)} className={cn("flex items-center justify-between p-4 rounded-[2rem] transition-all duration-500 border border-white/20 shadow-lg group shine-effect overflow-hidden hover:scale-[1.02] active:scale-[0.98]", pathname === link.href ? "bg-primary text-white shadow-primary/20 animate-liquid-flow from-primary via-primary/80 to-primary bg-gradient-to-r" : "bg-white/20 backdrop-blur-xl text-secondary hover:bg-white/30 hover:border-white/30")}>
+                                    <Link key={link.href} href={link.href} className={cn("flex items-center justify-between p-4 rounded-[2rem] transition-all duration-500 border border-white/20 shadow-lg group shine-effect overflow-hidden hover:scale-[1.02] active:scale-[0.98]", pathname === link.href ? "bg-primary text-white shadow-primary/20 animate-liquid-flow from-primary via-primary/80 to-primary bg-gradient-to-r" : "bg-white/20 backdrop-blur-xl text-secondary hover:bg-white/30 hover:border-white/30")}>
                                         <div className="flex items-center gap-4 relative z-10">
                                           <div className={cn("p-2 rounded-xl transition-colors duration-500", pathname === link.href ? "bg-white/30" : "bg-primary/20 group-hover:bg-primary/30")}>
                                             <link.icon className={cn("h-4 w-4 transition-transform duration-500 group-hover:scale-110", pathname === link.href ? "text-white" : "text-primary")} />
@@ -573,7 +571,7 @@ export function Navbar() {
                     <div className="px-6 py-5 border-t border-white/10 bg-white/10 backdrop-blur-3xl relative z-10 mt-auto">
                       {user ? (
                         <div className="flex items-center gap-3 w-full">
-                          <Link href="/account" className="flex-1" onClick={() => setIsMenuOpen(false)}>
+                          <Link href="/account" className="flex-1">
                             <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold gap-2 shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-transform animate-liquid-flow from-secondary via-secondary/80 to-secondary bg-gradient-to-r shine-effect overflow-hidden">
                               <User className="h-4 w-4 relative z-10" />
                               <span className="relative z-10">Settings</span>
@@ -589,7 +587,7 @@ export function Navbar() {
                           </Button>
                         </div>
                       ) : (
-                        <Link href={loginUrl} className="w-full" onClick={() => setIsMenuOpen(false)}>
+                        <Link href={loginUrl} className="w-full">
                           <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold shadow-2xl animate-pulse-glow hover:scale-[1.01] active:scale-[0.99] transition-transform shine-effect overflow-hidden">
                             <span className="relative z-10">Secure Sign In</span>
                           </Button>

@@ -81,7 +81,7 @@
 
 @keyframes subtle-float {
   0%, 100% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(0, -6px, 0); }
+  50% { transform: translate3d(0, -8px, 0); }
 }
 
 @keyframes pulse-glow {
@@ -110,7 +110,7 @@
 }
 
 .animate-subtle-float {
-  animation: subtle-float 4s ease-in-out infinite;
+  animation: subtle-float 5s ease-in-out infinite;
   will-change: transform;
 }
 
@@ -120,11 +120,11 @@
 
 .animate-liquid-flow {
   background-size: 200% 200%;
-  animation: liquid-flow 8s ease infinite;
+  animation: liquid-flow 6s ease-in-out infinite;
 }
 
 .animate-artisanal-rotation {
-  animation: artisanal-rotation 12s linear infinite;
+  animation: artisanal-rotation 15s linear infinite;
   will-change: transform;
 }
 
