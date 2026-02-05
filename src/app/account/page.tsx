@@ -16,7 +16,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { 
   LogOut, Package, Clock, ShieldAlert, CheckCircle2, 
   User as UserIcon, MapPin, AtSign, Loader2, Save, ShoppingBag, 
-  ArrowRight, PhoneIncoming, CreditCard, LayoutDashboard
+  ArrowRight, PhoneIncoming, CreditCard, LayoutDashboard,
+  X
 } from 'lucide-react';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
@@ -35,6 +36,7 @@ export default function AccountPage() {
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState('overview');
+  const [isNavExpanded, setIsNavExpanded] = useState(false);
   const [otp, setOtp] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [showOtpInput, setShowOtpInput] = useState(false);
@@ -343,32 +345,64 @@ export default function AccountPage() {
         </div>
       </div>
 
-      {/* Persistent Mobile Floating Navigation Bar (FAB style) */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm md:hidden z-50">
-        <div className="bg-secondary/90 backdrop-blur-2xl border border-white/20 rounded-full h-16 shadow-2xl flex items-center justify-around px-2 relative overflow-hidden">
-          <div className="absolute inset-0 bg-primary/5 pointer-events-none" />
-          
-          {[
-            { id: 'overview', icon: LayoutDashboard, label: 'Overview' },
-            { id: 'orders', icon: Package, label: 'Orders' },
-            { id: 'profile', icon: UserIcon, label: 'Identity' }
-          ].map((nav) => {
-            const isActive = activeTab === nav.id;
-            return (
-              <button
-                key={nav.id}
-                onClick={() => setActiveTab(nav.id)}
-                className={cn(
-                  "relative flex flex-col items-center justify-center gap-1 w-16 h-12 transition-all duration-300",
-                  isActive ? "text-primary scale-110" : "text-white/60 hover:text-white"
-                )}
-              >
-                <nav.icon className={cn("h-5 w-5 transition-all", isActive && "drop-shadow-[0_0_8px_rgba(224,124,84,0.6)]")} />
-                <span className="text-[9px] font-bold uppercase tracking-tighter">{nav.label}</span>
-                {isActive && <div className="absolute -bottom-2 w-1 h-1 bg-primary rounded-full animate-pulse" />}
-              </button>
-            );
-          })}
+      {/* Persistent Mobile Floating Navigation Bar (Expanding FAB style) */}
+      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 md:hidden z-50">
+        <div 
+          className={cn(
+            "bg-secondary/95 backdrop-blur-3xl border border-white/20 rounded-full h-16 shadow-2xl flex items-center transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] relative overflow-hidden",
+            isNavExpanded ? "w-[300px]" : "w-16"
+          )}
+        >
+          {/* Expandable Nav Content */}
+          <div className={cn(
+            "flex items-center justify-around w-full h-full px-2 transition-all duration-500",
+            isNavExpanded ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10 pointer-events-none"
+          )}>
+            {[
+              { id: 'overview', icon: LayoutDashboard, label: 'Stats' },
+              { id: 'orders', icon: Package, label: 'Orders' },
+              { id: 'profile', icon: UserIcon, label: 'Identity' }
+            ].map((nav) => {
+              const isActive = activeTab === nav.id;
+              return (
+                <button
+                  key={nav.id}
+                  onClick={() => {
+                    setActiveTab(nav.id);
+                    setIsNavExpanded(false);
+                  }}
+                  className={cn(
+                    "flex flex-col items-center justify-center gap-1 w-16 h-12 transition-all duration-300",
+                    isActive ? "text-primary scale-110" : "text-white/60 hover:text-white"
+                  )}
+                >
+                  <nav.icon className="h-5 w-5" />
+                  <span className="text-[8px] font-black uppercase tracking-widest">{nav.label}</span>
+                </button>
+              );
+            })}
+            
+            {/* Close trigger integrated into expansion */}
+            <button 
+              onClick={(e) => { e.stopPropagation(); setIsNavExpanded(false); }}
+              className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/80 ml-1"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Collapsed FAB Trigger */}
+          <button 
+            onClick={() => setIsNavExpanded(true)}
+            className={cn(
+              "absolute inset-0 w-full h-full flex items-center justify-center bg-primary text-white transition-all duration-500",
+              isNavExpanded ? "opacity-0 scale-50 pointer-events-none" : "opacity-100 scale-100"
+            )}
+          >
+            {activeTab === 'overview' && <LayoutDashboard className="h-6 w-6" />}
+            {activeTab === 'orders' && <Package className="h-6 w-6" />}
+            {activeTab === 'profile' && <UserIcon className="h-6 w-6" />}
+          </button>
         </div>
       </div>
     </div>
