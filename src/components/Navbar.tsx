@@ -84,7 +84,7 @@ export function Navbar() {
     if (isSearchOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
-    return () => document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isSearchOpen]);
 
   useEffect(() => {
@@ -418,7 +418,7 @@ export function Navbar() {
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/50 via-white/5 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] scrollbar-none"
+                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/50 via-white/5 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] scrollbar-none"
                 >
                   {/* Stable Inner Layout Container */}
                   <div className="h-full flex flex-col relative overflow-hidden">
@@ -556,7 +556,7 @@ export function Navbar() {
                           </div>
 
                           {!isMobileSearchActive && (
-                            <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                            <div className="space-y-5">
                                 <p className="text-[8px] font-black uppercase tracking-[0.2em] text-primary/80 px-2">Discover</p>
                                 <div className="grid gap-3">
                                     {navLinks.map((link) => (
@@ -578,7 +578,7 @@ export function Navbar() {
 
                     {/* Fixed Account Action Footer - Pinned outside the animated container */}
                     {!isMobileSearchActive && (
-                      <div className="px-6 py-5 border-t border-white/10 bg-white/10 backdrop-blur-3xl relative z-10 mt-auto animate-in fade-in duration-500">
+                      <div className="px-6 py-5 border-t border-white/10 bg-white/10 backdrop-blur-3xl relative z-10 mt-auto">
                         {user ? (
                           <div className="flex items-center gap-3 w-full">
                             <Link href="/account" className="flex-1" onClick={() => setIsMenuOpen(false)}>
