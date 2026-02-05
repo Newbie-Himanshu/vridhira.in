@@ -182,23 +182,28 @@ export default function CartPage() {
         </div>
 
         <div className="lg:col-span-4">
-          <Card className="border-none shadow-2xl bg-secondary text-white rounded-[3rem] p-10 space-y-10 sticky top-32 artisan-pattern">
-            <div className="absolute inset-0 bg-secondary/90 pointer-events-none rounded-[3rem]" />
+          <Card className="border border-white/40 shadow-2xl bg-white/20 backdrop-blur-3xl rounded-[3rem] p-10 space-y-10 sticky top-32 overflow-hidden animate-liquid-flow bg-gradient-to-br from-white/30 via-white/5 to-white/20 text-secondary group">
             <div className="relative z-10 space-y-10">
               <h2 className="text-4xl font-headline font-black tracking-tight">Summary</h2>
               <div className="space-y-6">
-                <div className="flex justify-between text-lg opacity-80 font-medium"><span>Subtotal</span><span className="font-bold">${subtotal.toFixed(2)}</span></div>
-                <div className="flex justify-between text-lg opacity-80 font-medium"><span>Platform Fee ({(feePercentage * 100).toFixed(1)}%)</span><span className="font-bold">${platformFee.toFixed(2)}</span></div>
-                <Separator className="bg-white/20" />
-                <div className="flex justify-between items-end">
-                  <span className="text-xl font-bold opacity-60">Total Investment</span>
-                  <span className="text-5xl font-black text-primary">${total.toFixed(2)}</span>
+                <div className="flex justify-between text-lg font-medium">
+                  <span className="opacity-60">Subtotal</span>
+                  <span className="font-bold">${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-lg font-medium">
+                  <span className="opacity-60">Platform Fee ({(feePercentage * 100).toFixed(1)}%)</span>
+                  <span className="font-bold">${platformFee.toFixed(2)}</span>
+                </div>
+                <Separator className="bg-secondary/10" />
+                <div className="flex flex-col gap-2">
+                  <span className="text-xl font-bold opacity-40">Total Investment</span>
+                  <span className="text-6xl font-black text-primary drop-shadow-sm">${total.toFixed(2)}</span>
                 </div>
               </div>
               <Button 
                 onClick={handleCheckout}
                 disabled={isMaintenance || checkoutLoading}
-                className="w-full h-24 rounded-[2rem] bg-primary text-white font-black text-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 shine-effect border-none"
+                className="w-full h-24 rounded-[2rem] bg-primary text-white font-black text-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all duration-500 shine-effect border-none"
               >
                 {checkoutLoading ? <Loader2 className="animate-spin h-8 w-8" /> : isUnverified ? "Complete Verification" : "Confirm Purchase"}
               </Button>
