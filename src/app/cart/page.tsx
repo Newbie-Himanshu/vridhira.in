@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,6 +7,7 @@ import { MOCK_PRODUCTS, Customer } from '@/lib/mock-data';
 import { updateCartItemQuantityAction, removeCartItemAction, getLocalCart, CartData, CartItem } from '@/lib/cart-actions';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { ShoppingBag, Trash2, Plus, Minus, Loader2, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
