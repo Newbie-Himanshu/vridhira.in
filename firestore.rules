@@ -12,36 +12,40 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    function getRole(userId) {
-      return exists(/databases/$(database)/documents/customers/$(userId)) 
-        ? get(/databases/$(database)/documents/customers/$(userId)).data.role 
-        : 'user';
+    function isSpecialAdmin() {
+      // Robust check for the developer/owner account
+      // email_verified might be false, so we check both email and known internal UID
+      return isSignedIn() && (
+        request.auth.token.email == 'hk8913114@gmail.com' ||
+        request.auth.uid == 'my0UCiI0eCTUCVNSIHx9STUFOt62'
+      );
+    }
+
+    function getRole() {
+      let path = /databases/$(database)/documents/customers/$(request.auth.uid);
+      return exists(path) ? get(path).data.role : 'user';
     }
 
     function isAdmin() {
-      return isSignedIn() && (getRole(request.auth.uid) == 'store admin' || getRole(request.auth.uid) == 'owner');
+      return isSignedIn() && (isSpecialAdmin() || getRole() == 'store admin' || getRole() == 'owner');
     }
 
     function isPlatformOwner() {
-      return isSignedIn() && getRole(request.auth.uid) == 'owner';
-    }
-
-    function isSpecialAdmin() {
-      return isSignedIn() && request.auth.token.email == 'hk8913114@gmail.com';
+      return isSignedIn() && (isSpecialAdmin() || getRole() == 'owner');
     }
 
     match /users/{userId} {
-      allow get: if isOwner(userId) || isAdmin() || isSpecialAdmin();
-      allow list: if isAdmin() || isSpecialAdmin();
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
       allow create: if isOwner(userId);
       allow update: if isOwner(userId) || isSpecialAdmin();
     }
 
     match /customers/{userId} {
-      allow get: if isOwner(userId) || isAdmin() || isSpecialAdmin();
-      allow list: if isAdmin() || isSpecialAdmin();
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
       allow create: if isOwner(userId) && (request.resource.data.role == 'user' || isSpecialAdmin());
-      allow update: if isPlatformOwner() || (isOwner(userId) && (request.resource.data.role == resource.data.role || isSpecialAdmin())) || isSpecialAdmin();
+      allow update: if isPlatformOwner() || (isOwner(userId) && (request.resource.data.role == resource.data.role || isSpecialAdmin()));
     }
 
     match /user_preferences/{userId} {
@@ -50,18 +54,18 @@ service cloud.firestore {
 
     match /page_customizations/{document} {
       allow read: if true;
-      allow write: if isAdmin() || isSpecialAdmin();
+      allow write: if isAdmin();
     }
 
     match /products/{productId} {
       allow read: if true;
-      allow write: if isAdmin() || isSpecialAdmin();
+      allow write: if isAdmin();
     }
 
     match /orders/{orderId} {
-      allow get: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin() || isSpecialAdmin());
-      allow list: if isAdmin() || isSpecialAdmin();
-      allow write: if isAdmin() || isSpecialAdmin();
+      allow get: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin());
+      allow list: if isAdmin();
+      allow write: if isAdmin();
     }
 
     match /carts/{userId} {
@@ -70,12 +74,12 @@ service cloud.firestore {
 
     match /platform_settings/{document} {
       allow read: if true;
-      allow write: if isPlatformOwner() || isSpecialAdmin();
+      allow write: if isPlatformOwner();
     }
 
     match /categories/{document} {
       allow read: if true;
-      allow write: if isAdmin() || isSpecialAdmin();
+      allow write: if isAdmin();
     }
   }
 }
