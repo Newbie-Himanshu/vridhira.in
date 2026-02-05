@@ -141,16 +141,16 @@ export default function AdminLayout({
         </div>
       </main>
 
-      {/* Backdrop Dimmer - Mobile Only (Blur removed per request) */}
+      {/* Backdrop Dimmer - Light Overlay */}
       <div 
         className={cn(
-          "fixed inset-0 z-[55] bg-black/40 md:hidden transition-all duration-700 ease-quint",
+          "fixed inset-0 z-[55] bg-white/5 md:hidden transition-all duration-700 ease-quint",
           isFabExpanded ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         )}
         onClick={() => setIsFabExpanded(false)}
       />
 
-      {/* Admin Command FAB - Mobile Only with Symmetrical Animations */}
+      {/* Admin Command FAB - Mobile Only with Frosted Glass Aesthetic */}
       <div 
         ref={fabRef}
         className={cn(
@@ -162,11 +162,11 @@ export default function AdminLayout({
       >
         <div 
           className={cn(
-            "bg-white/10 border border-white/20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex flex-col overflow-hidden relative transition-all duration-700 ease-quint will-change-[height,width,padding]",
+            "bg-white/40 backdrop-blur-md border border-white/40 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden relative transition-all duration-700 ease-quint will-change-[height,width,padding]",
             isFabExpanded ? "p-6 h-[60vh] opacity-100" : "p-0 h-14 opacity-100"
           )}
         >
-          {/* Expanded Content Wrapper - Symmetrical fade and scale */}
+          {/* Expanded Content Wrapper */}
           <div className={cn(
             "flex flex-col h-full transition-all duration-700 ease-quint",
             isFabExpanded ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 pointer-events-none"
@@ -244,7 +244,7 @@ export default function AdminLayout({
             </div>
           </div>
 
-          {/* Trigger Button (Floating State) - Reverse transition handle */}
+          {/* Trigger Button (Floating State) */}
           <button 
             onClick={() => setIsFabExpanded(true)}
             className={cn(
