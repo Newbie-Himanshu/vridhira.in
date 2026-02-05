@@ -130,48 +130,66 @@ export default function AdminLayout({
         <div 
           className={cn(
             "bg-white/40 backdrop-blur-3xl border border-white/20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex flex-col transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden",
-            isFabExpanded ? "p-6 max-h-[600px] opacity-100" : "p-0 max-h-14 h-14 opacity-100"
+            isFabExpanded ? "p-6 max-h-[650px] opacity-100" : "p-0 max-h-14 h-14 opacity-100"
           )}
         >
-          {/* Expanded Grid Content */}
+          {/* Expanded Grid Content - Wrapped for smoother opacity/scale transitions */}
           <div className={cn(
-            "grid grid-cols-4 gap-4 transition-all duration-500 ease-out",
-            isFabExpanded ? "opacity-100 translate-y-0 delay-100" : "opacity-0 translate-y-10 pointer-events-none"
+            "flex flex-col transition-all duration-500 ease-out",
+            isFabExpanded ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 pointer-events-none"
           )}>
-            <div className="col-span-4 flex items-center justify-between mb-4 border-b border-black/5 pb-4">
+            <div className="flex items-center justify-between mb-6 border-b border-black/5 pb-4">
               <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-white animate-artisanal-rotation">
-                  <Command className="h-4 w-4" />
+                <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg animate-artisanal-rotation">
+                  <Command className="h-5 w-5" />
                 </div>
-                <span className="font-headline font-black text-secondary tracking-tight">Admin Terminal</span>
+                <div className="flex flex-col">
+                  <span className="font-headline font-black text-secondary tracking-tight text-lg leading-none">Admin Terminal</span>
+                  <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.2em] mt-1">Vridhira Operations</span>
+                </div>
               </div>
-              <Link href="/shop" className="flex items-center gap-1 text-[10px] font-bold text-primary uppercase bg-primary/10 px-3 py-1 rounded-full">
+              <Link 
+                href="/shop" 
+                onClick={() => setIsFabExpanded(false)}
+                className="flex items-center gap-1.5 text-[10px] font-black text-primary uppercase bg-primary/10 px-4 py-2 rounded-full hover:bg-primary/20 transition-colors"
+              >
                 <ArrowLeft className="h-3 w-3" /> Shop
               </Link>
             </div>
 
-            {adminNavItems.map((item) => {
-              if (item.role && item.role !== effectiveRole) return null;
-              const isActive = pathname === item.href;
-              return (
-                <Link 
-                  key={item.href} 
-                  href={item.href}
-                  className={cn(
-                    "flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all duration-300",
-                    isActive ? "bg-primary text-white shadow-lg scale-105" : "bg-white/20 text-secondary hover:bg-white/40"
-                  )}
-                >
-                  <item.icon className={cn("h-5 w-5", isActive ? "animate-pulse" : "")} />
-                  <span className="text-[8px] font-black uppercase tracking-widest text-center">{item.name}</span>
-                </Link>
-              );
-            })}
+            <div className="grid grid-cols-4 gap-3">
+              {adminNavItems.map((item) => {
+                if (item.role && item.role !== effectiveRole) return null;
+                const isActive = pathname === item.href;
+                return (
+                  <Link 
+                    key={item.href} 
+                    href={item.href}
+                    onClick={() => setIsFabExpanded(false)}
+                    className={cn(
+                      "flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all duration-300 active:scale-95",
+                      isActive ? "bg-primary text-white shadow-xl scale-105" : "bg-white/20 text-secondary hover:bg-white/40"
+                    )}
+                  >
+                    <item.icon className={cn("h-5 w-5", isActive ? "animate-pulse" : "")} />
+                    <span className="text-[8px] font-black uppercase tracking-widest text-center leading-tight">{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Close Trigger (Expanded State) */}
+            <button 
+              onClick={() => setIsFabExpanded(false)}
+              className="mt-6 w-full h-14 rounded-2xl bg-secondary/10 hover:bg-secondary/20 flex items-center justify-center transition-all active:scale-[0.98] group"
+            >
+              <X className="h-6 w-6 text-secondary group-hover:rotate-90 transition-transform duration-300" />
+            </button>
           </div>
 
           {/* Trigger Button (Floating State) */}
           <button 
-            onClick={() => setIsFabExpanded(!isFabExpanded)}
+            onClick={() => setIsFabExpanded(true)}
             className={cn(
               "absolute inset-0 flex items-center justify-center transition-all duration-500 ease-in-out",
               isFabExpanded ? "opacity-0 scale-50 pointer-events-none" : "opacity-100 scale-100"
@@ -185,16 +203,6 @@ export default function AdminLayout({
               )} />
             </div>
           </button>
-
-          {/* Close Trigger (Expanded State) */}
-          {isFabExpanded && (
-            <button 
-              onClick={() => setIsFabExpanded(false)}
-              className="mt-6 w-full h-12 rounded-2xl bg-secondary/10 hover:bg-secondary/20 flex items-center justify-center transition-colors animate-in fade-in zoom-in-95 duration-300"
-            >
-              <X className="h-5 w-5 text-secondary" />
-            </button>
-          )}
         </div>
       </div>
     </div>
