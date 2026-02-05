@@ -21,7 +21,8 @@ import {
   Command,
   ArrowLeft,
   Loader2,
-  ShieldAlert
+  ShieldAlert,
+  ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -48,13 +49,14 @@ const adminNavItems = [
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.PreactNode;
 }) {
   const { user, isUserLoading, userRole } = useUser();
   const pathname = usePathname();
   const [isFabExpanded, setIsFabExpanded] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const fabRef = useRef<HTMLDivElement>(null);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
 
   const effectiveRole = user?.email === 'hk8913114@gmail.com' ? 'owner' : userRole;
   const isAuthorized = effectiveRole === 'owner' || effectiveRole === 'store admin';
@@ -86,6 +88,27 @@ export default function AdminLayout({
   useEffect(() => {
     setIsFabExpanded(false);
   }, [pathname]);
+
+  // Pull-to-close gesture handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientY);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStart) return;
+    const currentY = e.targetTouches[0].clientY;
+    const distance = currentY - touchStart;
+    
+    // If swiped down significantly
+    if (distance > 100) {
+      setIsFabExpanded(false);
+      setTouchStart(null);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setTouchStart(null);
+  };
 
   if (isUserLoading) {
     return (
@@ -144,33 +167,42 @@ export default function AdminLayout({
             isFabExpanded ? "p-6 max-h-[650px] opacity-100" : "p-0 max-h-14 h-14 opacity-100"
           )}
         >
-          {/* Expanded Grid Content - Wrapped for smoother opacity/scale transitions */}
+          {/* Expanded Content Wrapper */}
           <div className={cn(
             "flex flex-col h-full transition-all duration-500 ease-out",
             isFabExpanded ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 pointer-events-none"
           )}>
-            <div className="flex items-center justify-between mb-6 border-b border-black/5 pb-4 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg animate-artisanal-rotation">
-                  <Command className="h-5 w-5" />
+            {/* Gesture Handle & Header */}
+            <div 
+              className="flex flex-col mb-6 shrink-0 active:opacity-70 transition-opacity cursor-pointer"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <div className="w-12 h-1.5 bg-black/10 rounded-full mx-auto mb-4" />
+              <div className="flex items-center justify-between border-b border-black/5 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg animate-artisanal-rotation">
+                    <Command className="h-5 w-5" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-headline font-black text-secondary tracking-tight text-lg leading-none">Admin Terminal</span>
+                    <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.2em] mt-1">Vridhira Operations</span>
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <span className="font-headline font-black text-secondary tracking-tight text-lg leading-none">Admin Terminal</span>
-                  <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.2em] mt-1">Vridhira Operations</span>
-                </div>
+                <Link 
+                  href="/shop" 
+                  onClick={() => setIsFabExpanded(false)}
+                  className="flex items-center gap-1.5 text-[10px] font-black text-primary uppercase bg-primary/10 px-4 py-2 rounded-full hover:bg-primary/20 transition-colors"
+                >
+                  <ArrowLeft className="h-3 w-3" /> Shop
+                </Link>
               </div>
-              <Link 
-                href="/shop" 
-                onClick={() => setIsFabExpanded(false)}
-                className="flex items-center gap-1.5 text-[10px] font-black text-primary uppercase bg-primary/10 px-4 py-2 rounded-full hover:bg-primary/20 transition-colors"
-              >
-                <ArrowLeft className="h-3 w-3" /> Shop
-              </Link>
             </div>
 
-            {/* Scrollable Navigation Grid */}
-            <div className="flex-1 overflow-y-auto scrollbar-none pb-4">
-              <div className="grid grid-cols-4 gap-3">
+            {/* Scrollable Navigation List */}
+            <div className="flex-1 overflow-y-auto scrollbar-none pb-4 px-1">
+              <div className="flex flex-col gap-2">
                 {adminNavItems.map((item) => {
                   if (item.role && item.role !== effectiveRole) return null;
                   const isActive = pathname === item.href;
@@ -180,12 +212,20 @@ export default function AdminLayout({
                       href={item.href}
                       onClick={() => setIsFabExpanded(false)}
                       className={cn(
-                        "flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all duration-300 active:scale-95",
-                        isActive ? "bg-primary text-white shadow-xl scale-105" : "bg-white/20 text-secondary hover:bg-white/40"
+                        "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 active:scale-[0.98] group",
+                        isActive ? "bg-primary text-white shadow-xl translate-x-1" : "bg-white/20 text-secondary hover:bg-white/40 hover:translate-x-1"
                       )}
                     >
-                      <item.icon className={cn("h-5 w-5", isActive ? "animate-pulse" : "")} />
-                      <span className="text-[8px] font-black uppercase tracking-widest text-center leading-tight">{item.name}</span>
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "p-2 rounded-xl transition-colors",
+                          isActive ? "bg-white/20" : "bg-primary/10 text-primary"
+                        )}>
+                          <item.icon className={cn("h-5 w-5", isActive ? "animate-pulse" : "")} />
+                        </div>
+                        <span className="text-xs font-bold uppercase tracking-widest leading-tight">{item.name}</span>
+                      </div>
+                      <ChevronRight className={cn("h-4 w-4 transition-all opacity-40 group-hover:opacity-100", isActive && "opacity-100")} />
                     </Link>
                   );
                 })}
