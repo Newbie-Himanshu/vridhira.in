@@ -16,18 +16,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased artisan-pattern min-h-screen">
+      <body className="font-body antialiased artisan-pattern min-h-screen selection:bg-primary/30 selection:text-secondary-foreground">
         <FirebaseClientProvider>
           <Suspense fallback={null}>
             <Navbar />
           </Suspense>
-          <main>{children}</main>
+          <main className="animate-in fade-in duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]">
+            {children}
+          </main>
           <Toaster />
         </FirebaseClientProvider>
       </body>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { AdminSidebar } from '@/components/AdminSidebar';
@@ -146,7 +145,7 @@ export default function AdminLayout({
 
       {/* Main Content Area */}
       <main className={cn(
-        "flex-1 min-w-0 bg-background/40 backdrop-blur-sm p-4 md:p-8 lg:p-12 animate-in fade-in duration-700 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
+        "flex-1 min-w-0 bg-background/40 backdrop-blur-sm p-4 md:p-8 lg:p-12 animate-in fade-in duration-700 transition-all duration-700 ease-quint",
         isCollapsed ? "md:ml-20" : "md:ml-64"
       )}>
         <div className="max-w-7xl mx-auto space-y-8">
@@ -167,7 +166,7 @@ export default function AdminLayout({
       <div 
         ref={fabRef}
         className={cn(
-          "fixed bottom-6 z-[60] md:hidden transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
+          "fixed bottom-6 z-[60] md:hidden transition-all duration-700 ease-quint",
           isFabExpanded 
             ? "left-6 right-6 w-auto" 
             : "right-6 w-14 h-14"
@@ -175,7 +174,7 @@ export default function AdminLayout({
       >
         <div 
           className={cn(
-            "bg-white/10 backdrop-blur-[40px] border border-white/20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex flex-col transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden relative",
+            "bg-white/10 backdrop-blur-[40px] border border-white/20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex flex-col transition-all duration-700 ease-quint overflow-hidden relative",
             isFabExpanded ? "p-6 h-[60vh] opacity-100" : "p-0 h-14 opacity-100"
           )}
         >

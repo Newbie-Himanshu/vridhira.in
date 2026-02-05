@@ -170,15 +170,15 @@ export function Navbar() {
   const loginUrl = pathname === '/login' ? '/login' : `/login?returnTo=${encodeURIComponent(pathname)}`;
 
   return (
-    <div className="fixed top-0 left-0 w-full z-50 pointer-events-none flex justify-center pt-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]">
+    <div className="fixed top-0 left-0 w-full z-50 pointer-events-none flex justify-center pt-0 transition-all duration-700 ease-quint">
       <header className={cn(
-        "pointer-events-auto transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-center",
+        "pointer-events-auto transition-all duration-700 ease-quint flex items-center justify-center",
         isScrolled 
           ? "mt-4 w-[92%] md:w-[70%] max-w-6xl h-16 bg-background/60 backdrop-blur-2xl rounded-full border border-white/20 shadow-2xl" 
           : "w-full h-20 bg-transparent border-b border-transparent shadow-none rounded-none"
       )}>
         <div className={cn(
-          "w-full px-6 h-full flex items-center relative transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
+          "w-full px-6 h-full flex items-center relative transition-all duration-700 ease-quint",
           isScrolled ? "max-w-none" : "container mx-auto"
         )}>
           
@@ -418,7 +418,7 @@ export function Navbar() {
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/50 via-white/5 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] scrollbar-none"
+                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/50 via-white/5 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 ease-quint scrollbar-none"
                 >
                   {/* Stable Inner Layout Container */}
                   <div className="h-full flex flex-col relative overflow-hidden">

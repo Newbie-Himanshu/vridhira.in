@@ -1,4 +1,3 @@
-
 'use client';
 
 import { 
@@ -59,7 +58,7 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
   if (isUserLoading) {
     return (
       <aside className={cn(
-        "fixed left-0 top-20 h-[calc(100vh-5rem)] bg-background border-r p-4 hidden md:flex flex-col shrink-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
+        "fixed left-0 top-20 h-[calc(100vh-5rem)] bg-background border-r p-4 hidden md:flex flex-col shrink-0 transition-all duration-700 ease-quint",
         isCollapsed ? "w-20" : "w-64"
       )}>
         <div className="flex items-center justify-center h-full">
@@ -74,7 +73,7 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
   return (
     <TooltipProvider delayDuration={0}>
       <aside className={cn(
-        "fixed left-0 top-20 h-[calc(100vh-5rem)] bg-background border-r p-4 hidden md:flex flex-col shrink-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] z-40",
+        "fixed left-0 top-20 h-[calc(100vh-5rem)] bg-background border-r p-4 hidden md:flex flex-col shrink-0 transition-all duration-700 ease-quint z-40",
         isCollapsed ? "w-20" : "w-64"
       )}>
         {/* Toggle Button */}

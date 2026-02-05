@@ -49,12 +49,27 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
   * {
-    @apply border-border;
+    @apply border-border transition-all duration-500;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
+
+  /* Prevent transition on initial load where layout shifts might occur */
+  .no-transition * {
+    transition: none !important;
+  }
+
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground font-body overflow-x-hidden;
   }
+  
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline;
   }
