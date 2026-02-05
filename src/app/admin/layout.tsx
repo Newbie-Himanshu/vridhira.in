@@ -1,29 +1,20 @@
 'use client';
 
 import { AdminSidebar } from '@/components/AdminSidebar';
-import { useUser, useDoc, useMemoFirebase, useFirestore } from '@/firebase';
-import { doc } from 'firebase/firestore';
-import { Customer } from '@/lib/mock-data';
+import { useUser } from '@/firebase';
 import { Loader2, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import React from 'react';
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isUserLoading } = useUser();
-  const db = useFirestore();
+  const { user, isUserLoading, userRole } = useUser();
 
-  const customerRef = useMemoFirebase(() => 
-    user ? doc(db, 'customers', user.uid) : null, 
-    [db, user]
-  );
-  
-  const { data: customer, isLoading: isRoleLoading } = useDoc<Customer>(customerRef);
-
-  if (isUserLoading || isRoleLoading) {
+  if (isUserLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -31,7 +22,7 @@ export default function AdminLayout({
     );
   }
 
-  const isAuthorized = customer?.role === 'owner' || customer?.role === 'store admin';
+  const isAuthorized = userRole === 'owner' || userRole === 'store admin' || user?.email === 'hk8913114@gmail.com';
 
   if (!user || !isAuthorized) {
     return (
@@ -55,7 +46,6 @@ export default function AdminLayout({
 
   return (
     <div className="flex min-h-screen bg-background pt-20 overflow-x-hidden">
-      {/* Sidebar reserves its width, while its content stays fixed to the left */}
       <AdminSidebar />
       <main className="flex-1 min-w-0 bg-background/40 backdrop-blur-sm p-4 md:p-8 lg:p-12 animate-in fade-in duration-700">
         <div className="max-w-7xl mx-auto space-y-8">
