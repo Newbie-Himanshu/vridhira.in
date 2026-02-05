@@ -231,13 +231,31 @@ export default function AccountPage() {
           </Alert>
         )}
 
-        {/* Dynamic Desktop Tabs List */}
+        {/* Dynamic Desktop Tabs List - Enhanced Liquid Glass Layout */}
         <div className="hidden md:block">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="bg-white/50 border rounded-full p-1.5 mb-10 h-16 w-full shadow-sm">
-              <TabsTrigger value="overview" className="flex-1 rounded-full text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-white">Overview</TabsTrigger>
-              <TabsTrigger value="orders" className="flex-1 rounded-full text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-white">Acquisitions</TabsTrigger>
-              <TabsTrigger value="profile" className="flex-1 rounded-full text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-white">Identity Details</TabsTrigger>
+            <TabsList className="bg-white/30 backdrop-blur-2xl border border-white/40 rounded-full p-2 mb-12 h-20 w-full shadow-[0_20px_50px_rgba(0,0,0,0.05)] relative overflow-hidden group">
+              {/* Subtle background flow effect for the container */}
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
+              
+              <TabsTrigger 
+                value="overview" 
+                className="flex-1 rounded-full text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.02] active:scale-95 z-10"
+              >
+                Overview
+              </TabsTrigger>
+              <TabsTrigger 
+                value="orders" 
+                className="flex-1 rounded-full text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.02] active:scale-95 z-10"
+              >
+                Acquisitions
+              </TabsTrigger>
+              <TabsTrigger 
+                value="profile" 
+                className="flex-1 rounded-full text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.02] active:scale-95 z-10"
+              >
+                Identity Details
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
