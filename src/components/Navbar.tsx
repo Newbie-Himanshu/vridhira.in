@@ -418,14 +418,14 @@ export function Navbar() {
                 >
                   <div 
                     onScroll={(e) => setIsMenuScrolled(e.currentTarget.scrollTop > 20)}
-                    className="flex-1 px-8 pt-4 pb-10 space-y-8 overflow-y-auto relative z-0"
+                    className="flex-1 px-8 pt-2 pb-10 space-y-6 overflow-y-auto relative z-0"
                   >
                       {/* Dynamic Morphing Logo Pill */}
                       <div className={cn(
                         "sticky top-0 z-50 flex items-center justify-center gap-4 transition-all duration-700 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] cursor-pointer mx-auto group",
                         isMenuScrolled 
-                          ? "py-3 px-8 bg-white/30 backdrop-blur-3xl border border-white/30 rounded-full shadow-2xl scale-95 -translate-y-2" 
-                          : "py-8 bg-transparent w-full"
+                          ? "py-2.5 px-8 bg-white/30 backdrop-blur-3xl border border-white/30 rounded-full shadow-2xl scale-90 -translate-y-1" 
+                          : "py-2 bg-transparent"
                       )}>
                         <div className="relative w-10 h-10 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
                             <div className="absolute inset-0 bg-primary rounded-xl animate-artisanal-rotation shadow-lg" />
