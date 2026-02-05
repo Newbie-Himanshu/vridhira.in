@@ -418,14 +418,14 @@ export function Navbar() {
                 >
                   <div 
                     onScroll={(e) => setIsMenuScrolled(e.currentTarget.scrollTop > 10)}
-                    className="flex-1 px-8 py-10 space-y-10 overflow-y-auto relative z-0"
+                    className="flex-1 px-8 pt-6 pb-10 space-y-10 overflow-y-auto relative z-0"
                   >
                       {/* Integrated Floating Logo - Always Hover Aesthetic + Scroll Reactive Pill */}
                       <div className={cn(
                         "sticky top-0 z-50 flex items-center justify-center gap-4 transition-all duration-700 cursor-pointer mx-auto group",
                         isMenuScrolled 
                           ? "py-3 bg-white/50 backdrop-blur-3xl border border-white/40 rounded-full shadow-2xl w-[90%] -translate-y-2" 
-                          : "py-6 bg-white/40 backdrop-blur-2xl border border-white/20 rounded-[2.5rem] w-full"
+                          : "py-6 bg-transparent w-full"
                       )}>
                         <div className="relative w-10 h-10 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
                             <div className="absolute inset-0 bg-primary rounded-xl animate-artisanal-rotation shadow-lg" />
