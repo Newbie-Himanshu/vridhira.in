@@ -77,7 +77,7 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
         "fixed left-0 top-20 h-[calc(100vh-5rem)] bg-background border-r p-4 hidden md:flex flex-col shrink-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] z-40",
         isCollapsed ? "w-20" : "w-64"
       )}>
-        {/* Toggle Button - Updated color to Terracotta (Primary) */}
+        {/* Toggle Button */}
         <Button 
           variant="default" 
           size="icon" 
@@ -102,13 +102,13 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
           {!isCollapsed && (
             <div className="flex flex-col animate-in fade-in slide-in-from-left-2 duration-700 overflow-hidden">
               <span className="font-headline font-black text-xl text-secondary leading-none whitespace-nowrap uppercase tracking-tighter">Vridhira</span>
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 whitespace-nowrap">Admin Dashboard</span>
+              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1 whitespace-nowrap opacity-60">Admin System</span>
             </div>
           )}
         </div>
 
         {/* Navigation Items */}
-        <nav className="flex flex-col gap-1.5 flex-1 scrollbar-none overflow-y-auto overflow-x-hidden px-1">
+        <nav className="flex flex-col gap-1 flex-1 scrollbar-none overflow-y-auto overflow-x-hidden px-1">
           {navItems.map((item) => {
             if (item.roles && !item.roles.includes(effectiveRole as string)) {
               return null;
@@ -119,20 +119,25 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
               <Link
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-300 hover:translate-x-1 group",
+                  "flex items-center gap-3 rounded-2xl px-4 py-3 transition-all duration-300 group relative",
                   isActive 
-                    ? 'bg-primary text-white shadow-xl shadow-primary/20' 
-                    : 'text-muted-foreground hover:bg-primary/5 hover:text-primary',
-                  isCollapsed && "px-0 justify-center"
+                    ? 'bg-primary/5 text-primary border-l-4 border-primary' 
+                    : 'text-muted-foreground hover:bg-primary/5 hover:text-primary border-l-4 border-transparent',
+                  isCollapsed && "px-0 justify-center border-l-0"
                 )}
               >
                 <div className={cn("shrink-0 transition-transform duration-300", isCollapsed ? "scale-110" : "group-hover:scale-110")}>
                   {item.icon}
                 </div>
                 {!isCollapsed && (
-                  <span className="animate-in fade-in slide-in-from-left-4 duration-700 whitespace-nowrap">
-                    {item.name}
-                  </span>
+                  <div className="flex flex-1 items-center justify-between animate-in fade-in slide-in-from-left-4 duration-700">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.1em] whitespace-nowrap">
+                      {item.name}
+                    </span>
+                    {isActive && (
+                      <div className="h-1 w-1 rounded-full bg-primary shadow-[0_0_6px_rgba(224,124,84,0.6)]" />
+                    )}
+                  </div>
                 )}
               </Link>
             );
@@ -141,9 +146,14 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
               return (
                 <Tooltip key={item.name}>
                   <TooltipTrigger asChild>
-                    {linkContent}
+                    <div className="relative">
+                      {linkContent}
+                      {isActive && (
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(224,124,84,0.8)]" />
+                      )}
+                    </div>
                   </TooltipTrigger>
-                  <TooltipContent side="right" className="bg-secondary text-white font-bold rounded-xl border-none shadow-2xl ml-2 px-4 py-2">
+                  <TooltipContent side="right" className="bg-secondary text-white font-bold rounded-xl border-none shadow-2xl ml-2 px-4 py-2 text-[10px] uppercase tracking-widest">
                     {item.name}
                   </TooltipContent>
                 </Tooltip>
@@ -165,15 +175,15 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
                   </button>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right" className="bg-primary text-white font-bold rounded-xl border-none shadow-2xl ml-2 px-4 py-2">
+              <TooltipContent side="right" className="bg-primary text-white font-bold rounded-xl border-none shadow-2xl ml-2 px-4 py-2 text-[10px] uppercase tracking-widest">
                 Back to Shop
               </TooltipContent>
             </Tooltip>
           ) : (
-            <Link href="/shop">
-              <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-primary hover:bg-primary/10 transition-all duration-300 animate-in fade-in slide-in-from-left-2">
-                <ArrowLeft className="h-4 w-4" />
-                <span className="whitespace-nowrap">Back to Shop</span>
+            <Link href="/shop" className="w-full">
+              <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 transition-all duration-300 animate-in fade-in slide-in-from-left-2 group">
+                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                <span className="whitespace-nowrap">Marketplace</span>
               </button>
             </Link>
           )}

@@ -21,7 +21,8 @@ import {
   ArrowLeft,
   Loader2,
   ShieldAlert,
-  ChevronRight
+  ChevronRight,
+  Circle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -183,7 +184,7 @@ export default function AdminLayout({
             "flex flex-col h-full transition-all duration-500 ease-out",
             isFabExpanded ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 pointer-events-none"
           )}>
-            {/* Gesture Handle & Header - Touch handlers strictly for dismissal */}
+            {/* Gesture Handle & Header */}
             <div 
               className="flex flex-col mb-6 shrink-0 cursor-grab active:cursor-grabbing"
               onTouchStart={handleTouchStart}
@@ -197,21 +198,21 @@ export default function AdminLayout({
                     <Command className="h-5 w-5" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-headline font-black text-secondary tracking-tight text-lg leading-none">Vridhira</span>
-                    <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.2em] mt-1">Admin Terminal</span>
+                    <span className="font-headline font-black text-secondary tracking-tight text-lg leading-none uppercase">Vridhira</span>
+                    <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.2em] mt-1">Registry Terminal</span>
                   </div>
                 </div>
                 <Link 
                   href="/shop" 
                   onClick={() => setIsFabExpanded(false)}
-                  className="flex items-center gap-1.5 text-[10px] font-black text-primary uppercase bg-white/20 px-4 py-2 rounded-full"
+                  className="flex items-center gap-1.5 text-[9px] font-black text-primary uppercase bg-white/20 px-4 py-2 rounded-full tracking-widest shadow-sm border border-white/10"
                 >
                   <ArrowLeft className="h-3 w-3" /> Shop
                 </Link>
               </div>
             </div>
 
-            {/* Scrollable Navigation List - Professional independent scroll context */}
+            {/* Scrollable Navigation List */}
             <div 
               ref={scrollContainerRef}
               className="flex-1 overflow-y-auto scrollbar-none pb-4 px-1 space-y-2 overscroll-contain"
@@ -226,20 +227,30 @@ export default function AdminLayout({
                     href={item.href}
                     onClick={() => setIsFabExpanded(false)}
                     className={cn(
-                      "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 active:scale-[0.98] group",
-                      isActive ? "bg-primary text-white shadow-xl" : "bg-white/5 text-secondary hover:bg-white/15"
+                      "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 active:scale-[0.98] group relative",
+                      isActive ? "bg-white/20 border border-white/20 shadow-xl" : "bg-white/5 text-secondary hover:bg-white/15"
                     )}
                   >
                     <div className="flex items-center gap-4">
                       <div className={cn(
                         "p-2 rounded-xl transition-colors",
-                        isActive ? "bg-white/20" : "bg-primary/10 text-primary"
+                        isActive ? "bg-primary text-white" : "bg-primary/10 text-primary"
                       )}>
                         <item.icon className={cn("h-5 w-5", isActive ? "animate-pulse" : "")} />
                       </div>
-                      <span className="text-xs font-bold uppercase tracking-widest leading-tight">{item.name}</span>
+                      <span className={cn(
+                        "text-[11px] font-bold uppercase tracking-[0.15em] leading-tight",
+                        isActive ? "text-primary" : "text-secondary"
+                      )}>
+                        {item.name}
+                      </span>
                     </div>
-                    <ChevronRight className={cn("h-4 w-4 transition-all opacity-40 group-hover:opacity-100", isActive && "opacity-100")} />
+                    <div className="flex items-center gap-2">
+                      {isActive && (
+                        <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(224,124,84,0.8)]" />
+                      )}
+                      <ChevronRight className={cn("h-4 w-4 transition-all opacity-20 group-hover:opacity-100", isActive && "opacity-100")} />
+                    </div>
                   </Link>
                 );
               })}
