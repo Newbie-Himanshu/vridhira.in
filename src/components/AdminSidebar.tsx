@@ -22,7 +22,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
 import {
   Tooltip,
   TooltipContent,
@@ -47,15 +46,19 @@ const navItems = [
   { name: 'Global', href: '/admin/settings', icon: <Settings className="h-4 w-4" /> },
 ];
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  isCollapsed: boolean;
+  setIsCollapsed: (val: boolean) => void;
+}
+
+export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps) {
   const pathname = usePathname();
   const { userRole, isUserLoading, user } = useUser();
-  const [isCollapsed, setIsCollapsed] = useState(false);
 
   if (isUserLoading) {
     return (
       <aside className={cn(
-        "sticky top-20 h-[calc(100vh-5rem)] bg-background border-r p-4 hidden md:flex flex-col shrink-0 transition-all duration-500",
+        "fixed left-0 top-20 h-[calc(100vh-5rem)] bg-background border-r p-4 hidden md:flex flex-col shrink-0 transition-all duration-500",
         isCollapsed ? "w-20" : "w-64"
       )}>
         <div className="flex items-center justify-center h-full">
@@ -70,15 +73,15 @@ export function AdminSidebar() {
   return (
     <TooltipProvider delayDuration={0}>
       <aside className={cn(
-        "sticky top-20 h-[calc(100vh-5rem)] bg-background border-r p-4 hidden md:flex flex-col shrink-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] relative z-40",
+        "fixed left-0 top-20 h-[calc(100vh-5rem)] bg-background border-r p-4 hidden md:flex flex-col shrink-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] z-40",
         isCollapsed ? "w-20" : "w-64"
       )}>
-        {/* Toggle Button */}
+        {/* Toggle Button - Updated color to Terracotta (Primary) */}
         <Button 
-          variant="secondary" 
+          variant="default" 
           size="icon" 
           className={cn(
-            "absolute -right-4 top-6 h-8 w-8 rounded-full border shadow-md bg-white hover:bg-muted z-50 transition-transform duration-500",
+            "absolute -right-4 top-6 h-8 w-8 rounded-full border-2 border-background shadow-lg bg-primary text-white hover:bg-primary/90 z-50 transition-transform duration-500",
             isCollapsed ? "rotate-180" : ""
           )}
           onClick={() => setIsCollapsed(!isCollapsed)}

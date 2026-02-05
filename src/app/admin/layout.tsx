@@ -52,6 +52,7 @@ export default function AdminLayout({
   const { user, isUserLoading, userRole } = useUser();
   const pathname = usePathname();
   const [isFabExpanded, setIsFabExpanded] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const fabRef = useRef<HTMLDivElement>(null);
 
   const effectiveRole = user?.email === 'hk8913114@gmail.com' ? 'owner' : userRole;
@@ -104,11 +105,14 @@ export default function AdminLayout({
 
   return (
     <div className="flex min-h-screen bg-background pt-20 overflow-x-hidden relative">
-      {/* Sidebar - Visible on Desktop */}
-      <AdminSidebar />
+      {/* Sidebar - Fixed on Desktop */}
+      <AdminSidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
 
-      {/* Main Content Area */}
-      <main className="flex-1 min-w-0 bg-background/40 backdrop-blur-sm p-4 md:p-8 lg:p-12 animate-in fade-in duration-700">
+      {/* Main Content Area - Adjusted Margin based on Sidebar state */}
+      <main className={cn(
+        "flex-1 min-w-0 bg-background/40 backdrop-blur-sm p-4 md:p-8 lg:p-12 animate-in fade-in duration-700 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+        isCollapsed ? "md:ml-20" : "md:ml-64"
+      )}>
         <div className="max-w-7xl mx-auto space-y-8">
           {children}
         </div>
