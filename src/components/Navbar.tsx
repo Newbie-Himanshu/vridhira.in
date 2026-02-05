@@ -524,13 +524,13 @@ export function Navbar() {
                               <div className="grid grid-cols-2 gap-3 animate-in fade-in duration-500">
                                   <Button 
                                     variant="outline" 
-                                    className="h-16 rounded-[2rem] bg-white/20 backdrop-blur-xl border-white/20 gap-3 justify-start px-6 group hover:bg-white/30 transition-all shadow-xl"
+                                    className="h-16 rounded-[2rem] bg-white/20 backdrop-blur-xl border-white/20 gap-3 justify-start px-6 group hover:bg-white/30 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shine-effect"
                                     onClick={() => setIsMobileSearchActive(true)}
                                   >
                                       <Search className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
                                       <span className="font-black text-xs uppercase tracking-widest text-secondary">Find</span>
                                   </Button>
-                                  <Button variant="outline" className="h-16 rounded-[2rem] bg-white/20 backdrop-blur-xl border-white/20 gap-3 justify-start px-6 relative group hover:bg-white/30 transition-all shadow-xl" asChild>
+                                  <Button variant="outline" className="h-16 rounded-[2rem] bg-white/20 backdrop-blur-xl border-white/20 gap-3 justify-start px-6 relative group hover:bg-white/30 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shine-effect" asChild>
                                       <Link href="/cart">
                                           <ShoppingBag className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
                                           <span className="font-black text-xs uppercase tracking-widest text-secondary">Cart</span>
@@ -551,14 +551,14 @@ export function Navbar() {
                           <p className="text-[8px] font-black uppercase tracking-[0.2em] text-primary/80 px-2">Discover</p>
                           <div className="grid gap-3">
                               {navLinks.map((link) => (
-                                  <Link key={link.href} href={link.href} className={cn("flex items-center justify-between p-4 rounded-[2rem] transition-all duration-500 border border-white/20 shadow-lg", pathname === link.href ? "bg-primary text-white scale-[1.02] shadow-primary/20" : "bg-white/20 backdrop-blur-xl text-secondary hover:bg-white/30 hover:border-white/30")}>
-                                      <div className="flex items-center gap-4">
-                                        <div className={cn("p-2 rounded-xl", pathname === link.href ? "bg-white/30" : "bg-primary/20")}>
-                                          <link.icon className={cn("h-4 w-4", pathname === link.href ? "text-white" : "text-primary")} />
+                                  <Link key={link.href} href={link.href} className={cn("flex items-center justify-between p-4 rounded-[2rem] transition-all duration-500 border border-white/20 shadow-lg group shine-effect overflow-hidden", pathname === link.href ? "bg-primary text-white scale-[1.02] shadow-primary/20" : "bg-white/20 backdrop-blur-xl text-secondary hover:bg-white/30 hover:border-white/30 hover:scale-[1.02] active:scale-[0.98]")}>
+                                      <div className="flex items-center gap-4 relative z-10">
+                                        <div className={cn("p-2 rounded-xl transition-colors duration-500", pathname === link.href ? "bg-white/30" : "bg-primary/20 group-hover:bg-primary/30")}>
+                                          <link.icon className={cn("h-4 w-4 transition-transform duration-500 group-hover:scale-110", pathname === link.href ? "text-white" : "text-primary")} />
                                         </div>
                                         <span className="text-base font-headline font-bold">{link.label}</span>
                                       </div>
-                                      <ChevronRight className={cn("h-4 w-4 transition-transform duration-500", pathname === link.href ? "opacity-100 translate-x-1" : "opacity-40")} />
+                                      <ChevronRight className={cn("h-4 w-4 transition-all duration-500 relative z-10", pathname === link.href ? "opacity-100 translate-x-1" : "opacity-40 group-hover:opacity-100 group-hover:translate-x-1")} />
                                   </Link>
                               ))}
                           </div>
@@ -570,13 +570,13 @@ export function Navbar() {
                     {user ? (
                       <div className="flex items-center gap-3 w-full">
                         <Link href="/account" className="flex-1">
-                          <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold gap-2 shadow-xl hover:scale-[1.02] transition-transform">
+                          <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold gap-2 shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-transform animate-liquid-flow from-secondary via-secondary/80 to-secondary bg-gradient-to-r shine-effect overflow-hidden">
                             <User className="h-4 w-4" />Settings
                           </Button>
                         </Link>
                         <Button 
                           variant="ghost" 
-                          className="flex-1 h-11 rounded-2xl text-destructive font-bold text-xs border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 transition-all gap-2" 
+                          className="flex-1 h-11 rounded-2xl text-destructive font-bold text-xs border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 hover:scale-[1.02] active:scale-[0.98] transition-all gap-2" 
                           onClick={handleSignOut}
                         >
                           <LogOut className="h-4 w-4" /> Sign Out
@@ -584,7 +584,7 @@ export function Navbar() {
                       </div>
                     ) : (
                       <Link href={loginUrl} className="w-full">
-                        <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold shadow-2xl animate-pulse-glow hover:scale-[1.01] transition-transform">Secure Sign In</Button>
+                        <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold shadow-2xl animate-pulse-glow hover:scale-[1.01] active:scale-[0.99] transition-transform shine-effect overflow-hidden">Secure Sign In</Button>
                       </Link>
                     )}
                   </div>
