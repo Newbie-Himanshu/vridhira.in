@@ -371,20 +371,20 @@ export default function AccountPage() {
       <div 
         ref={fabRef}
         className={cn(
-          "fixed bottom-10 z-50 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] md:hidden",
+          "fixed bottom-10 z-50 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] md:hidden",
           isNavExpanded ? "left-1/2 -translate-x-1/2 w-[260px]" : "right-6 w-16 translate-x-0"
         )}
       >
         <div 
           className={cn(
-            "bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full h-16 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] flex items-center transition-all duration-500 relative overflow-hidden",
+            "bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full h-16 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] flex items-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] relative overflow-hidden",
             isNavExpanded ? "w-full" : "w-16"
           )}
         >
           {/* Expandable Nav Content */}
           <div className={cn(
-            "flex items-center justify-around w-full h-full px-4 transition-all duration-500",
-            isNavExpanded ? "opacity-100 scale-100" : "opacity-0 scale-90 pointer-events-none"
+            "flex items-center justify-around w-full h-full px-4 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] delay-75",
+            isNavExpanded ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-90 translate-y-2 pointer-events-none"
           )}>
             {[
               { id: 'overview', icon: LayoutDashboard, label: 'Stats' },
@@ -415,7 +415,7 @@ export default function AccountPage() {
           <button 
             onClick={() => setIsNavExpanded(true)}
             className={cn(
-              "absolute inset-0 w-full h-full flex items-center justify-center bg-white/10 backdrop-blur-xl text-secondary transition-all duration-500 shadow-lg",
+              "absolute inset-0 w-full h-full flex items-center justify-center bg-white/10 backdrop-blur-xl text-secondary transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-lg",
               isNavExpanded ? "opacity-0 scale-50 pointer-events-none" : "opacity-100 scale-100"
             )}
           >
