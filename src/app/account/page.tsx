@@ -367,26 +367,26 @@ export default function AccountPage() {
         </div>
       </div>
 
-      {/* Liquid Glass Mobile Floating Navigation */}
+      {/* Liquid Glass Mobile Floating Navigation - Refined Minimalist Aesthetic */}
       <div 
         ref={fabRef}
         className={cn(
-          "fixed bottom-10 z-50 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] md:hidden",
+          "fixed bottom-6 z-50 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] md:hidden",
           isNavExpanded 
-            ? "left-1/2 -translate-x-1/2 w-[300px]" 
-            : "left-[calc(100%-80px)] w-16"
+            ? "left-1/2 -translate-x-1/2 w-[280px]" 
+            : "left-[calc(100%-70px)] w-14"
         )}
       >
         <div 
           className={cn(
-            "bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full h-16 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] flex items-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] relative overflow-hidden",
-            isNavExpanded ? "w-full" : "w-16"
+            "bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full h-14 shadow-lg flex items-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] relative overflow-hidden",
+            isNavExpanded ? "w-full" : "w-14"
           )}
         >
           {/* Expandable Nav Content */}
           <div className={cn(
-            "flex items-center justify-around w-full h-full px-4 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
-            isNavExpanded ? "opacity-100 scale-100 translate-y-0 delay-150" : "opacity-0 scale-90 translate-y-4 pointer-events-none"
+            "flex items-center justify-around w-full h-full px-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
+            isNavExpanded ? "opacity-100 scale-100 translate-y-0 delay-150" : "opacity-0 scale-90 translate-y-2 pointer-events-none"
           )}>
             {[
               { id: 'overview', icon: LayoutDashboard, label: 'Stats' },
@@ -407,13 +407,13 @@ export default function AccountPage() {
                     setIsNavExpanded(false);
                   }}
                   className={cn(
-                    "flex flex-col items-center justify-center gap-1 transition-all duration-300",
-                    isActive ? "text-primary scale-110" : "text-secondary/60 hover:text-secondary",
+                    "flex flex-col items-center justify-center gap-0.5 transition-all duration-300 px-2",
+                    isActive ? "text-primary scale-105" : "text-secondary/60 hover:text-secondary",
                     nav.id === 'signout' && "text-destructive/70 hover:text-destructive"
                   )}
                 >
-                  <nav.icon className="h-5 w-5" />
-                  <span className="text-[7px] font-black uppercase tracking-widest">{nav.label}</span>
+                  <nav.icon className="h-4 w-4" />
+                  <span className="text-[6px] font-black uppercase tracking-widest">{nav.label}</span>
                 </button>
               );
             })}
@@ -423,13 +423,13 @@ export default function AccountPage() {
           <button 
             onClick={() => setIsNavExpanded(true)}
             className={cn(
-              "absolute inset-0 w-full h-full flex items-center justify-center bg-white/10 backdrop-blur-xl text-secondary transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-lg",
+              "absolute inset-0 w-full h-full flex items-center justify-center bg-white/10 backdrop-blur-xl text-secondary transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
               isNavExpanded ? "opacity-0 scale-50 pointer-events-none" : "opacity-100 scale-100"
             )}
           >
-            {activeTab === 'overview' && <LayoutDashboard className="h-6 w-6" />}
-            {activeTab === 'orders' && <Package className="h-6 w-6" />}
-            {activeTab === 'profile' && <UserIcon className="h-6 w-6" />}
+            {activeTab === 'overview' && <LayoutDashboard className="h-5 w-5" />}
+            {activeTab === 'orders' && <Package className="h-5 w-5" />}
+            {activeTab === 'profile' && <UserIcon className="h-5 w-5" />}
           </button>
         </div>
       </div>
