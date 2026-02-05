@@ -408,11 +408,11 @@ export function Navbar() {
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="inset-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/20 flex flex-col bg-white/10 backdrop-blur-3xl shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/30 flex flex-col bg-white/20 backdrop-blur-[40px] shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
                 >
                   {/* Floating Logo Header */}
-                  <SheetHeader className="px-6 pt-12 pb-6 flex items-center justify-center bg-transparent border-none shrink-0 relative z-10">
-                    <div className="flex items-center justify-center gap-4 py-4 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-full shadow-2xl transition-all duration-500 hover:bg-white/20 group cursor-pointer w-4/5 mx-auto">
+                  <SheetHeader className="px-6 pt-14 pb-6 flex items-center justify-center bg-transparent border-none shrink-0 relative z-10">
+                    <div className="flex items-center justify-center gap-4 py-4 bg-white/30 backdrop-blur-2xl border border-white/20 rounded-full shadow-2xl transition-all duration-500 hover:bg-white/40 group cursor-pointer w-4/5 mx-auto">
                       <div className="relative w-10 h-10 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
                           <div className="absolute inset-0 bg-primary rounded-xl animate-artisanal-rotation shadow-lg" />
                           <span className="relative text-white font-black text-xl">V</span>
@@ -426,7 +426,7 @@ export function Navbar() {
                   <div className="flex-1 px-8 py-6 space-y-10 overflow-y-auto relative z-0">
                       {/* Search & Action Hub */}
                       <div className="space-y-6">
-                          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/60 px-4">
+                          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/80 px-4">
                             {isMobileSearchActive ? 'Refine Search' : 'Registry Navigation'}
                           </p>
                           
@@ -438,14 +438,14 @@ export function Navbar() {
                                   <Input
                                     ref={mobileSearchRef}
                                     placeholder="Find handcrafted treasures..."
-                                    className="h-16 rounded-3xl border-white/10 pl-14 bg-white/10 backdrop-blur-xl shadow-2xl focus:ring-primary text-lg text-secondary placeholder:text-secondary/40"
+                                    className="h-16 rounded-3xl border-white/20 pl-14 bg-white/40 backdrop-blur-xl shadow-2xl focus:ring-primary text-lg text-secondary placeholder:text-secondary/60"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                   />
                                   <Button 
                                     type="button"
                                     variant="ghost" 
-                                    className="absolute right-5 top-1/2 -translate-y-1/2 h-10 w-10 p-0 rounded-full hover:bg-white/10"
+                                    className="absolute right-5 top-1/2 -translate-y-1/2 h-10 w-10 p-0 rounded-full hover:bg-white/20"
                                     onClick={() => { setIsMobileSearchActive(false); setSearchQuery(''); }}
                                   >
                                     <X className="h-5 w-5" />
@@ -453,9 +453,9 @@ export function Navbar() {
                                 </form>
 
                                 {(matchedCategories.length > 0 || suggestions.length > 0) && (
-                                  <div className="bg-white/10 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+                                  <div className="bg-white/40 backdrop-blur-2xl rounded-[2.5rem] border border-white/20 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
                                     {matchedCategories.length > 0 && (
-                                      <div className="p-6 border-b border-white/10 bg-primary/5">
+                                      <div className="p-6 border-b border-white/10 bg-primary/10">
                                         <p className="text-[9px] font-bold uppercase tracking-widest text-primary mb-4">Live Categories</p>
                                         <div className="flex flex-wrap gap-3">
                                           {matchedCategories.map((cat: any) => (
@@ -463,7 +463,7 @@ export function Navbar() {
                                               key={cat.id} 
                                               href={`/shop?q=${cat.name}`}
                                               onClick={() => { setIsMobileSearchActive(false); setSearchQuery(''); }}
-                                              className="flex items-center gap-2 px-4 py-2.5 bg-white/10 border border-white/10 rounded-full text-xs font-bold text-secondary hover:bg-primary hover:text-white transition-all shadow-sm"
+                                              className="flex items-center gap-2 px-4 py-2.5 bg-white/20 border border-white/10 rounded-full text-xs font-bold text-secondary hover:bg-primary hover:text-white transition-all shadow-sm"
                                             >
                                               <Tag className="h-3 w-3" />
                                               {cat.name}
@@ -475,7 +475,7 @@ export function Navbar() {
 
                                     {suggestions.length > 0 && (
                                       <>
-                                        <div className="p-5 border-b border-white/10 bg-muted/10">
+                                        <div className="p-5 border-b border-white/10 bg-muted/20">
                                           <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Top Results</p>
                                         </div>
                                         <div className="divide-y divide-white/10">
@@ -483,10 +483,10 @@ export function Navbar() {
                                             <Link 
                                               key={product.id} 
                                               href={`/shop/${product.id}`}
-                                              className="flex items-center gap-5 p-5 hover:bg-white/5 transition-colors group"
+                                              className="flex items-center gap-5 p-5 hover:bg-white/10 transition-colors group"
                                               onClick={() => { setIsMobileSearchActive(false); setSearchQuery(''); }}
                                             >
-                                              <div className="relative w-14 h-14 rounded-2xl overflow-hidden shadow-md shrink-0 border border-white/10">
+                                              <div className="relative w-14 h-14 rounded-2xl overflow-hidden shadow-md shrink-0 border border-white/20">
                                                 <Image src={product.imageUrl} alt={product.title} fill className="object-cover" />
                                               </div>
                                               <div className="flex-1 min-w-0">
@@ -502,7 +502,7 @@ export function Navbar() {
                                     
                                     <Button 
                                       variant="ghost" 
-                                      className="w-full h-16 rounded-none text-primary font-bold text-sm gap-2 hover:bg-primary/10 border-t border-white/10"
+                                      className="w-full h-16 rounded-none text-primary font-bold text-sm gap-2 hover:bg-primary/20 border-t border-white/10"
                                       onClick={() => handleSearchSubmit()}
                                     >
                                       View Complete Archive <ArrowRight className="h-4 w-4" />
@@ -514,18 +514,18 @@ export function Navbar() {
                               <div className="grid grid-cols-2 gap-4 animate-in fade-in duration-500">
                                   <Button 
                                     variant="outline" 
-                                    className="h-20 rounded-[2.5rem] bg-white/10 backdrop-blur-xl border-white/10 gap-4 justify-start px-8 group hover:bg-white/20 transition-all shadow-xl"
+                                    className="h-20 rounded-[2.5rem] bg-white/20 backdrop-blur-xl border-white/20 gap-4 justify-start px-8 group hover:bg-white/30 transition-all shadow-xl"
                                     onClick={() => setIsMobileSearchActive(true)}
                                   >
                                       <Search className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
                                       <span className="font-black text-sm uppercase tracking-widest text-secondary">Find</span>
                                   </Button>
-                                  <Button variant="outline" className="h-20 rounded-[2.5rem] bg-white/10 backdrop-blur-xl border-white/10 gap-4 justify-start px-8 relative group hover:bg-white/20 transition-all shadow-xl" asChild>
+                                  <Button variant="outline" className="h-20 rounded-[2.5rem] bg-white/20 backdrop-blur-xl border-white/20 gap-4 justify-start px-8 relative group hover:bg-white/30 transition-all shadow-xl" asChild>
                                       <Link href="/cart">
                                           <ShoppingBag className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
                                           <span className="font-black text-sm uppercase tracking-widest text-secondary">Cart</span>
                                           {cartCount > 0 && (
-                                            <span className="absolute top-1/2 -translate-y-1/2 right-8 w-7 h-7 bg-primary text-white text-xs flex items-center justify-center rounded-full font-black shadow-lg ring-4 ring-white/10">
+                                            <span className="absolute top-1/2 -translate-y-1/2 right-8 w-7 h-7 bg-primary text-white text-xs flex items-center justify-center rounded-full font-black shadow-lg ring-4 ring-white/20">
                                               {cartCount}
                                             </span>
                                           )}
@@ -538,17 +538,17 @@ export function Navbar() {
 
                       {/* Discover Links */}
                       <div className="space-y-6">
-                          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/60 px-4">Discover</p>
+                          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/80 px-4">Discover</p>
                           <div className="grid gap-3">
                               {navLinks.map((link) => (
-                                  <Link key={link.href} href={link.href} className={cn("flex items-center justify-between p-5 rounded-[2.2rem] transition-all duration-500 border border-white/10 shadow-lg", pathname === link.href ? "bg-primary text-white scale-[1.02] shadow-primary/20" : "bg-white/5 backdrop-blur-xl text-secondary hover:bg-white/10 hover:border-white/20")}>
+                                  <Link key={link.href} href={link.href} className={cn("flex items-center justify-between p-5 rounded-[2.2rem] transition-all duration-500 border border-white/20 shadow-lg", pathname === link.href ? "bg-primary text-white scale-[1.02] shadow-primary/20" : "bg-white/20 backdrop-blur-xl text-secondary hover:bg-white/30 hover:border-white/30")}>
                                       <div className="flex items-center gap-5">
-                                        <div className={cn("p-2.5 rounded-2xl", pathname === link.href ? "bg-white/20" : "bg-primary/10")}>
+                                        <div className={cn("p-2.5 rounded-2xl", pathname === link.href ? "bg-white/30" : "bg-primary/20")}>
                                           <link.icon className={cn("h-5 w-5", pathname === link.href ? "text-white" : "text-primary")} />
                                         </div>
                                         <span className="text-lg font-headline font-bold">{link.label}</span>
                                       </div>
-                                      <ChevronRight className={cn("h-5 w-5 transition-transform duration-500", pathname === link.href ? "opacity-100 translate-x-1" : "opacity-20")} />
+                                      <ChevronRight className={cn("h-5 w-5 transition-transform duration-500", pathname === link.href ? "opacity-100 translate-x-1" : "opacity-40")} />
                                   </Link>
                               ))}
                           </div>
@@ -556,17 +556,17 @@ export function Navbar() {
                   </div>
 
                   {/* Glass Base Actions */}
-                  <div className="px-8 py-8 border-t border-white/10 bg-white/10 backdrop-blur-3xl relative z-10 mt-auto">
+                  <div className="px-8 py-8 border-t border-white/20 bg-white/20 backdrop-blur-3xl relative z-10 mt-auto">
                     {user ? (
                       <div className="flex flex-col gap-4">
                         <Link href="/account" className="w-full">
-                          <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-sm font-bold gap-3 shadow-2xl hover:scale-[1.01] transition-transform">
+                          <Button className="w-full h-12 rounded-2xl bg-secondary text-secondary-foreground text-sm font-bold gap-3 shadow-2xl hover:scale-[1.01] transition-transform">
                             <User className="h-5 w-5" />Collector Settings
                           </Button>
                         </Link>
                         <Button 
                           variant="outline" 
-                          className="w-full h-12 rounded-xl text-destructive font-black text-[10px] uppercase tracking-widest border-destructive/20 bg-destructive/5 hover:bg-destructive/10 transition-colors" 
+                          className="w-full h-10 rounded-xl text-destructive font-black text-[10px] uppercase tracking-widest border-destructive/30 bg-destructive/10 hover:bg-destructive/20 transition-colors" 
                           onClick={handleSignOut}
                         >
                           Secure Sign Out
@@ -574,7 +574,7 @@ export function Navbar() {
                       </div>
                     ) : (
                       <Link href={loginUrl}>
-                        <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-base font-bold shadow-2xl animate-pulse-glow hover:scale-[1.01] transition-transform">Secure Sign In</Button>
+                        <Button className="w-full h-12 rounded-2xl bg-secondary text-secondary-foreground text-base font-bold shadow-2xl animate-pulse-glow hover:scale-[1.01] transition-transform">Secure Sign In</Button>
                       </Link>
                     )}
                   </div>
