@@ -414,11 +414,11 @@ export function Navbar() {
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/50 via-white/5 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] animate-subtle-float scrollbar-none"
+                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/50 via-white/5 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] scrollbar-none"
                 >
                   <div 
                     onScroll={(e) => setIsMenuScrolled(e.currentTarget.scrollTop > 20)}
-                    className="flex-1 px-6 pt-4 pb-8 space-y-5 overflow-y-auto relative z-0 scrollbar-none"
+                    className="flex-1 px-6 pt-4 pb-8 space-y-5 overflow-y-auto relative z-0 scrollbar-none animate-subtle-float"
                   >
                       {/* Dynamic Morphing Logo Pill */}
                       <div className={cn(
@@ -496,7 +496,7 @@ export function Navbar() {
                                               className="flex items-center gap-4 p-4 hover:bg-white/10 transition-colors group"
                                               onClick={() => { setIsMobileSearchActive(false); setSearchQuery(''); }}
                                             >
-                                              <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-md shrink-0 border border-white/20">
+                                              <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-md shrink-0 border border-border/20">
                                                 <Image src={product.imageUrl} alt={product.title} fill className="object-cover" />
                                               </div>
                                               <div className="flex-1 min-w-0">
