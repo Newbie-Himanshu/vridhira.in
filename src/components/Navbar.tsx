@@ -127,7 +127,7 @@ export function Navbar() {
   ];
 
   if (isAdmin) {
-    navLinks.push({ href: '/admin/dashboard', label: 'Command', icon: LayoutDashboard });
+    navLinks.push({ href: '/admin/dashboard', label: 'Admin', icon: LayoutDashboard });
   }
 
   const handleSignOut = async () => {
