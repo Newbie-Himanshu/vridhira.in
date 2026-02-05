@@ -84,7 +84,7 @@ export function Navbar() {
     if (isSearchOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => document.addEventListener('mousedown', handleClickOutside);
   }, [isSearchOpen]);
 
   useEffect(() => {
@@ -418,7 +418,7 @@ export function Navbar() {
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/50 via-white/5 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] scrollbar-none"
+                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/50 via-white/5 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] scrollbar-none"
                 >
                   <div className="animate-subtle-float h-full flex flex-col will-change-transform relative">
                     <div 
@@ -550,50 +550,54 @@ export function Navbar() {
                             </div>
                         </div>
 
-                        <div className="space-y-5">
-                            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-primary/80 px-2">Discover</p>
-                            <div className="grid gap-3">
-                                {navLinks.map((link) => (
-                                    <Link key={link.href} href={link.href} className={cn("flex items-center justify-between p-4 rounded-[2rem] transition-all duration-500 border border-white/20 shadow-lg group shine-effect overflow-hidden hover:scale-[1.02] active:scale-[0.98]", pathname === link.href ? "bg-primary text-white shadow-primary/20 animate-liquid-flow from-primary via-primary/80 to-primary bg-gradient-to-r" : "bg-white/20 backdrop-blur-xl text-secondary hover:bg-white/30 hover:border-white/30")}>
-                                        <div className="flex items-center gap-4 relative z-10">
-                                          <div className={cn("p-2 rounded-xl transition-colors duration-500", pathname === link.href ? "bg-white/30" : "bg-primary/20 group-hover:bg-primary/30")}>
-                                            <link.icon className={cn("h-4 w-4 transition-transform duration-500 group-hover:scale-110", pathname === link.href ? "text-white" : "text-primary")} />
+                        {!isMobileSearchActive && (
+                          <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                              <p className="text-[8px] font-black uppercase tracking-[0.2em] text-primary/80 px-2">Discover</p>
+                              <div className="grid gap-3">
+                                  {navLinks.map((link) => (
+                                      <Link key={link.href} href={link.href} className={cn("flex items-center justify-between p-4 rounded-[2rem] transition-all duration-500 border border-white/20 shadow-lg group shine-effect overflow-hidden hover:scale-[1.02] active:scale-[0.98]", pathname === link.href ? "bg-primary text-white shadow-primary/20 animate-liquid-flow from-primary via-primary/80 to-primary bg-gradient-to-r" : "bg-white/20 backdrop-blur-xl text-secondary hover:bg-white/30 hover:border-white/30")}>
+                                          <div className="flex items-center gap-4 relative z-10">
+                                            <div className={cn("p-2 rounded-xl transition-colors duration-500", pathname === link.href ? "bg-white/30" : "bg-primary/20 group-hover:bg-primary/30")}>
+                                              <link.icon className={cn("h-4 w-4 transition-transform duration-500 group-hover:scale-110", pathname === link.href ? "text-white" : "text-primary")} />
+                                            </div>
+                                            <span className="text-base font-headline font-bold">{link.label}</span>
                                           </div>
-                                          <span className="text-base font-headline font-bold">{link.label}</span>
-                                        </div>
-                                        <ChevronRight className={cn("h-4 w-4 transition-all duration-500 relative z-10", pathname === link.href ? "opacity-100 translate-x-1" : "opacity-40 group-hover:opacity-100 group-hover:translate-x-1")} />
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
+                                          <ChevronRight className={cn("h-4 w-4 transition-all duration-500 relative z-10", pathname === link.href ? "opacity-100 translate-x-1" : "opacity-40 group-hover:opacity-100 group-hover:translate-x-1")} />
+                                      </Link>
+                                  ))}
+                              </div>
+                          </div>
+                        )}
                     </div>
 
-                    <div className="px-6 py-5 border-t border-white/10 bg-white/10 backdrop-blur-3xl relative z-10 mt-auto">
-                      {user ? (
-                        <div className="flex items-center gap-3 w-full">
-                          <Link href="/account" className="flex-1">
-                            <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold gap-2 shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-transform animate-liquid-flow from-secondary via-secondary/80 to-secondary bg-gradient-to-r shine-effect overflow-hidden">
-                              <User className="h-4 w-4 relative z-10" />
-                              <span className="relative z-10">Settings</span>
+                    {!isMobileSearchActive && (
+                      <div className="px-6 py-5 border-t border-white/10 bg-white/10 backdrop-blur-3xl relative z-10 mt-auto animate-in fade-in slide-in-from-bottom-2 duration-500">
+                        {user ? (
+                          <div className="flex items-center gap-3 w-full">
+                            <Link href="/account" className="flex-1">
+                              <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold gap-2 shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-transform animate-liquid-flow from-secondary via-secondary/80 to-secondary bg-gradient-to-r shine-effect overflow-hidden">
+                                <User className="h-4 w-4 relative z-10" />
+                                <span className="relative z-10">Settings</span>
+                              </Button>
+                            </Link>
+                            <Button 
+                              variant="ghost" 
+                              className="flex-1 h-11 rounded-2xl text-destructive font-bold text-xs border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 hover:scale-[1.02] active:scale-[0.98] transition-all gap-2 shine-effect overflow-hidden" 
+                              onClick={handleSignOut}
+                            >
+                              <LogOut className="h-4 w-4 relative z-10" />
+                              <span className="relative z-10">Sign Out</span>
+                            </Button>
+                          </div>
+                        ) : (
+                          <Link href={loginUrl} className="w-full">
+                            <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold shadow-2xl animate-pulse-glow hover:scale-[1.01] active:scale-[0.99] transition-transform shine-effect overflow-hidden">
+                              <span className="relative z-10">Secure Sign In</span>
                             </Button>
                           </Link>
-                          <Button 
-                            variant="ghost" 
-                            className="flex-1 h-11 rounded-2xl text-destructive font-bold text-xs border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 hover:scale-[1.02] active:scale-[0.98] transition-all gap-2 shine-effect overflow-hidden" 
-                            onClick={handleSignOut}
-                          >
-                            <LogOut className="h-4 w-4 relative z-10" />
-                            <span className="relative z-10">Sign Out</span>
-                          </Button>
-                        </div>
-                      ) : (
-                        <Link href={loginUrl} className="w-full">
-                          <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold shadow-2xl animate-pulse-glow hover:scale-[1.01] active:scale-[0.99] transition-transform shine-effect overflow-hidden">
-                            <span className="relative z-10">Secure Sign In</span>
-                          </Button>
-                        </Link>
-                      )}
-                    </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </SheetContent>
               </Sheet>
