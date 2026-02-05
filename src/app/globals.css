@@ -61,6 +61,16 @@
   }
 }
 
+@layer utilities {
+  .scrollbar-none {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+}
+
 .artisan-pattern {
   background-color: hsl(var(--background));
   background-image: url('https://picsum.photos/seed/heritage-texture/1920/1080');
