@@ -415,7 +415,7 @@ export default function AccountPage() {
           <button 
             onClick={() => setIsNavExpanded(true)}
             className={cn(
-              "absolute inset-0 w-full h-full flex items-center justify-center bg-white/10 backdrop-blur-xl text-secondary transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-lg",
+              "absolute inset-0 w-full h-full flex items-center justify-center bg-white/10 backdrop-blur-xl text-secondary transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-lg",
               isNavExpanded ? "opacity-0 scale-50 pointer-events-none" : "opacity-100 scale-100"
             )}
           >
