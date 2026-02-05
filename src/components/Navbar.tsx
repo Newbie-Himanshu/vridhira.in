@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -170,15 +171,15 @@ export function Navbar() {
   const loginUrl = pathname === '/login' ? '/login' : `/login?returnTo=${encodeURIComponent(pathname)}`;
 
   return (
-    <div className="fixed top-0 left-0 w-full z-50 pointer-events-none flex justify-center pt-0 transition-all duration-700 ease-in-out">
+    <div className="fixed top-0 left-0 w-full z-50 pointer-events-none flex justify-center pt-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]">
       <header className={cn(
-        "pointer-events-auto transition-all duration-700 ease-in-out flex items-center justify-center",
+        "pointer-events-auto transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-center",
         isScrolled 
           ? "mt-4 w-[92%] md:w-[70%] max-w-6xl h-16 bg-background/60 backdrop-blur-2xl rounded-full border border-white/20 shadow-2xl" 
           : "w-full h-20 bg-transparent border-b border-transparent shadow-none rounded-none"
       )}>
         <div className={cn(
-          "w-full px-6 h-full flex items-center relative transition-all duration-700",
+          "w-full px-6 h-full flex items-center relative transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
           isScrolled ? "max-w-none" : "container mx-auto"
         )}>
           
@@ -418,15 +419,15 @@ export function Navbar() {
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/50 via-white/5 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] scrollbar-none"
+                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/50 via-white/5 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] scrollbar-none"
                 >
                   {/* Stable Inner Layout Container */}
                   <div className="h-full flex flex-col relative overflow-hidden">
                     {/* Animated Scrollable Content Section */}
-                    <div className="animate-subtle-float h-full flex-1 flex flex-col will-change-transform relative">
+                    <div className="h-full flex-1 flex flex-col relative">
                       <div 
                         onScroll={(e) => setIsMenuScrolled(e.currentTarget.scrollTop > 20)}
-                        className="flex-1 px-6 pt-4 pb-8 space-y-5 overflow-y-auto relative z-0 scrollbar-none"
+                        className="animate-subtle-float flex-1 px-6 pt-4 pb-8 space-y-5 overflow-y-auto relative z-0 scrollbar-none will-change-transform"
                       >
                           <div 
                             className={cn(
@@ -451,7 +452,7 @@ export function Navbar() {
                               
                               <div className="relative transition-all duration-500">
                                 {isMobileSearchActive ? (
-                                  <div className="space-y-5 animate-in fade-in slide-in-from-top-4 duration-500">
+                                  <div className="space-y-5 animate-in fade-in zoom-in-95 duration-500">
                                     <form onSubmit={handleSearchSubmit} className="relative w-full">
                                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                                       <Input
@@ -530,7 +531,7 @@ export function Navbar() {
                                     )}
                                   </div>
                                 ) : (
-                                  <div className="grid grid-cols-2 gap-3 animate-in fade-in duration-500">
+                                  <div className="grid grid-cols-2 gap-3">
                                       <Button 
                                         variant="outline" 
                                         className="h-16 rounded-[2rem] bg-white/20 backdrop-blur-xl border-white/20 gap-3 justify-start px-6 group hover:bg-white/30 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shine-effect overflow-hidden"
@@ -556,7 +557,7 @@ export function Navbar() {
                           </div>
 
                           {!isMobileSearchActive && (
-                            <div className="space-y-5">
+                            <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
                                 <p className="text-[8px] font-black uppercase tracking-[0.2em] text-primary/80 px-2">Discover</p>
                                 <div className="grid gap-3">
                                     {navLinks.map((link) => (
@@ -576,7 +577,6 @@ export function Navbar() {
                       </div>
                     </div>
 
-                    {/* Fixed Account Action Footer - Pinned outside the animated container */}
                     {!isMobileSearchActive && (
                       <div className="px-6 py-5 border-t border-white/10 bg-white/10 backdrop-blur-3xl relative z-10 mt-auto">
                         {user ? (
