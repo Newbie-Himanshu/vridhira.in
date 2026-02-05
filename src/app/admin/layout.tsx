@@ -49,7 +49,7 @@ const adminNavItems = [
 export default function AdminLayout({
   children,
 }: {
-  children: React.PreactNode;
+  children: React.ReactNode;
 }) {
   const { user, isUserLoading, userRole } = useUser();
   const pathname = usePathname();
@@ -99,8 +99,8 @@ export default function AdminLayout({
     const currentY = e.targetTouches[0].clientY;
     const distance = currentY - touchStart;
     
-    // If swiped down significantly
-    if (distance > 100) {
+    // If swiped down significantly on the handle/header
+    if (distance > 80) {
       setIsFabExpanded(false);
       setTouchStart(null);
     }
@@ -157,14 +157,16 @@ export default function AdminLayout({
       <div 
         ref={fabRef}
         className={cn(
-          "fixed bottom-6 right-6 z-[60] md:hidden transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
-          isFabExpanded ? "w-[calc(100%-3rem)]" : "w-14 h-14"
+          "fixed bottom-6 z-[60] md:hidden transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
+          isFabExpanded 
+            ? "left-6 right-6 w-auto" 
+            : "right-6 w-14 h-14"
         )}
       >
         <div 
           className={cn(
-            "bg-white/40 backdrop-blur-3xl border border-white/20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex flex-col transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden",
-            isFabExpanded ? "p-6 max-h-[650px] opacity-100" : "p-0 max-h-14 h-14 opacity-100"
+            "bg-white/10 backdrop-blur-[40px] border border-white/20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex flex-col transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden relative",
+            isFabExpanded ? "p-6 max-h-[60vh] opacity-100" : "p-0 max-h-14 h-14 opacity-100"
           )}
         >
           {/* Expanded Content Wrapper */}
@@ -172,64 +174,62 @@ export default function AdminLayout({
             "flex flex-col h-full transition-all duration-500 ease-out",
             isFabExpanded ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 pointer-events-none"
           )}>
-            {/* Gesture Handle & Header */}
+            {/* Gesture Handle & Header - Touch handlers isolated here */}
             <div 
-              className="flex flex-col mb-6 shrink-0 active:opacity-70 transition-opacity cursor-pointer"
+              className="flex flex-col mb-6 shrink-0 cursor-grab active:cursor-grabbing active:opacity-70 transition-opacity"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
             >
-              <div className="w-12 h-1.5 bg-black/10 rounded-full mx-auto mb-4" />
-              <div className="flex items-center justify-between border-b border-black/5 pb-4">
+              <div className="w-12 h-1.5 bg-secondary/20 rounded-full mx-auto mb-4" />
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div className="flex items-center gap-3">
                   <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg animate-artisanal-rotation">
                     <Command className="h-5 w-5" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-headline font-black text-secondary tracking-tight text-lg leading-none">Admin Terminal</span>
-                    <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.2em] mt-1">Vridhira Operations</span>
+                    <span className="font-headline font-black text-secondary tracking-tight text-lg leading-none">Admin</span>
+                    <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.2em] mt-1">Terminal</span>
                   </div>
                 </div>
                 <Link 
                   href="/shop" 
                   onClick={() => setIsFabExpanded(false)}
-                  className="flex items-center gap-1.5 text-[10px] font-black text-primary uppercase bg-primary/10 px-4 py-2 rounded-full hover:bg-primary/20 transition-colors"
+                  className="flex items-center gap-1.5 text-[10px] font-black text-primary uppercase bg-white/20 px-4 py-2 rounded-full hover:bg-white/30 transition-colors"
                 >
                   <ArrowLeft className="h-3 w-3" /> Shop
                 </Link>
               </div>
             </div>
 
-            {/* Scrollable Navigation List */}
-            <div className="flex-1 overflow-y-auto scrollbar-none pb-4 px-1">
-              <div className="flex flex-col gap-2">
-                {adminNavItems.map((item) => {
-                  if (item.role && item.role !== effectiveRole) return null;
-                  const isActive = pathname === item.href;
-                  return (
-                    <Link 
-                      key={item.href} 
-                      href={item.href}
-                      onClick={() => setIsFabExpanded(false)}
-                      className={cn(
-                        "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 active:scale-[0.98] group",
-                        isActive ? "bg-primary text-white shadow-xl translate-x-1" : "bg-white/20 text-secondary hover:bg-white/40 hover:translate-x-1"
-                      )}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={cn(
-                          "p-2 rounded-xl transition-colors",
-                          isActive ? "bg-white/20" : "bg-primary/10 text-primary"
-                        )}>
-                          <item.icon className={cn("h-5 w-5", isActive ? "animate-pulse" : "")} />
-                        </div>
-                        <span className="text-xs font-bold uppercase tracking-widest leading-tight">{item.name}</span>
+            {/* Scrollable Navigation List - Native scroll behavior preserved */}
+            <div className="flex-1 overflow-y-auto scrollbar-none pb-4 px-1 space-y-2">
+              {adminNavItems.map((item) => {
+                if (item.role && item.role !== effectiveRole) return null;
+                const isActive = pathname === item.href;
+                return (
+                  <Link 
+                    key={item.href} 
+                    href={item.href}
+                    onClick={() => setIsFabExpanded(false)}
+                    className={cn(
+                      "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 active:scale-[0.98] group",
+                      isActive ? "bg-primary text-white shadow-xl" : "bg-white/5 text-secondary hover:bg-white/15"
+                    )}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={cn(
+                        "p-2 rounded-xl transition-colors",
+                        isActive ? "bg-white/20" : "bg-primary/10 text-primary"
+                      )}>
+                        <item.icon className={cn("h-5 w-5", isActive ? "animate-pulse" : "")} />
                       </div>
-                      <ChevronRight className={cn("h-4 w-4 transition-all opacity-40 group-hover:opacity-100", isActive && "opacity-100")} />
-                    </Link>
-                  );
-                })}
-              </div>
+                      <span className="text-xs font-bold uppercase tracking-widest leading-tight">{item.name}</span>
+                    </div>
+                    <ChevronRight className={cn("h-4 w-4 transition-all opacity-40 group-hover:opacity-100", isActive && "opacity-100")} />
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
