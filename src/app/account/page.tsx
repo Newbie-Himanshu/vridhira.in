@@ -234,26 +234,32 @@ export default function AccountPage() {
         {/* Dynamic Desktop Tabs List - Enhanced Liquid Glass Layout */}
         <div className="hidden md:block">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="bg-white/30 backdrop-blur-2xl border border-white/40 rounded-full p-2 mb-12 h-20 w-full shadow-[0_20px_50px_rgba(0,0,0,0.05)] relative overflow-hidden group">
+            <TabsList className="bg-white/40 backdrop-blur-3xl border border-white/40 rounded-[2.5rem] p-2 mb-12 h-20 w-full shadow-[0_20px_80px_rgba(0,0,0,0.06)] relative overflow-hidden group">
               {/* Subtle background flow effect for the container */}
               <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
               
+              {/* Shimmering highlight line */}
+              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/60 to-transparent pointer-events-none" />
+              
               <TabsTrigger 
                 value="overview" 
-                className="flex-1 rounded-full text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.02] active:scale-95 z-10"
+                className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-[0.25em] transition-all duration-700 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-[0_15px_30px_rgba(224,124,84,0.3)] data-[state=active]:scale-[1.02] hover:bg-white/20 active:scale-95 z-10 flex items-center justify-center gap-3 px-6 group/tab"
               >
+                <LayoutDashboard className="h-4 w-4 transition-transform duration-500 group-hover/tab:scale-110" />
                 Overview
               </TabsTrigger>
               <TabsTrigger 
                 value="orders" 
-                className="flex-1 rounded-full text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.02] active:scale-95 z-10"
+                className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-[0.25em] transition-all duration-700 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-[0_15px_30px_rgba(224,124,84,0.3)] data-[state=active]:scale-[1.02] hover:bg-white/20 active:scale-95 z-10 flex items-center justify-center gap-3 px-6 group/tab"
               >
+                <Package className="h-4 w-4 transition-transform duration-500 group-hover/tab:scale-110" />
                 Acquisitions
               </TabsTrigger>
               <TabsTrigger 
                 value="profile" 
-                className="flex-1 rounded-full text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.02] active:scale-95 z-10"
+                className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-[0.25em] transition-all duration-700 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-[0_15px_30px_rgba(224,124,84,0.3)] data-[state=active]:scale-[1.02] hover:bg-white/20 active:scale-95 z-10 flex items-center justify-center gap-3 px-6 group/tab"
               >
+                <UserIcon className="h-4 w-4 transition-transform duration-500 group-hover/tab:scale-110" />
                 Identity Details
               </TabsTrigger>
             </TabsList>
