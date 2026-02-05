@@ -41,7 +41,7 @@ export default function AccountPage() {
   
   const [otp, setOtp] = useState('');
   const [verifying, setVerifying] = useState(false);
-  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [showOtpStep, setShowOtpStep] = useState(false);
   const [timeLeft, setTimeLeft] = useState<string | null>(null);
   
   const [profileData, setProfileData] = useState({
@@ -141,7 +141,7 @@ export default function AccountPage() {
 
     updateDocumentNonBlocking(doc(db, 'customers', user.uid), { resendAttempts: currentResends + 1 });
     toast({ title: "OTP Resent", description: `Verification code sent. Attempt ${currentResends + 1} of 3. (Hint: 123456)` });
-    setShowOtpInput(true);
+    setShowOtpStep(true);
   };
 
   const handleVerify = (e: React.FormEvent) => {
@@ -151,7 +151,7 @@ export default function AccountPage() {
     if (otp === '123456') {
       updateDocumentNonBlocking(doc(db, 'customers', user.uid), { isVerified: true, failedAttempts: 0, resendAttempts: 0 });
       toast({ title: "Identity Certified", description: "Welcome to full marketplace access." });
-      setShowOtpInput(false);
+      setShowOtpStep(false);
     } else {
       toast({ variant: "destructive", title: "Invalid Code", description: "The entered code does not match our records." });
     }
@@ -183,7 +183,7 @@ export default function AccountPage() {
           <Button 
             variant="outline" 
             onClick={() => signOut(auth)} 
-            className="rounded-full border-primary/20 text-primary hover:bg-primary/5 font-bold animate-in fade-in slide-in-from-right-4 duration-500"
+            className="rounded-full border-primary/20 text-primary hover:bg-primary/5 font-bold animate-in fade-in slide-in-from-right-4 duration-500 hidden md:flex"
           >
             <LogOut className="mr-2 h-4 w-4" /> Sign Out
           </Button>
@@ -204,7 +204,7 @@ export default function AccountPage() {
               </AlertDescription>
               {!timeLeft && (
                 <div className="mt-4 md:mt-6">
-                  {showOtpInput ? (
+                  {showOtpStep ? (
                     <form onSubmit={handleVerify} className="flex flex-col sm:flex-row gap-3">
                       <Input 
                         className="max-w-full sm:max-w-[200px] h-12 rounded-xl text-center text-2xl font-black tracking-widest border-primary/40" 
@@ -216,7 +216,7 @@ export default function AccountPage() {
                         <Button className="flex-1 h-12 rounded-xl bg-primary text-white px-6 font-bold" disabled={verifying}>
                           {verifying ? <Loader2 className="animate-spin" /> : "Confirm"}
                         </Button>
-                        <Button type="button" variant="ghost" className="h-12 rounded-xl" onClick={() => setShowOtpInput(false)}>Cancel</Button>
+                        <Button type="button" variant="ghost" className="h-12 rounded-xl" onClick={() => setShowOtpStep(false)}>Cancel</Button>
                       </div>
                     </form>
                   ) : (
@@ -367,13 +367,13 @@ export default function AccountPage() {
         </div>
       </div>
 
-      {/* Liquid Glass Mobile Floating Navigation (Optimized consistent coordinate system) */}
+      {/* Liquid Glass Mobile Floating Navigation */}
       <div 
         ref={fabRef}
         className={cn(
           "fixed bottom-10 z-50 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] md:hidden",
           isNavExpanded 
-            ? "left-1/2 -translate-x-1/2 w-[260px]" 
+            ? "left-1/2 -translate-x-1/2 w-[300px]" 
             : "left-[calc(100%-80px)] w-16"
         )}
       >
@@ -391,19 +391,25 @@ export default function AccountPage() {
             {[
               { id: 'overview', icon: LayoutDashboard, label: 'Stats' },
               { id: 'orders', icon: Package, label: 'Orders' },
-              { id: 'profile', icon: UserIcon, label: 'Identity' }
+              { id: 'profile', icon: UserIcon, label: 'Identity' },
+              { id: 'signout', icon: LogOut, label: 'Exit', action: () => signOut(auth) }
             ].map((nav) => {
               const isActive = activeTab === nav.id;
               return (
                 <button
                   key={nav.id}
                   onClick={() => {
-                    setActiveTab(nav.id);
+                    if (nav.action) {
+                      nav.action();
+                    } else {
+                      setActiveTab(nav.id);
+                    }
                     setIsNavExpanded(false);
                   }}
                   className={cn(
                     "flex flex-col items-center justify-center gap-1 transition-all duration-300",
-                    isActive ? "text-primary scale-110" : "text-secondary/60 hover:text-secondary"
+                    isActive ? "text-primary scale-110" : "text-secondary/60 hover:text-secondary",
+                    nav.id === 'signout' && "text-destructive/70 hover:text-destructive"
                   )}
                 >
                   <nav.icon className="h-5 w-5" />
@@ -413,7 +419,7 @@ export default function AccountPage() {
             })}
           </div>
 
-          {/* Trigger Button (Perfectly centered vanishing act) */}
+          {/* Trigger Button */}
           <button 
             onClick={() => setIsNavExpanded(true)}
             className={cn(
