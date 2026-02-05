@@ -58,8 +58,37 @@ export default function AdminLayout({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
 
+  // Drag state for mobile FAB
+  const [fabX, setFabX] = useState<number | undefined>(undefined);
+  const [isDraggingFab, setIsDraggingFab] = useState(false);
+  const [wasDragged, setWasDragged] = useState(false);
+  const fabDragOffset = useRef(0);
+  const dragStartPosition = useRef(0);
+
   const effectiveRole = user?.email === 'hk8913114@gmail.com' ? 'owner' : userRole;
   const isAuthorized = effectiveRole === 'owner' || effectiveRole === 'store admin';
+
+  // Initialize FAB position to the right side on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined' && fabX === undefined) {
+      setFabX(window.innerWidth - 64 - 24); // 64px size, 24px margin
+    }
+  }, [fabX]);
+
+  // Keep FAB within bounds on resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window !== 'undefined' && !isFabExpanded && fabX !== undefined) {
+        const margin = 24;
+        const fabSize = 64;
+        if (fabX > window.innerWidth - fabSize - margin) {
+          setFabX(window.innerWidth - fabSize - margin);
+        }
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isFabExpanded, fabX]);
 
   useEffect(() => {
     if (isFabExpanded) {
@@ -77,6 +106,7 @@ export default function AdminLayout({
     setIsExtended(false);
   }, [pathname]);
 
+  // Pull logic for extended state (vertical swiping on header)
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientY);
   };
@@ -93,19 +123,49 @@ export default function AdminLayout({
 
     if (!isExtended) {
       if (distance < -threshold) {
-        // Pull up to extend
         setIsExtended(true);
       } else if (distance > threshold) {
-        // Pull down to close
         setIsFabExpanded(false);
       }
     } else {
       if (distance > threshold) {
-        // Pull down to reset size
         setIsExtended(false);
       }
     }
     setTouchStart(null);
+  };
+
+  // Horizontal Dragging logic for collapsed FAB
+  const handleFabDragStart = (e: React.TouchEvent) => {
+    if (isFabExpanded) return;
+    const touchX = e.targetTouches[0].clientX;
+    fabDragOffset.current = touchX - (fabX || 0);
+    dragStartPosition.current = touchX;
+    setWasDragged(false);
+  };
+
+  const handleFabDragMove = (e: React.TouchEvent) => {
+    if (isFabExpanded) return;
+    const touchX = e.targetTouches[0].clientX;
+    const deltaX = Math.abs(touchX - dragStartPosition.current);
+    
+    // Only start dragging if moved more than 5px to avoid sensitivity issues
+    if (deltaX > 5) {
+      setIsDraggingFab(true);
+      setWasDragged(true);
+      
+      let newX = touchX - fabDragOffset.current;
+      const margin = 24;
+      const fabSize = 64;
+      newX = Math.max(margin, Math.min(newX, window.innerWidth - fabSize - margin));
+      setFabX(newX);
+    }
+  };
+
+  const handleFabDragEnd = () => {
+    setIsDraggingFab(false);
+    // Use timeout to reset wasDragged so onClick can check its value
+    setTimeout(() => setWasDragged(false), 100);
   };
 
   if (isUserLoading) {
@@ -162,11 +222,16 @@ export default function AdminLayout({
 
       <div 
         ref={fabRef}
+        style={{
+          left: isFabExpanded ? '1.5rem' : (fabX !== undefined ? `${fabX}px` : undefined),
+          right: isFabExpanded ? '1.5rem' : (fabX === undefined ? '1.5rem' : 'auto'),
+        }}
         className={cn(
-          "fixed bottom-6 z-[60] md:hidden transition-all duration-700 ease-quint",
+          "fixed bottom-6 z-[60] md:hidden",
+          !isDraggingFab && "transition-all duration-700 ease-quint",
           isFabExpanded 
-            ? "left-6 right-6 w-[calc(100%-3rem)]" 
-            : "right-6 w-16 h-16"
+            ? "w-[calc(100%-3rem)]" 
+            : "w-16 h-16"
         )}
       >
         <div 
@@ -259,9 +324,14 @@ export default function AdminLayout({
           </div>
 
           <button 
-            onClick={() => setIsFabExpanded(true)}
+            onClick={() => {
+              if (!wasDragged) setIsFabExpanded(true);
+            }}
+            onTouchStart={handleFabDragStart}
+            onTouchMove={handleFabDragMove}
+            onTouchEnd={handleFabDragEnd}
             className={cn(
-              "absolute inset-0 flex items-center justify-center transition-all duration-700 ease-quint",
+              "absolute inset-0 flex items-center justify-center transition-all duration-700 ease-quint touch-none",
               isFabExpanded ? "opacity-0 scale-50 pointer-events-none" : "opacity-100 scale-100"
             )}
           >
