@@ -9,9 +9,14 @@ import {
   Palette, 
   PiggyBank, 
   Settings, 
-  Package2,
   ArrowLeft,
-  Command
+  Command,
+  Layers,
+  TicketPercent,
+  Link as LinkIcon,
+  BarChart3,
+  CreditCard,
+  Home
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -19,11 +24,16 @@ import { useUser } from '@/firebase';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { name: 'Dashboard', href: '/admin/dashboard', icon: <LayoutDashboard className="h-4 w-4" /> },
-  { name: 'Products', href: '/admin/products', icon: <ShoppingBag className="h-4 w-4" /> },
+  { name: 'Home', href: '/admin/dashboard', icon: <Home className="h-4 w-4" /> },
   { name: 'Orders', href: '/admin/orders', icon: <ShoppingCart className="h-4 w-4" /> },
-  { name: 'Customers', href: '/admin/customers', icon: <Users className="h-4 w-4" /> },
+  { name: 'Products', href: '/admin/products', icon: <ShoppingBag className="h-4 w-4" /> },
+  { name: 'Collections', href: '/admin/collections', icon: <Layers className="h-4 w-4" /> },
   { name: 'Categories', href: '/admin/categories', icon: <Tags className="h-4 w-4" /> },
+  { name: 'Coupons', href: '/admin/coupons', icon: <TicketPercent className="h-4 w-4" /> },
+  { name: 'Create Link', href: '/admin/create-link', icon: <LinkIcon className="h-4 w-4" /> },
+  { name: 'Customers', href: '/admin/customers', icon: <Users className="h-4 w-4" /> },
+  { name: 'Payments', href: '/admin/payments', icon: <BarChart3 className="h-4 w-4" /> },
+  { name: 'Billing', href: '/admin/billing', icon: <CreditCard className="h-4 w-4" /> },
   { name: 'Customization', href: '/admin/customization', icon: <Palette className="h-4 w-4" /> },
   { name: 'Fee Optimization', href: '/admin/fee-optimization', icon: <PiggyBank className="h-4 w-4" />, roles: ['owner'] },
   { name: 'Settings', href: '/admin/settings', icon: <Settings className="h-4 w-4" /> },

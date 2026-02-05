@@ -3,19 +3,24 @@
 import { AdminSidebar } from '@/components/AdminSidebar';
 import { useUser } from '@/firebase';
 import { 
-  Loader2, 
-  ShieldAlert, 
-  LayoutDashboard, 
-  ShoppingBag, 
-  ShoppingCart, 
-  Users, 
-  Tags, 
-  Palette, 
-  PiggyBank, 
+  Home,
+  ShoppingCart,
+  ShoppingBag,
+  Layers,
+  Tags,
+  TicketPercent,
+  Link as LinkIcon,
+  Users,
+  BarChart3,
+  CreditCard,
+  Palette,
+  PiggyBank,
   Settings,
   X,
   Command,
-  ArrowLeft
+  ArrowLeft,
+  Loader2,
+  ShieldAlert
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -24,11 +29,16 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 const adminNavItems = [
-  { name: 'Stats', href: '/admin/dashboard', icon: LayoutDashboard },
-  { name: 'Stock', href: '/admin/products', icon: ShoppingBag },
+  { name: 'Home', href: '/admin/dashboard', icon: Home },
   { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
-  { name: 'Members', href: '/admin/customers', icon: Users },
-  { name: 'Taxonomy', href: '/admin/categories', icon: Tags },
+  { name: 'Products', href: '/admin/products', icon: ShoppingBag },
+  { name: 'Collections', href: '/admin/collections', icon: Layers },
+  { name: 'Categories', href: '/admin/categories', icon: Tags },
+  { name: 'Coupons', href: '/admin/coupons', icon: TicketPercent },
+  { name: 'Create Link', href: '/admin/create-link', icon: LinkIcon },
+  { name: 'Customers', href: '/admin/customers', icon: Users },
+  { name: 'Payments', href: '/admin/payments', icon: BarChart3 },
+  { name: 'Billing', href: '/admin/billing', icon: CreditCard },
   { name: 'Theme', href: '/admin/customization', icon: Palette },
   { name: 'Revenue', href: '/admin/fee-optimization', icon: PiggyBank, role: 'owner' },
   { name: 'Global', href: '/admin/settings', icon: Settings },
