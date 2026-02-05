@@ -20,8 +20,7 @@ import {
   ArrowLeft,
   Loader2,
   ShieldAlert,
-  ChevronRight,
-  Circle
+  ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -61,26 +60,15 @@ export default function AdminLayout({
   const effectiveRole = user?.email === 'hk8913114@gmail.com' ? 'owner' : userRole;
   const isAuthorized = effectiveRole === 'owner' || effectiveRole === 'store admin';
 
-  // Body scroll lock and close logic
+  // Body scroll lock logic
   useEffect(() => {
-    if (!isFabExpanded) {
+    if (isFabExpanded) {
+      document.body.style.overflow = 'hidden';
+    } else {
       document.body.style.overflow = '';
-      return;
     }
-
-    // Lock body scroll when drawer is open
-    document.body.style.overflow = 'hidden';
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (fabRef.current && !fabRef.current.contains(e.target as Node)) {
-        setIsFabExpanded(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.body.style.overflow = '';
-      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isFabExpanded]);
 
@@ -162,7 +150,7 @@ export default function AdminLayout({
         onClick={() => setIsFabExpanded(false)}
       />
 
-      {/* Admin Command FAB - Mobile Only */}
+      {/* Admin Command FAB - Mobile Only with Symmetrical Animations */}
       <div 
         ref={fabRef}
         className={cn(
@@ -174,14 +162,14 @@ export default function AdminLayout({
       >
         <div 
           className={cn(
-            "bg-white/10 backdrop-blur-[40px] border border-white/20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex flex-col overflow-hidden relative transition-all duration-700 ease-quint",
+            "bg-white/10 backdrop-blur-[40px] border border-white/20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex flex-col overflow-hidden relative transition-all duration-700 ease-quint will-change-[height,width,padding]",
             isFabExpanded ? "p-6 h-[60vh] opacity-100" : "p-0 h-14 opacity-100"
           )}
         >
-          {/* Expanded Content Wrapper */}
+          {/* Expanded Content Wrapper - Symmetrical fade and scale */}
           <div className={cn(
             "flex flex-col h-full transition-all duration-700 ease-quint",
-            isFabExpanded ? "opacity-100 scale-100 translate-y-0 delay-150" : "opacity-0 scale-95 translate-y-4 pointer-events-none"
+            isFabExpanded ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 pointer-events-none"
           )}>
             {/* Gesture Handle & Header */}
             <div 
@@ -256,7 +244,7 @@ export default function AdminLayout({
             </div>
           </div>
 
-          {/* Trigger Button (Floating State) */}
+          {/* Trigger Button (Floating State) - Reverse transition handle */}
           <button 
             onClick={() => setIsFabExpanded(true)}
             className={cn(
