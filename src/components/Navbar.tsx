@@ -414,7 +414,7 @@ export function Navbar() {
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/40 via-white/10 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/50 via-white/5 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] animate-subtle-float scrollbar-none"
                 >
                   <div 
                     onScroll={(e) => setIsMenuScrolled(e.currentTarget.scrollTop > 20)}
@@ -524,18 +524,18 @@ export function Navbar() {
                               <div className="grid grid-cols-2 gap-3 animate-in fade-in duration-500">
                                   <Button 
                                     variant="outline" 
-                                    className="h-16 rounded-[2rem] bg-white/20 backdrop-blur-xl border-white/20 gap-3 justify-start px-6 group hover:bg-white/30 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shine-effect"
+                                    className="h-16 rounded-[2rem] bg-white/20 backdrop-blur-xl border-white/20 gap-3 justify-start px-6 group hover:bg-white/30 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shine-effect overflow-hidden"
                                     onClick={() => setIsMobileSearchActive(true)}
                                   >
-                                      <Search className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                                      <span className="font-black text-xs uppercase tracking-widest text-secondary">Find</span>
+                                      <Search className="h-5 w-5 text-primary group-hover:scale-110 transition-transform relative z-10" />
+                                      <span className="font-black text-xs uppercase tracking-widest text-secondary relative z-10">Find</span>
                                   </Button>
-                                  <Button variant="outline" className="h-16 rounded-[2rem] bg-white/20 backdrop-blur-xl border-white/20 gap-3 justify-start px-6 relative group hover:bg-white/30 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shine-effect" asChild>
+                                  <Button variant="outline" className="h-16 rounded-[2rem] bg-white/20 backdrop-blur-xl border-white/20 gap-3 justify-start px-6 relative group hover:bg-white/30 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shine-effect overflow-hidden" asChild>
                                       <Link href="/cart">
-                                          <ShoppingBag className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                                          <span className="font-black text-xs uppercase tracking-widest text-secondary">Cart</span>
+                                          <ShoppingBag className="h-5 w-5 text-primary group-hover:scale-110 transition-transform relative z-10" />
+                                          <span className="font-black text-xs uppercase tracking-widest text-secondary relative z-10">Cart</span>
                                           {cartCount > 0 && (
-                                            <span className="absolute top-1/2 -translate-y-1/2 right-6 w-6 h-6 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-black shadow-lg ring-4 ring-white/20">
+                                            <span className="absolute top-1/2 -translate-y-1/2 right-6 w-6 h-6 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-black shadow-lg ring-4 ring-white/20 z-20">
                                               {cartCount}
                                             </span>
                                           )}
@@ -551,7 +551,7 @@ export function Navbar() {
                           <p className="text-[8px] font-black uppercase tracking-[0.2em] text-primary/80 px-2">Discover</p>
                           <div className="grid gap-3">
                               {navLinks.map((link) => (
-                                  <Link key={link.href} href={link.href} className={cn("flex items-center justify-between p-4 rounded-[2rem] transition-all duration-500 border border-white/20 shadow-lg group shine-effect overflow-hidden", pathname === link.href ? "bg-primary text-white scale-[1.02] shadow-primary/20" : "bg-white/20 backdrop-blur-xl text-secondary hover:bg-white/30 hover:border-white/30 hover:scale-[1.02] active:scale-[0.98]")}>
+                                  <Link key={link.href} href={link.href} className={cn("flex items-center justify-between p-4 rounded-[2rem] transition-all duration-500 border border-white/20 shadow-lg group shine-effect overflow-hidden hover:scale-[1.02] active:scale-[0.98]", pathname === link.href ? "bg-primary text-white shadow-primary/20 animate-liquid-flow from-primary via-primary/80 to-primary bg-gradient-to-r" : "bg-white/20 backdrop-blur-xl text-secondary hover:bg-white/30 hover:border-white/30")}>
                                       <div className="flex items-center gap-4 relative z-10">
                                         <div className={cn("p-2 rounded-xl transition-colors duration-500", pathname === link.href ? "bg-white/30" : "bg-primary/20 group-hover:bg-primary/30")}>
                                           <link.icon className={cn("h-4 w-4 transition-transform duration-500 group-hover:scale-110", pathname === link.href ? "text-white" : "text-primary")} />
@@ -571,20 +571,24 @@ export function Navbar() {
                       <div className="flex items-center gap-3 w-full">
                         <Link href="/account" className="flex-1">
                           <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold gap-2 shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-transform animate-liquid-flow from-secondary via-secondary/80 to-secondary bg-gradient-to-r shine-effect overflow-hidden">
-                            <User className="h-4 w-4" />Settings
+                            <User className="h-4 w-4 relative z-10" />
+                            <span className="relative z-10">Settings</span>
                           </Button>
                         </Link>
                         <Button 
                           variant="ghost" 
-                          className="flex-1 h-11 rounded-2xl text-destructive font-bold text-xs border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 hover:scale-[1.02] active:scale-[0.98] transition-all gap-2" 
+                          className="flex-1 h-11 rounded-2xl text-destructive font-bold text-xs border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 hover:scale-[1.02] active:scale-[0.98] transition-all gap-2 shine-effect overflow-hidden" 
                           onClick={handleSignOut}
                         >
-                          <LogOut className="h-4 w-4" /> Sign Out
+                          <LogOut className="h-4 w-4 relative z-10" />
+                          <span className="relative z-10">Sign Out</span>
                         </Button>
                       </div>
                     ) : (
                       <Link href={loginUrl} className="w-full">
-                        <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold shadow-2xl animate-pulse-glow hover:scale-[1.01] active:scale-[0.99] transition-transform shine-effect overflow-hidden">Secure Sign In</Button>
+                        <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold shadow-2xl animate-pulse-glow hover:scale-[1.01] active:scale-[0.99] transition-transform shine-effect overflow-hidden">
+                          <span className="relative z-10">Secure Sign In</span>
+                        </Button>
                       </Link>
                     )}
                   </div>
