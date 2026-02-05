@@ -414,7 +414,7 @@ export function Navbar() {
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/20 flex flex-col bg-white/20 backdrop-blur-[40px] shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-gradient-to-b from-white/40 via-white/10 to-transparent backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
                 >
                   <div 
                     onScroll={(e) => setIsMenuScrolled(e.currentTarget.scrollTop > 20)}
@@ -438,9 +438,7 @@ export function Navbar() {
 
                       {/* Search & Action Hub */}
                       <div className="space-y-5">
-                          <p className="text-[8px] font-black uppercase tracking-[0.2em] text-primary/80 px-2">
-                            {isMobileSearchActive ? 'Refine Search' : 'Registry'}
-                          </p>
+                          <p className="text-[8px] font-black uppercase tracking-[0.2em] text-primary/80 px-2">Registry</p>
                           
                           <div className="relative transition-all duration-500">
                             {isMobileSearchActive ? (
@@ -517,7 +515,7 @@ export function Navbar() {
                                       className="w-full h-14 rounded-none text-primary font-bold text-xs gap-2 hover:bg-primary/20 border-t border-white/10"
                                       onClick={() => handleSearchSubmit()}
                                     >
-                                      View Complete Archive <ArrowRight className="h-4 w-4" />
+                                      View Archive <ArrowRight className="h-4 w-4" />
                                     </Button>
                                   </div>
                                 )}
