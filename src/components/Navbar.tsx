@@ -407,8 +407,8 @@ export function Navbar() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-full sm:max-w-md p-0 overflow-hidden border-none flex flex-col">
-                  <SheetHeader className="px-6 pt-10 pb-6 text-left border-b bg-muted/30">
-                    <SheetTitle className="font-headline text-2xl text-secondary flex items-center gap-4 group cursor-pointer transition-all duration-300">
+                  <SheetHeader className="px-6 pt-10 pb-6 text-center border-b bg-muted/30">
+                    <SheetTitle className="font-headline text-2xl text-secondary flex items-center justify-center gap-4 group cursor-pointer transition-all duration-300">
                       <div className="relative w-10 h-10 flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
                           <div className="absolute inset-0 bg-primary rounded-lg animate-artisanal-rotation" />
                           <span className="relative text-white font-bold text-lg">V</span>
