@@ -17,7 +17,6 @@ import {
   Palette,
   PiggyBank,
   Settings,
-  X,
   Command,
   ArrowLeft,
   Loader2,
@@ -56,18 +55,21 @@ export default function AdminLayout({
   const [isFabExpanded, setIsFabExpanded] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const fabRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
 
   const effectiveRole = user?.email === 'hk8913114@gmail.com' ? 'owner' : userRole;
   const isAuthorized = effectiveRole === 'owner' || effectiveRole === 'store admin';
 
-  // Handle click outside and scroll to close FAB
+  // Body scroll lock and close logic
   useEffect(() => {
-    if (!isFabExpanded) return;
+    if (!isFabExpanded) {
+      document.body.style.overflow = '';
+      return;
+    }
 
-    const handleScroll = () => {
-      setIsFabExpanded(false);
-    };
+    // Lock body scroll when drawer is open
+    document.body.style.overflow = 'hidden';
 
     const handleClickOutside = (e: MouseEvent) => {
       if (fabRef.current && !fabRef.current.contains(e.target as Node)) {
@@ -75,11 +77,9 @@ export default function AdminLayout({
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
     document.addEventListener('mousedown', handleClickOutside);
-    
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      document.body.style.overflow = '';
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isFabExpanded]);
@@ -89,7 +89,7 @@ export default function AdminLayout({
     setIsFabExpanded(false);
   }, [pathname]);
 
-  // Pull-to-close gesture handlers
+  // Gesture handle logic
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientY);
   };
@@ -99,7 +99,7 @@ export default function AdminLayout({
     const currentY = e.targetTouches[0].clientY;
     const distance = currentY - touchStart;
     
-    // If swiped down significantly on the handle/header
+    // Close if swiped down significantly from the handle
     if (distance > 80) {
       setIsFabExpanded(false);
       setTouchStart(null);
@@ -143,7 +143,7 @@ export default function AdminLayout({
       {/* Sidebar - Fixed on Desktop */}
       <AdminSidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
 
-      {/* Main Content Area - Adjusted Margin based on Sidebar state */}
+      {/* Main Content Area */}
       <main className={cn(
         "flex-1 min-w-0 bg-background/40 backdrop-blur-sm p-4 md:p-8 lg:p-12 animate-in fade-in duration-700 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
         isCollapsed ? "md:ml-20" : "md:ml-64"
@@ -152,6 +152,15 @@ export default function AdminLayout({
           {children}
         </div>
       </main>
+
+      {/* Backdrop Dimmer - Mobile Only */}
+      <div 
+        className={cn(
+          "fixed inset-0 z-[55] bg-black/40 backdrop-blur-sm md:hidden transition-opacity duration-500",
+          isFabExpanded ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        )}
+        onClick={() => setIsFabExpanded(false)}
+      />
 
       {/* Admin Command FAB - Mobile Only */}
       <div 
@@ -166,7 +175,7 @@ export default function AdminLayout({
         <div 
           className={cn(
             "bg-white/10 backdrop-blur-[40px] border border-white/20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex flex-col transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden relative",
-            isFabExpanded ? "p-6 max-h-[60vh] opacity-100" : "p-0 max-h-14 h-14 opacity-100"
+            isFabExpanded ? "p-6 h-[60vh] opacity-100" : "p-0 h-14 opacity-100"
           )}
         >
           {/* Expanded Content Wrapper */}
@@ -174,9 +183,9 @@ export default function AdminLayout({
             "flex flex-col h-full transition-all duration-500 ease-out",
             isFabExpanded ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 pointer-events-none"
           )}>
-            {/* Gesture Handle & Header - Touch handlers isolated here */}
+            {/* Gesture Handle & Header - Touch handlers strictly for dismissal */}
             <div 
-              className="flex flex-col mb-6 shrink-0 cursor-grab active:cursor-grabbing active:opacity-70 transition-opacity"
+              className="flex flex-col mb-6 shrink-0 cursor-grab active:cursor-grabbing"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
@@ -188,22 +197,26 @@ export default function AdminLayout({
                     <Command className="h-5 w-5" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-headline font-black text-secondary tracking-tight text-lg leading-none">Admin</span>
-                    <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.2em] mt-1">Terminal</span>
+                    <span className="font-headline font-black text-secondary tracking-tight text-lg leading-none">Vridhira</span>
+                    <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.2em] mt-1">Admin Terminal</span>
                   </div>
                 </div>
                 <Link 
                   href="/shop" 
                   onClick={() => setIsFabExpanded(false)}
-                  className="flex items-center gap-1.5 text-[10px] font-black text-primary uppercase bg-white/20 px-4 py-2 rounded-full hover:bg-white/30 transition-colors"
+                  className="flex items-center gap-1.5 text-[10px] font-black text-primary uppercase bg-white/20 px-4 py-2 rounded-full"
                 >
                   <ArrowLeft className="h-3 w-3" /> Shop
                 </Link>
               </div>
             </div>
 
-            {/* Scrollable Navigation List - Native scroll behavior preserved */}
-            <div className="flex-1 overflow-y-auto scrollbar-none pb-4 px-1 space-y-2">
+            {/* Scrollable Navigation List - Professional independent scroll context */}
+            <div 
+              ref={scrollContainerRef}
+              className="flex-1 overflow-y-auto scrollbar-none pb-4 px-1 space-y-2 overscroll-contain"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+            >
               {adminNavItems.map((item) => {
                 if (item.role && item.role !== effectiveRole) return null;
                 const isActive = pathname === item.href;
