@@ -406,9 +406,13 @@ export function Navbar() {
                     <Menu className="h-7 w-7" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-full h-full p-0 overflow-hidden border-none flex flex-col bg-background/40 backdrop-blur-[80px] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]">
-                  <SheetHeader className="px-6 pt-24 pb-10 flex items-center justify-center bg-transparent border-none shrink-0 relative z-10">
-                    <div className="flex items-center justify-center gap-4 py-4 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full shadow-2xl transition-all duration-500 hover:bg-white/10 group cursor-pointer w-4/5 mx-auto">
+                <SheetContent 
+                  side="right" 
+                  className="inset-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/20 flex flex-col bg-white/10 backdrop-blur-3xl shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                >
+                  {/* Floating Logo Header */}
+                  <SheetHeader className="px-6 pt-12 pb-6 flex items-center justify-center bg-transparent border-none shrink-0 relative z-10">
+                    <div className="flex items-center justify-center gap-4 py-4 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-full shadow-2xl transition-all duration-500 hover:bg-white/20 group cursor-pointer w-4/5 mx-auto">
                       <div className="relative w-10 h-10 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
                           <div className="absolute inset-0 bg-primary rounded-xl animate-artisanal-rotation shadow-lg" />
                           <span className="relative text-white font-black text-xl">V</span>
@@ -418,9 +422,11 @@ export function Navbar() {
                       </SheetTitle>
                     </div>
                   </SheetHeader>
-                  <div className="flex-1 px-8 py-10 space-y-12 overflow-y-auto relative z-0">
+
+                  <div className="flex-1 px-8 py-6 space-y-10 overflow-y-auto relative z-0">
+                      {/* Search & Action Hub */}
                       <div className="space-y-6">
-                          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 px-2">
+                          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/60 px-4">
                             {isMobileSearchActive ? 'Refine Search' : 'Registry Navigation'}
                           </p>
                           
@@ -447,7 +453,7 @@ export function Navbar() {
                                 </form>
 
                                 {(matchedCategories.length > 0 || suggestions.length > 0) && (
-                                  <div className="bg-white/5 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+                                  <div className="bg-white/10 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
                                     {matchedCategories.length > 0 && (
                                       <div className="p-6 border-b border-white/10 bg-primary/5">
                                         <p className="text-[9px] font-bold uppercase tracking-widest text-primary mb-4">Live Categories</p>
@@ -508,13 +514,13 @@ export function Navbar() {
                               <div className="grid grid-cols-2 gap-4 animate-in fade-in duration-500">
                                   <Button 
                                     variant="outline" 
-                                    className="h-20 rounded-[2rem] bg-white/5 backdrop-blur-xl border-white/10 gap-4 justify-start px-8 group hover:bg-white/10 transition-all shadow-xl"
+                                    className="h-20 rounded-[2.5rem] bg-white/10 backdrop-blur-xl border-white/10 gap-4 justify-start px-8 group hover:bg-white/20 transition-all shadow-xl"
                                     onClick={() => setIsMobileSearchActive(true)}
                                   >
                                       <Search className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
                                       <span className="font-black text-sm uppercase tracking-widest text-secondary">Find</span>
                                   </Button>
-                                  <Button variant="outline" className="h-20 rounded-[2rem] bg-white/5 backdrop-blur-xl border-white/10 gap-4 justify-start px-8 relative group hover:bg-white/10 transition-all shadow-xl" asChild>
+                                  <Button variant="outline" className="h-20 rounded-[2.5rem] bg-white/10 backdrop-blur-xl border-white/10 gap-4 justify-start px-8 relative group hover:bg-white/20 transition-all shadow-xl" asChild>
                                       <Link href="/cart">
                                           <ShoppingBag className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
                                           <span className="font-black text-sm uppercase tracking-widest text-secondary">Cart</span>
@@ -530,32 +536,41 @@ export function Navbar() {
                           </div>
                       </div>
 
+                      {/* Discover Links */}
                       <div className="space-y-6">
-                          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 px-2">Discover</p>
-                          <div className="grid gap-3.5">
+                          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/60 px-4">Discover</p>
+                          <div className="grid gap-3">
                               {navLinks.map((link) => (
-                                  <Link key={link.href} href={link.href} className={cn("flex items-center justify-between p-6 rounded-[2rem] transition-all duration-500 border border-white/5 shadow-xl", pathname === link.href ? "bg-primary text-white scale-[1.02] shadow-primary/20" : "bg-white/5 backdrop-blur-xl text-secondary hover:bg-white/10 hover:border-white/20")}>
+                                  <Link key={link.href} href={link.href} className={cn("flex items-center justify-between p-5 rounded-[2.2rem] transition-all duration-500 border border-white/10 shadow-lg", pathname === link.href ? "bg-primary text-white scale-[1.02] shadow-primary/20" : "bg-white/5 backdrop-blur-xl text-secondary hover:bg-white/10 hover:border-white/20")}>
                                       <div className="flex items-center gap-5">
-                                        <div className={cn("p-3 rounded-2xl", pathname === link.href ? "bg-white/20" : "bg-primary/10")}>
-                                          <link.icon className={cn("h-6 w-6", pathname === link.href ? "text-white" : "text-primary")} />
+                                        <div className={cn("p-2.5 rounded-2xl", pathname === link.href ? "bg-white/20" : "bg-primary/10")}>
+                                          <link.icon className={cn("h-5 w-5", pathname === link.href ? "text-white" : "text-primary")} />
                                         </div>
-                                        <span className="text-xl font-headline font-bold">{link.label}</span>
+                                        <span className="text-lg font-headline font-bold">{link.label}</span>
                                       </div>
-                                      <ChevronRight className={cn("h-6 w-6 transition-transform duration-500", pathname === link.href ? "opacity-100 translate-x-1" : "opacity-20")} />
+                                      <ChevronRight className={cn("h-5 w-5 transition-transform duration-500", pathname === link.href ? "opacity-100 translate-x-1" : "opacity-20")} />
                                   </Link>
                               ))}
                           </div>
                       </div>
                   </div>
-                  <div className="px-8 py-8 border-t border-white/10 bg-white/5 relative z-10">
+
+                  {/* Glass Base Actions */}
+                  <div className="px-8 py-8 border-t border-white/10 bg-white/10 backdrop-blur-3xl relative z-10 mt-auto">
                     {user ? (
                       <div className="flex flex-col gap-4">
                         <Link href="/account" className="w-full">
-                          <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-base font-bold gap-3 shadow-2xl hover:scale-[1.01] transition-transform">
+                          <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-sm font-bold gap-3 shadow-2xl hover:scale-[1.01] transition-transform">
                             <User className="h-5 w-5" />Collector Settings
                           </Button>
                         </Link>
-                        <Button variant="outline" className="w-full h-12 rounded-xl text-destructive font-black text-xs uppercase tracking-widest border-destructive/20 hover:bg-destructive/10 transition-colors" onClick={handleSignOut}>Secure Sign Out</Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full h-12 rounded-xl text-destructive font-black text-[10px] uppercase tracking-widest border-destructive/20 bg-destructive/5 hover:bg-destructive/10 transition-colors" 
+                          onClick={handleSignOut}
+                        >
+                          Secure Sign Out
+                        </Button>
                       </div>
                     ) : (
                       <Link href={loginUrl}>
