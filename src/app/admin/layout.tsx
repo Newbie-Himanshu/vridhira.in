@@ -87,7 +87,7 @@ export default function AdminLayout({
     const currentY = e.targetTouches[0].clientY;
     const distance = currentY - touchStart;
     
-    // Close if swiped down significantly from the handle
+    // Only close if swiped down significantly from the handle
     if (distance > 80) {
       setIsFabExpanded(false);
       setTouchStart(null);
@@ -156,7 +156,7 @@ export default function AdminLayout({
         className={cn(
           "fixed bottom-6 z-[60] md:hidden transition-all duration-700 ease-quint",
           isFabExpanded 
-            ? "left-6 right-6 w-auto" 
+            ? "left-6 right-6 w-[calc(100%-3rem)]" 
             : "right-6 w-14 h-14"
         )}
       >
