@@ -35,6 +35,7 @@ export function Navbar() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuScrolled, setIsMenuScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileSearchActive, setIsMobileSearchActive] = useState(false);
@@ -393,7 +394,12 @@ export function Navbar() {
             )}
             
             <div className="lg:hidden pointer-events-auto">
-              <Sheet onOpenChange={(open) => { if(!open) setIsMobileSearchActive(false); }}>
+              <Sheet onOpenChange={(open) => { 
+                if(!open) {
+                  setIsMobileSearchActive(false);
+                  setIsMenuScrolled(false);
+                }
+              }}>
                 <SheetTrigger asChild>
                   <Button 
                     variant="ghost" 
@@ -410,9 +416,17 @@ export function Navbar() {
                   side="right" 
                   className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/30 flex flex-col bg-white/20 backdrop-blur-[40px] shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
                 >
-                  <div className="flex-1 px-8 py-10 space-y-10 overflow-y-auto relative z-0">
-                      {/* Integrated Floating Logo */}
-                      <div className="flex items-center justify-center gap-4 py-4 bg-white/30 backdrop-blur-2xl border border-white/20 rounded-full shadow-2xl transition-all duration-500 hover:bg-white/40 group cursor-pointer w-full max-w-[90%] mx-auto mb-10">
+                  <div 
+                    onScroll={(e) => setIsMenuScrolled(e.currentTarget.scrollTop > 10)}
+                    className="flex-1 px-8 py-10 space-y-10 overflow-y-auto relative z-0"
+                  >
+                      {/* Integrated Floating Logo - Always Hover Aesthetic + Scroll Reactive Pill */}
+                      <div className={cn(
+                        "sticky top-0 z-50 flex items-center justify-center gap-4 transition-all duration-700 cursor-pointer mx-auto group",
+                        isMenuScrolled 
+                          ? "py-3 bg-white/50 backdrop-blur-3xl border border-white/40 rounded-full shadow-2xl w-[90%] -translate-y-2" 
+                          : "py-6 bg-white/40 backdrop-blur-2xl border border-white/20 rounded-[2.5rem] w-full"
+                      )}>
                         <div className="relative w-10 h-10 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
                             <div className="absolute inset-0 bg-primary rounded-xl animate-artisanal-rotation shadow-lg" />
                             <span className="relative text-white font-black text-xl">V</span>
