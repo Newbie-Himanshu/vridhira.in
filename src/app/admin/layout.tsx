@@ -2,10 +2,37 @@
 
 import { AdminSidebar } from '@/components/AdminSidebar';
 import { useUser } from '@/firebase';
-import { Loader2, ShieldAlert } from 'lucide-react';
+import { 
+  Loader2, 
+  ShieldAlert, 
+  LayoutDashboard, 
+  ShoppingBag, 
+  ShoppingCart, 
+  Users, 
+  Tags, 
+  Palette, 
+  PiggyBank, 
+  Settings,
+  X,
+  Command,
+  ArrowLeft
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
+
+const adminNavItems = [
+  { name: 'Stats', href: '/admin/dashboard', icon: LayoutDashboard },
+  { name: 'Stock', href: '/admin/products', icon: ShoppingBag },
+  { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
+  { name: 'Members', href: '/admin/customers', icon: Users },
+  { name: 'Taxonomy', href: '/admin/categories', icon: Tags },
+  { name: 'Theme', href: '/admin/customization', icon: Palette },
+  { name: 'Revenue', href: '/admin/fee-optimization', icon: PiggyBank, role: 'owner' },
+  { name: 'Global', href: '/admin/settings', icon: Settings },
+];
 
 export default function AdminLayout({
   children,
@@ -13,6 +40,29 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const { user, isUserLoading, userRole } = useUser();
+  const pathname = usePathname();
+  const [isFabExpanded, setIsFabExpanded] = useState(false);
+  const fabRef = useRef<HTMLDivElement>(null);
+
+  const effectiveRole = user?.email === 'hk8913114@gmail.com' ? 'owner' : userRole;
+  const isAuthorized = effectiveRole === 'owner' || effectiveRole === 'store admin';
+
+  // Handle click outside to close FAB
+  useEffect(() => {
+    if (!isFabExpanded) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (fabRef.current && !fabRef.current.contains(e.target as Node)) {
+        setIsFabExpanded(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isFabExpanded]);
+
+  // Close FAB on navigation
+  useEffect(() => {
+    setIsFabExpanded(false);
+  }, [pathname]);
 
   if (isUserLoading) {
     return (
@@ -21,8 +71,6 @@ export default function AdminLayout({
       </div>
     );
   }
-
-  const isAuthorized = userRole === 'owner' || userRole === 'store admin' || user?.email === 'hk8913114@gmail.com';
 
   if (!user || !isAuthorized) {
     return (
@@ -45,13 +93,95 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-background pt-20 overflow-x-hidden">
+    <div className="flex min-h-screen bg-background pt-20 overflow-x-hidden relative">
+      {/* Sidebar - Visible on Desktop */}
       <AdminSidebar />
+
+      {/* Main Content Area */}
       <main className="flex-1 min-w-0 bg-background/40 backdrop-blur-sm p-4 md:p-8 lg:p-12 animate-in fade-in duration-700">
         <div className="max-w-7xl mx-auto space-y-8">
           {children}
         </div>
       </main>
+
+      {/* Admin Command FAB - Mobile Only */}
+      <div 
+        ref={fabRef}
+        className={cn(
+          "fixed bottom-6 right-6 z-[60] md:hidden transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
+          isFabExpanded ? "w-[calc(100%-3rem)] h-auto" : "w-14 h-14"
+        )}
+      >
+        <div 
+          className={cn(
+            "bg-white/40 backdrop-blur-3xl border border-white/20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex flex-col transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden",
+            isFabExpanded ? "p-6" : "p-0 h-14"
+          )}
+        >
+          {/* Expanded Grid Content */}
+          <div className={cn(
+            "grid grid-cols-4 gap-4 transition-all duration-500",
+            isFabExpanded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
+          )}>
+            <div className="col-span-4 flex items-center justify-between mb-4 border-b border-black/5 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-white animate-artisanal-rotation">
+                  <Command className="h-4 w-4" />
+                </div>
+                <span className="font-headline font-black text-secondary tracking-tight">Admin Terminal</span>
+              </div>
+              <Link href="/shop" className="flex items-center gap-1 text-[10px] font-bold text-primary uppercase bg-primary/10 px-3 py-1 rounded-full">
+                <ArrowLeft className="h-3 w-3" /> Shop
+              </Link>
+            </div>
+
+            {adminNavItems.map((item) => {
+              if (item.role && item.role !== effectiveRole) return null;
+              const isActive = pathname === item.href;
+              return (
+                <Link 
+                  key={item.href} 
+                  href={item.href}
+                  className={cn(
+                    "flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all duration-300",
+                    isActive ? "bg-primary text-white shadow-lg scale-105" : "bg-white/20 text-secondary hover:bg-white/40"
+                  )}
+                >
+                  <item.icon className={cn("h-5 w-5", isActive ? "animate-pulse" : "")} />
+                  <span className="text-[8px] font-black uppercase tracking-widest text-center">{item.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Trigger Button (Floating State) */}
+          <button 
+            onClick={() => setIsFabExpanded(!isFabExpanded)}
+            className={cn(
+              "absolute inset-0 flex items-center justify-center transition-all duration-500",
+              isFabExpanded ? "opacity-0 scale-50 pointer-events-none" : "opacity-100 scale-100"
+            )}
+          >
+            <div className="relative w-full h-full flex items-center justify-center group">
+              <div className="absolute inset-0 bg-primary/10 rounded-full animate-pulse-glow" />
+              <Command className={cn(
+                "h-6 w-6 text-primary transition-transform duration-500 group-hover:scale-110",
+                "animate-artisanal-rotation"
+              )} />
+            </div>
+          </button>
+
+          {/* Close Trigger (Expanded State) */}
+          {isFabExpanded && (
+            <button 
+              onClick={() => setIsFabExpanded(false)}
+              className="mt-6 w-full h-12 rounded-2xl bg-secondary/10 hover:bg-secondary/20 flex items-center justify-center transition-colors"
+            >
+              <X className="h-5 w-5 text-secondary" />
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
