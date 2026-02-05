@@ -141,10 +141,10 @@ export default function AdminLayout({
         </div>
       </main>
 
-      {/* Backdrop Dimmer - Mobile Only */}
+      {/* Backdrop Dimmer - Mobile Only (Blur removed per request) */}
       <div 
         className={cn(
-          "fixed inset-0 z-[55] bg-black/40 backdrop-blur-sm md:hidden transition-all duration-700 ease-quint",
+          "fixed inset-0 z-[55] bg-black/40 md:hidden transition-all duration-700 ease-quint",
           isFabExpanded ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         )}
         onClick={() => setIsFabExpanded(false)}
@@ -162,7 +162,7 @@ export default function AdminLayout({
       >
         <div 
           className={cn(
-            "bg-white/10 backdrop-blur-[40px] border border-white/20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex flex-col overflow-hidden relative transition-all duration-700 ease-quint will-change-[height,width,padding]",
+            "bg-white/10 border border-white/20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex flex-col overflow-hidden relative transition-all duration-700 ease-quint will-change-[height,width,padding]",
             isFabExpanded ? "p-6 h-[60vh] opacity-100" : "p-0 h-14 opacity-100"
           )}
         >
