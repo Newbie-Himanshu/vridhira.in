@@ -59,16 +59,27 @@ export default function AdminLayout({
   const effectiveRole = user?.email === 'hk8913114@gmail.com' ? 'owner' : userRole;
   const isAuthorized = effectiveRole === 'owner' || effectiveRole === 'store admin';
 
-  // Handle click outside to close FAB
+  // Handle click outside and scroll to close FAB
   useEffect(() => {
     if (!isFabExpanded) return;
+
+    const handleScroll = () => {
+      setIsFabExpanded(false);
+    };
+
     const handleClickOutside = (e: MouseEvent) => {
       if (fabRef.current && !fabRef.current.contains(e.target as Node)) {
         setIsFabExpanded(false);
       }
     };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, [isFabExpanded]);
 
   // Close FAB on navigation
@@ -135,10 +146,10 @@ export default function AdminLayout({
         >
           {/* Expanded Grid Content - Wrapped for smoother opacity/scale transitions */}
           <div className={cn(
-            "flex flex-col transition-all duration-500 ease-out",
+            "flex flex-col h-full transition-all duration-500 ease-out",
             isFabExpanded ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 pointer-events-none"
           )}>
-            <div className="flex items-center justify-between mb-6 border-b border-black/5 pb-4">
+            <div className="flex items-center justify-between mb-6 border-b border-black/5 pb-4 shrink-0">
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg animate-artisanal-rotation">
                   <Command className="h-5 w-5" />
@@ -157,34 +168,29 @@ export default function AdminLayout({
               </Link>
             </div>
 
-            <div className="grid grid-cols-4 gap-3">
-              {adminNavItems.map((item) => {
-                if (item.role && item.role !== effectiveRole) return null;
-                const isActive = pathname === item.href;
-                return (
-                  <Link 
-                    key={item.href} 
-                    href={item.href}
-                    onClick={() => setIsFabExpanded(false)}
-                    className={cn(
-                      "flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all duration-300 active:scale-95",
-                      isActive ? "bg-primary text-white shadow-xl scale-105" : "bg-white/20 text-secondary hover:bg-white/40"
-                    )}
-                  >
-                    <item.icon className={cn("h-5 w-5", isActive ? "animate-pulse" : "")} />
-                    <span className="text-[8px] font-black uppercase tracking-widest text-center leading-tight">{item.name}</span>
-                  </Link>
-                );
-              })}
+            {/* Scrollable Navigation Grid */}
+            <div className="flex-1 overflow-y-auto scrollbar-none pb-4">
+              <div className="grid grid-cols-4 gap-3">
+                {adminNavItems.map((item) => {
+                  if (item.role && item.role !== effectiveRole) return null;
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link 
+                      key={item.href} 
+                      href={item.href}
+                      onClick={() => setIsFabExpanded(false)}
+                      className={cn(
+                        "flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all duration-300 active:scale-95",
+                        isActive ? "bg-primary text-white shadow-xl scale-105" : "bg-white/20 text-secondary hover:bg-white/40"
+                      )}
+                    >
+                      <item.icon className={cn("h-5 w-5", isActive ? "animate-pulse" : "")} />
+                      <span className="text-[8px] font-black uppercase tracking-widest text-center leading-tight">{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-
-            {/* Close Trigger (Expanded State) */}
-            <button 
-              onClick={() => setIsFabExpanded(false)}
-              className="mt-6 w-full h-14 rounded-2xl bg-secondary/10 hover:bg-secondary/20 flex items-center justify-center transition-all active:scale-[0.98] group"
-            >
-              <X className="h-6 w-6 text-secondary group-hover:rotate-90 transition-transform duration-300" />
-            </button>
           </div>
 
           {/* Trigger Button (Floating State) */}
