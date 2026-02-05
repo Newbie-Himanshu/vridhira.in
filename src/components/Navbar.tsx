@@ -540,17 +540,19 @@ export function Navbar() {
                           </div>
                       </div>
                   </div>
-                  <div className="px-6 pt-6 pb-10 border-t bg-muted/30">
+                  <div className="px-6 py-6 border-t bg-muted/30">
                     {user ? (
                       <div className="flex flex-col gap-3">
                         <Link href="/account" className="w-full">
-                          <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-base font-bold gap-3 shadow-xl hover:scale-[1.02] transition-transform"><User className="h-5 w-5" />Account Settings</Button>
+                          <Button className="w-full h-12 rounded-xl bg-secondary text-secondary-foreground text-sm font-bold gap-2 shadow-lg hover:scale-[1.01] transition-transform">
+                            <User className="h-4 w-4" />Account Settings
+                          </Button>
                         </Link>
-                        <Button variant="outline" className="w-full h-12 rounded-xl text-destructive font-bold border-destructive/10 hover:bg-destructive/5" onClick={handleSignOut}>Log Out</Button>
+                        <Button variant="outline" className="w-full h-11 rounded-lg text-destructive font-bold text-xs border-destructive/10 hover:bg-destructive/5" onClick={handleSignOut}>Log Out</Button>
                       </div>
                     ) : (
                       <Link href={loginUrl}>
-                        <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-base font-bold shadow-2xl animate-pulse-glow">Secure Sign In</Button>
+                        <Button className="w-full h-12 rounded-xl bg-secondary text-secondary-foreground text-sm font-bold shadow-xl animate-pulse-glow">Secure Sign In</Button>
                       </Link>
                     )}
                   </div>
