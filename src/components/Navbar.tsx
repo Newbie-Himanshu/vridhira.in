@@ -407,14 +407,16 @@ export function Navbar() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-full sm:max-w-md p-0 overflow-hidden border-none flex flex-col">
-                  <SheetHeader className="px-6 pt-10 pb-6 text-center border-b bg-muted/30">
-                    <SheetTitle className="font-headline text-2xl text-secondary flex items-center justify-center gap-4 group cursor-pointer transition-all duration-300">
-                      <div className="relative w-10 h-10 flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
-                          <div className="absolute inset-0 bg-primary rounded-lg animate-artisanal-rotation" />
-                          <span className="relative text-white font-bold text-lg">V</span>
+                  <SheetHeader className="px-6 pt-10 pb-8 flex items-center justify-center bg-transparent border-none">
+                    <div className="inline-flex items-center gap-4 px-8 py-3 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-full shadow-2xl transition-all duration-500 hover:bg-white/20 group cursor-pointer">
+                      <div className="relative w-10 h-10 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
+                          <div className="absolute inset-0 bg-primary rounded-xl animate-artisanal-rotation shadow-lg" />
+                          <span className="relative text-white font-black text-xl">V</span>
                       </div>
-                      <span className="transition-colors duration-300 group-hover:text-primary">Vridhira</span>
-                    </SheetTitle>
+                      <SheetTitle className="font-headline text-2xl text-secondary transition-colors duration-300 group-hover:text-primary m-0">
+                        Vridhira
+                      </SheetTitle>
+                    </div>
                   </SheetHeader>
                   <div className="flex-1 px-6 py-8 space-y-10 overflow-y-auto">
                       <div className="space-y-5">
