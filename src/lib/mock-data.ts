@@ -62,6 +62,7 @@ export interface Customer {
   role: UserRole;
   isVerified?: boolean;
   failedAttempts?: number;
+  resendAttempts?: number;
   banUntil?: string;
 }
 
