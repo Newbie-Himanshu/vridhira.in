@@ -1,3 +1,4 @@
+
 'use client';
 
 import { AdminSidebar } from '@/components/AdminSidebar';
@@ -110,7 +111,7 @@ export default function AdminLayout({
 
       {/* Main Content Area - Adjusted Margin based on Sidebar state */}
       <main className={cn(
-        "flex-1 min-w-0 bg-background/40 backdrop-blur-sm p-4 md:p-8 lg:p-12 animate-in fade-in duration-700 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+        "flex-1 min-w-0 bg-background/40 backdrop-blur-sm p-4 md:p-8 lg:p-12 animate-in fade-in duration-700 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
         isCollapsed ? "md:ml-20" : "md:ml-64"
       )}>
         <div className="max-w-7xl mx-auto space-y-8">
@@ -123,19 +124,19 @@ export default function AdminLayout({
         ref={fabRef}
         className={cn(
           "fixed bottom-6 right-6 z-[60] md:hidden transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
-          isFabExpanded ? "w-[calc(100%-3rem)] h-auto" : "w-14 h-14"
+          isFabExpanded ? "w-[calc(100%-3rem)]" : "w-14 h-14"
         )}
       >
         <div 
           className={cn(
             "bg-white/40 backdrop-blur-3xl border border-white/20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex flex-col transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden",
-            isFabExpanded ? "p-6" : "p-0 h-14"
+            isFabExpanded ? "p-6 max-h-[600px] opacity-100" : "p-0 max-h-14 h-14 opacity-100"
           )}
         >
           {/* Expanded Grid Content */}
           <div className={cn(
-            "grid grid-cols-4 gap-4 transition-all duration-500",
-            isFabExpanded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
+            "grid grid-cols-4 gap-4 transition-all duration-500 ease-out",
+            isFabExpanded ? "opacity-100 translate-y-0 delay-100" : "opacity-0 translate-y-10 pointer-events-none"
           )}>
             <div className="col-span-4 flex items-center justify-between mb-4 border-b border-black/5 pb-4">
               <div className="flex items-center gap-3">
@@ -172,7 +173,7 @@ export default function AdminLayout({
           <button 
             onClick={() => setIsFabExpanded(!isFabExpanded)}
             className={cn(
-              "absolute inset-0 flex items-center justify-center transition-all duration-500",
+              "absolute inset-0 flex items-center justify-center transition-all duration-500 ease-in-out",
               isFabExpanded ? "opacity-0 scale-50 pointer-events-none" : "opacity-100 scale-100"
             )}
           >
@@ -189,7 +190,7 @@ export default function AdminLayout({
           {isFabExpanded && (
             <button 
               onClick={() => setIsFabExpanded(false)}
-              className="mt-6 w-full h-12 rounded-2xl bg-secondary/10 hover:bg-secondary/20 flex items-center justify-center transition-colors"
+              className="mt-6 w-full h-12 rounded-2xl bg-secondary/10 hover:bg-secondary/20 flex items-center justify-center transition-colors animate-in fade-in zoom-in-95 duration-300"
             >
               <X className="h-5 w-5 text-secondary" />
             </button>

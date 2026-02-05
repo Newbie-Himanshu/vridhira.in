@@ -1,3 +1,4 @@
+
 'use client';
 
 import { 
@@ -58,7 +59,7 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
   if (isUserLoading) {
     return (
       <aside className={cn(
-        "fixed left-0 top-20 h-[calc(100vh-5rem)] bg-background border-r p-4 hidden md:flex flex-col shrink-0 transition-all duration-500",
+        "fixed left-0 top-20 h-[calc(100vh-5rem)] bg-background border-r p-4 hidden md:flex flex-col shrink-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
         isCollapsed ? "w-20" : "w-64"
       )}>
         <div className="flex items-center justify-center h-full">
@@ -73,7 +74,7 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
   return (
     <TooltipProvider delayDuration={0}>
       <aside className={cn(
-        "fixed left-0 top-20 h-[calc(100vh-5rem)] bg-background border-r p-4 hidden md:flex flex-col shrink-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] z-40",
+        "fixed left-0 top-20 h-[calc(100vh-5rem)] bg-background border-r p-4 hidden md:flex flex-col shrink-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] z-40",
         isCollapsed ? "w-20" : "w-64"
       )}>
         {/* Toggle Button - Updated color to Terracotta (Primary) */}
@@ -81,7 +82,7 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
           variant="default" 
           size="icon" 
           className={cn(
-            "absolute -right-4 top-6 h-8 w-8 rounded-full border-2 border-background shadow-lg bg-primary text-white hover:bg-primary/90 z-50 transition-transform duration-500",
+            "absolute -right-4 top-6 h-8 w-8 rounded-full border-2 border-background shadow-lg bg-primary text-white hover:bg-primary/90 z-50 transition-transform duration-700",
             isCollapsed ? "rotate-180" : ""
           )}
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -91,7 +92,7 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
 
         {/* Header/Logo */}
         <div className={cn(
-          "flex items-center gap-3 px-2 py-6 border-b mb-6 group transition-all duration-500",
+          "flex items-center gap-3 px-2 py-6 border-b mb-6 group transition-all duration-700",
           isCollapsed ? "justify-center" : "justify-start"
         )}>
           <div className="relative w-10 h-10 flex items-center justify-center shrink-0">
@@ -99,7 +100,7 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
             <span className="relative font-headline font-bold text-xl text-primary">V</span>
           </div>
           {!isCollapsed && (
-            <div className="flex flex-col animate-in fade-in slide-in-from-left-2 duration-500 overflow-hidden">
+            <div className="flex flex-col animate-in fade-in slide-in-from-left-2 duration-700 overflow-hidden">
               <span className="font-headline font-black text-xl text-secondary leading-none whitespace-nowrap uppercase tracking-tighter">Vridhira</span>
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 whitespace-nowrap">Admin Dashboard</span>
             </div>
@@ -129,7 +130,7 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
                   {item.icon}
                 </div>
                 {!isCollapsed && (
-                  <span className="animate-in fade-in slide-in-from-left-4 duration-500 whitespace-nowrap">
+                  <span className="animate-in fade-in slide-in-from-left-4 duration-700 whitespace-nowrap">
                     {item.name}
                   </span>
                 )}
