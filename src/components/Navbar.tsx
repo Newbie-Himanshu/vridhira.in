@@ -410,20 +410,18 @@ export function Navbar() {
                   side="right" 
                   className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/30 flex flex-col bg-white/20 backdrop-blur-[40px] shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
                 >
-                  {/* Floating Logo Header */}
-                  <SheetHeader className="px-6 pt-14 pb-6 flex items-center justify-center bg-transparent border-none shrink-0 relative z-10">
-                    <div className="flex items-center justify-center gap-4 py-4 bg-white/30 backdrop-blur-2xl border border-white/20 rounded-full shadow-2xl transition-all duration-500 hover:bg-white/40 group cursor-pointer w-4/5 mx-auto">
-                      <div className="relative w-10 h-10 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
-                          <div className="absolute inset-0 bg-primary rounded-xl animate-artisanal-rotation shadow-lg" />
-                          <span className="relative text-white font-black text-xl">V</span>
+                  <div className="flex-1 px-8 py-10 space-y-10 overflow-y-auto relative z-0">
+                      {/* Integrated Floating Logo */}
+                      <div className="flex items-center justify-center gap-4 py-4 bg-white/30 backdrop-blur-2xl border border-white/20 rounded-full shadow-2xl transition-all duration-500 hover:bg-white/40 group cursor-pointer w-full max-w-[90%] mx-auto mb-10">
+                        <div className="relative w-10 h-10 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
+                            <div className="absolute inset-0 bg-primary rounded-xl animate-artisanal-rotation shadow-lg" />
+                            <span className="relative text-white font-black text-xl">V</span>
+                        </div>
+                        <SheetTitle className="font-headline text-2xl text-secondary transition-colors duration-300 group-hover:text-primary m-0">
+                          Vridhira
+                        </SheetTitle>
                       </div>
-                      <SheetTitle className="font-headline text-2xl text-secondary transition-colors duration-300 group-hover:text-primary m-0">
-                        Vridhira
-                      </SheetTitle>
-                    </div>
-                  </SheetHeader>
 
-                  <div className="flex-1 px-8 py-6 space-y-10 overflow-y-auto relative z-0">
                       {/* Search & Action Hub */}
                       <div className="space-y-6">
                           <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/80 px-4">
