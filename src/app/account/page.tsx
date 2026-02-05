@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser, useDoc, useMemoFirebase, useFirestore, updateDocumentNonBlocking, useCollection } from '@/firebase';
@@ -17,7 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { 
   LogOut, Package, Clock, ShieldAlert, CheckCircle2, 
   User as UserIcon, MapPin, AtSign, Loader2, Save, ShoppingBag, 
-  ArrowRight, PhoneIncoming
+  ArrowRight, PhoneIncoming, CreditCard, LayoutDashboard
 } from 'lucide-react';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
@@ -35,6 +34,7 @@ export default function AccountPage() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
 
+  const [activeTab, setActiveTab] = useState('overview');
   const [otp, setOtp] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [showOtpInput, setShowOtpInput] = useState(false);
@@ -78,6 +78,11 @@ export default function AccountPage() {
       });
     }
   }, [user, customer, isUserLoading, router]);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab) setActiveTab(tab);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!customer?.banUntil) return;
@@ -142,171 +147,230 @@ export default function AccountPage() {
   if (!user) return null;
 
   return (
-    <div className="container mx-auto px-4 py-32 max-w-5xl">
-      <div className="flex justify-between items-end mb-12">
-        <div>
-          <Badge className="bg-primary/10 text-primary mb-2 font-bold px-4">Heritage Member</Badge>
-          <h1 className="text-4xl font-headline font-bold text-secondary">My Account</h1>
+    <div className="min-h-screen bg-background pb-32 pt-24 md:pt-32">
+      <div className="container mx-auto px-4 max-w-5xl">
+        
+        {/* Page Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8 md:mb-12">
+          <div className="animate-in fade-in slide-in-from-left-4 duration-500">
+            <Badge className="bg-primary/10 text-primary mb-2 font-bold px-4 rounded-full">Heritage Member</Badge>
+            <h1 className="text-3xl md:text-5xl font-headline font-bold text-secondary">My Account</h1>
+          </div>
+          <Button 
+            variant="outline" 
+            onClick={() => signOut(auth)} 
+            className="rounded-full border-primary/20 text-primary hover:bg-primary/5 font-bold animate-in fade-in slide-in-from-right-4 duration-500"
+          >
+            <LogOut className="mr-2 h-4 w-4" /> Sign Out
+          </Button>
         </div>
-        <Button variant="outline" onClick={() => signOut(auth)} className="rounded-full border-primary/20 text-primary hover:bg-primary/5 font-bold"><LogOut className="mr-2 h-4 w-4" /> Secure Sign Out</Button>
+
+        {/* Verification Alert */}
+        {!customer?.isVerified && (
+          <Alert className={cn("mb-8 rounded-[1.5rem] md:rounded-[2rem] border-2 shadow-sm p-6 md:p-8 animate-in zoom-in-95 duration-500", timeLeft ? "border-destructive bg-destructive/5" : "border-primary/20 bg-primary/5")}>
+            {timeLeft ? <Clock className="h-6 w-6 md:h-8 md:w-8 text-destructive shrink-0" /> : <ShieldAlert className="h-6 w-6 md:h-8 md:w-8 text-primary shrink-0" />}
+            <div className="ml-4 md:ml-6 flex-1">
+              <AlertTitle className="text-xl md:text-2xl font-headline font-bold text-secondary mb-1">
+                {timeLeft ? "Verification Restricted" : "Identity Certification Required"}
+              </AlertTitle>
+              <AlertDescription className="text-muted-foreground text-sm md:text-lg leading-relaxed">
+                {timeLeft 
+                  ? `Security lockout active for another ${timeLeft}.` 
+                  : "Certify your identity to complete acquisitions and unlock premium features."}
+              </AlertDescription>
+              {!timeLeft && (
+                <div className="mt-4 md:mt-6">
+                  {showOtpInput ? (
+                    <form onSubmit={handleVerify} className="flex flex-col sm:flex-row gap-3">
+                      <Input 
+                        className="max-w-full sm:max-w-[200px] h-12 rounded-xl text-center text-2xl font-black tracking-widest border-primary/40" 
+                        placeholder="123456" 
+                        value={otp} 
+                        onChange={(e) => setOtp(e.target.value)} 
+                      />
+                      <div className="flex gap-2">
+                        <Button className="flex-1 h-12 rounded-xl bg-primary text-white px-6 font-bold" disabled={verifying}>
+                          {verifying ? <Loader2 className="animate-spin" /> : "Confirm"}
+                        </Button>
+                        <Button type="button" variant="ghost" className="h-12 rounded-xl" onClick={() => setShowOtpInput(false)}>Cancel</Button>
+                      </div>
+                    </form>
+                  ) : (
+                    <Button onClick={handleResend} className="bg-primary text-white h-12 rounded-xl px-8 font-bold shadow-lg gap-2 w-full sm:w-auto">
+                      <PhoneIncoming className="h-4 w-4" />
+                      Verify Now
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+          </Alert>
+        )}
+
+        {/* Dynamic Desktop Tabs List */}
+        <div className="hidden md:block">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="bg-white/50 border rounded-full p-1.5 mb-10 h-16 w-full shadow-sm">
+              <TabsTrigger value="overview" className="flex-1 rounded-full text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-white">Overview</TabsTrigger>
+              <TabsTrigger value="orders" className="flex-1 rounded-full text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-white">Acquisitions</TabsTrigger>
+              <TabsTrigger value="profile" className="flex-1 rounded-full text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-white">Identity Details</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+
+        {/* Tab Content Area */}
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+          {activeTab === 'overview' && (
+            <Card className="rounded-[2rem] md:rounded-[2.5rem] shadow-xl border-none artisan-pattern p-6 md:p-10 relative overflow-hidden">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 md:gap-8 mb-8 md:mb-10 relative z-10">
+                <Avatar className="h-24 w-20 md:h-28 md:w-24 rounded-2xl md:rounded-3xl border-4 border-white shadow-2xl">
+                  <AvatarFallback className="text-3xl md:text-4xl font-bold bg-primary text-white">{(user.displayName || 'A')[0]}</AvatarFallback>
+                </Avatar>
+                <div className="space-y-1">
+                  <h2 className="text-3xl md:text-4xl font-headline font-bold text-secondary leading-tight">{user.displayName || 'Artisan Collector'}</h2>
+                  <p className="text-muted-foreground flex items-center justify-center sm:justify-start gap-2 text-sm md:text-base">
+                    <AtSign className="h-4 w-4 text-primary" /> {user.email}
+                  </p>
+                  {customer?.isVerified && (
+                    <Badge className="bg-green-100 text-green-700 mt-2 border-none rounded-full px-3 py-1 text-[10px] font-bold uppercase">
+                      <CheckCircle2 className="h-3 w-3 mr-1" /> Certified Identity
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 relative z-10">
+                {[
+                  { label: 'Member Since', value: 'May 2024' },
+                  { label: 'Total Acquisitions', value: `${orders?.length || 0} items` },
+                  { label: 'Platform Role', value: customer?.role || 'User', capitalize: true }
+                ].map((stat, i) => (
+                  <div key={i} className="bg-white/80 backdrop-blur-sm p-5 md:p-6 rounded-2xl md:rounded-3xl border shadow-sm flex flex-col items-center sm:items-start">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1 md:mb-2">{stat.label}</p>
+                    <p className={cn("text-lg md:text-xl font-bold text-secondary", stat.capitalize && "capitalize")}>{stat.value}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {activeTab === 'orders' && (
+            <Card className="rounded-[2rem] md:rounded-[2.5rem] shadow-xl border-none overflow-hidden bg-white/60 backdrop-blur-xl">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader className="bg-muted/30">
+                    <TableRow>
+                      <TableHead className="px-6 md:px-10 py-6 font-bold text-secondary">Acquisition ID</TableHead>
+                      <TableHead className="font-bold text-secondary">Investment</TableHead>
+                      <TableHead className="font-bold text-secondary">Status</TableHead>
+                      <TableHead className="text-right px-6 md:px-10 font-bold text-secondary">Details</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {orders?.map(o => (
+                      <TableRow key={o.id} className="hover:bg-primary/5 transition-colors border-b last:border-0">
+                        <TableCell className="px-6 md:px-10 py-6 md:py-8">
+                          <div className="flex flex-col">
+                            <span className="font-black text-primary font-code text-xs md:text-sm">{o.id}</span>
+                            <span className="text-[10px] text-muted-foreground mt-1">{new Date(o.date).toLocaleDateString()}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-black text-secondary text-sm md:text-base">${o.totalAmount.toFixed(2)}</TableCell>
+                        <TableCell>
+                          <Badge className={cn(
+                            "rounded-full px-3 py-0.5 text-[9px] md:text-[10px] font-black uppercase tracking-widest border-none",
+                            o.status === 'Delivered' ? "bg-green-100 text-green-700" : 
+                            o.status === 'Cancelled' ? "bg-destructive/10 text-destructive" : "bg-blue-100 text-blue-700"
+                          )}>
+                            {o.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right px-6 md:px-10">
+                          <Button variant="ghost" size="sm" className="rounded-xl text-primary font-bold hover:bg-primary hover:text-white">View</Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {(!orders || orders.length === 0) && (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center py-24">
+                          <ShoppingBag className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground/20 mx-auto mb-4" />
+                          <p className="text-lg md:text-xl font-headline font-bold text-muted-foreground">Your collection is empty.</p>
+                          <Link href="/shop" className="text-primary font-bold hover:underline mt-2 inline-block">Explore the Marketplace</Link>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </Card>
+          )}
+
+          {activeTab === 'profile' && (
+            <Card className="rounded-[2rem] md:rounded-[2.5rem] shadow-xl border-none p-6 md:p-10 bg-white/60 backdrop-blur-xl">
+              <form onSubmit={handleSaveProfile} className="space-y-6 md:space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-wider opacity-60">First Name</Label>
+                    <Input value={profileData.firstName} onChange={e => setProfileData({...profileData, firstName: e.target.value})} className="h-12 rounded-xl" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-wider opacity-60">Last Name</Label>
+                    <Input value={profileData.lastName} onChange={e => setProfileData({...profileData, lastName: e.target.value})} className="h-12 rounded-xl" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-wider opacity-60 flex items-center gap-1"><AtSign className="h-3 w-3" /> Unique @Username</Label>
+                    <Input value={profileData.username} onChange={e => setProfileData({...profileData, username: e.target.value})} className="h-12 rounded-xl" placeholder="artisan_collector" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-wider opacity-60 flex items-center gap-1"><UserIcon className="h-3 w-3" /> Contact Phone</Label>
+                    <Input value={profileData.phoneNumber} onChange={e => setProfileData({...profileData, phoneNumber: e.target.value})} className="h-12 rounded-xl" />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-wider opacity-60 flex items-center gap-1"><MapPin className="h-3 w-3" /> Primary Delivery Address</Label>
+                    <Textarea value={profileData.address} onChange={e => setProfileData({...profileData, address: e.target.value})} className="min-h-[100px] rounded-[1.2rem] md:rounded-[1.5rem]" placeholder="Full shipping coordinates..." />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-wider opacity-60">Identity Bio</Label>
+                    <Textarea value={profileData.bio} onChange={e => setProfileData({...profileData, bio: e.target.value})} className="min-h-[100px] rounded-[1.2rem] md:rounded-[1.5rem]" placeholder="Tell us about your love for handcrafted treasures..." />
+                  </div>
+                </div>
+                <Button type="submit" className="w-full bg-secondary text-white h-14 rounded-2xl font-bold text-lg shadow-xl hover:scale-[1.01] transition-all" disabled={savingProfile}>
+                  {savingProfile ? <Loader2 className="animate-spin" /> : <><Save className="mr-2 h-5 w-5" /> Save Heritage Identity</>}
+                </Button>
+              </form>
+            </Card>
+          )}
+        </div>
       </div>
 
-      {!customer?.isVerified && (
-        <Alert className={cn("mb-8 rounded-[2rem] border-2 shadow-sm p-8", timeLeft ? "border-destructive bg-destructive/5" : "border-primary/20 bg-primary/5")}>
-          {timeLeft ? <Clock className="h-8 w-8 text-destructive" /> : <ShieldAlert className="h-8 w-8 text-primary" />}
-          <div className="ml-6 flex-1">
-            <AlertTitle className="text-2xl font-headline font-bold text-secondary mb-2">{timeLeft ? "Verification Restricted" : "Identity Certification Required"}</AlertTitle>
-            <AlertDescription className="text-muted-foreground text-lg leading-relaxed">
-              {timeLeft 
-                ? `You have reached the maximum number of attempts. Security lockout active for another ${timeLeft}.` 
-                : "To complete acquisitions and unlock premium features, please certify your heritage identity."}
-            </AlertDescription>
-            {!timeLeft && (
-              <div className="mt-6">
-                {showOtpInput ? (
-                  <form onSubmit={handleVerify} className="flex gap-4">
-                    <Input 
-                      className="max-w-[200px] h-12 rounded-xl text-center text-2xl font-black tracking-widest border-primary/40" 
-                      placeholder="123456" 
-                      value={otp} 
-                      onChange={(e) => setOtp(e.target.value)} 
-                    />
-                    <Button className="h-12 rounded-xl bg-primary text-white px-8 font-bold" disabled={verifying}>
-                      {verifying ? <Loader2 className="animate-spin" /> : "Confirm Code"}
-                    </Button>
-                    <Button type="button" variant="ghost" className="h-12 rounded-xl" onClick={() => setShowOtpInput(false)}>Cancel</Button>
-                  </form>
-                ) : (
-                  <Button onClick={handleResend} className="bg-primary text-white h-12 rounded-xl px-10 font-bold shadow-lg gap-2">
-                    <PhoneIncoming className="h-4 w-4" />
-                    Send Verification Code
-                  </Button>
+      {/* Persistent Mobile Floating Navigation Bar (FAB style) */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm md:hidden z-50">
+        <div className="bg-secondary/90 backdrop-blur-2xl border border-white/20 rounded-full h-16 shadow-2xl flex items-center justify-around px-2 relative overflow-hidden">
+          <div className="absolute inset-0 bg-primary/5 pointer-events-none" />
+          
+          {[
+            { id: 'overview', icon: LayoutDashboard, label: 'Overview' },
+            { id: 'orders', icon: Package, label: 'Orders' },
+            { id: 'profile', icon: UserIcon, label: 'Identity' }
+          ].map((nav) => {
+            const isActive = activeTab === nav.id;
+            return (
+              <button
+                key={nav.id}
+                onClick={() => setActiveTab(nav.id)}
+                className={cn(
+                  "relative flex flex-col items-center justify-center gap-1 w-16 h-12 transition-all duration-300",
+                  isActive ? "text-primary scale-110" : "text-white/60 hover:text-white"
                 )}
-              </div>
-            )}
-          </div>
-        </Alert>
-      )}
-
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="bg-white/50 border rounded-full p-1.5 mb-10 h-16 w-full shadow-sm">
-          <TabsTrigger value="overview" className="flex-1 rounded-full text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-white">Overview</TabsTrigger>
-          <TabsTrigger value="orders" className="flex-1 rounded-full text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-white">Order History</TabsTrigger>
-          <TabsTrigger value="profile" className="flex-1 rounded-full text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-white">Identity Details</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview">
-          <Card className="rounded-[2.5rem] shadow-xl border-none artisan-pattern p-10 relative overflow-hidden">
-            <div className="flex items-center gap-8 mb-10 relative z-10">
-              <Avatar className="h-28 w-24 rounded-3xl border-4 border-white shadow-2xl">
-                <AvatarFallback className="text-4xl font-bold bg-primary text-white">{(user.displayName || 'A')[0]}</AvatarFallback>
-              </Avatar>
-              <div className="space-y-1">
-                <h2 className="text-4xl font-headline font-bold text-secondary leading-none">{user.displayName || 'Artisan Collector'}</h2>
-                <p className="text-muted-foreground flex items-center gap-2"><AtSign className="h-4 w-4 text-primary" /> {user.email}</p>
-                {customer?.isVerified && <Badge className="bg-green-100 text-green-700 mt-2 border-none">Certified Identity</Badge>}
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-              <div className="bg-white/80 backdrop-blur-sm p-6 rounded-3xl border shadow-sm">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-2">Member Since</p>
-                <p className="text-xl font-bold text-secondary">May 2024</p>
-              </div>
-              <div className="bg-white/80 backdrop-blur-sm p-6 rounded-3xl border shadow-sm">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-2">Total Acquisitions</p>
-                <p className="text-xl font-bold text-secondary">{orders?.length || 0} items</p>
-              </div>
-              <div className="bg-white/80 backdrop-blur-sm p-6 rounded-3xl border shadow-sm">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-2">Platform Role</p>
-                <p className="text-xl font-bold text-secondary capitalize">{customer?.role || 'User'}</p>
-              </div>
-            </div>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="orders">
-          <Card className="rounded-[2.5rem] shadow-xl border-none overflow-hidden bg-white/60 backdrop-blur-xl">
-            <Table>
-              <TableHeader className="bg-muted/30">
-                <TableRow>
-                  <TableHead className="px-10 py-6 font-bold text-secondary">Acquisition ID</TableHead>
-                  <TableHead className="font-bold text-secondary">Date</TableHead>
-                  <TableHead className="font-bold text-secondary">Investment</TableHead>
-                  <TableHead className="font-bold text-secondary">Status</TableHead>
-                  <TableHead className="text-right px-10 font-bold text-secondary">Details</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {orders?.map(o => (
-                  <TableRow key={o.id} className="hover:bg-primary/5 transition-colors border-b last:border-0">
-                    <TableCell className="px-10 py-8 font-black text-primary font-code text-sm">{o.id}</TableCell>
-                    <TableCell className="text-muted-foreground font-medium">{new Date(o.date).toLocaleDateString()}</TableCell>
-                    <TableCell className="font-black text-secondary">${o.totalAmount.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Badge className={cn(
-                        "rounded-full px-4 py-1 text-[10px] font-black uppercase tracking-widest border-none",
-                        o.status === 'Delivered' ? "bg-green-100 text-green-700" : 
-                        o.status === 'Cancelled' ? "bg-destructive/10 text-destructive" : "bg-blue-100 text-blue-700"
-                      )}>
-                        {o.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right px-10">
-                      <Button variant="ghost" size="sm" className="rounded-xl text-primary font-bold hover:bg-primary hover:text-white">View</Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {(!orders || orders.length === 0) && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-24">
-                      <ShoppingBag className="h-16 w-16 text-muted-foreground/20 mx-auto mb-4" />
-                      <p className="text-xl font-headline font-bold text-muted-foreground">Your collection is empty.</p>
-                      <Link href="/shop" className="text-primary font-bold hover:underline mt-2 inline-block">Explore the Marketplace</Link>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="profile">
-          <Card className="rounded-[2.5rem] shadow-xl border-none p-10 bg-white/60 backdrop-blur-xl">
-            <form onSubmit={handleSaveProfile} className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-2">
-                  <Label className="text-xs font-bold uppercase tracking-wider opacity-60">First Name</Label>
-                  <Input value={profileData.firstName} onChange={e => setProfileData({...profileData, firstName: e.target.value})} className="h-12 rounded-xl" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs font-bold uppercase tracking-wider opacity-60">Last Name</Label>
-                  <Input value={profileData.lastName} onChange={e => setProfileData({...profileData, lastName: e.target.value})} className="h-12 rounded-xl" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs font-bold uppercase tracking-wider opacity-60 flex items-center gap-1"><AtSign className="h-3 w-3" /> Unique @Username</Label>
-                  <Input value={profileData.username} onChange={e => setProfileData({...profileData, username: e.target.value})} className="h-12 rounded-xl" placeholder="artisan_collector" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs font-bold uppercase tracking-wider opacity-60 flex items-center gap-1"><UserIcon className="h-3 w-3" /> Contact Phone</Label>
-                  <Input value={profileData.phoneNumber} onChange={e => setProfileData({...profileData, phoneNumber: e.target.value})} className="h-12 rounded-xl" />
-                </div>
-                <div className="md:col-span-2 space-y-2">
-                  <Label className="text-xs font-bold uppercase tracking-wider opacity-60 flex items-center gap-1"><MapPin className="h-3 w-3" /> Primary Delivery Address</Label>
-                  <Textarea value={profileData.address} onChange={e => setProfileData({...profileData, address: e.target.value})} className="min-h-[120px] rounded-[1.5rem]" placeholder="Full shipping coordinates..." />
-                </div>
-                <div className="md:col-span-2 space-y-2">
-                  <Label className="text-xs font-bold uppercase tracking-wider opacity-60">Identity Bio</Label>
-                  <Textarea value={profileData.bio} onChange={e => setProfileData({...profileData, bio: e.target.value})} className="min-h-[100px] rounded-[1.5rem]" placeholder="Tell us about your love for handcrafted treasures..." />
-                </div>
-              </div>
-              <Button type="submit" className="w-full bg-secondary text-white h-14 rounded-2xl font-bold text-lg shadow-xl hover:scale-[1.01] transition-all" disabled={savingProfile}>
-                {savingProfile ? <Loader2 className="animate-spin" /> : <><Save className="mr-2 h-5 w-5" /> Save Heritage Identity</>}
-              </Button>
-            </form>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              >
+                <nav.icon className={cn("h-5 w-5 transition-all", isActive && "drop-shadow-[0_0_8px_rgba(224,124,84,0.6)]")} />
+                <span className="text-[9px] font-bold uppercase tracking-tighter">{nav.label}</span>
+                {isActive && <div className="absolute -bottom-2 w-1 h-1 bg-primary rounded-full animate-pulse" />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
