@@ -57,7 +57,7 @@ service cloud.firestore {
       // Allow admins to create/manage any customer record (essential for seeding)
       allow create: if isAdmin() || isOwner(userId);
       // Only platform owners or the account owner can update profiles
-      allow update: if isPlatformOwner() || (isOwner(userId) && request.resource.data.role == resource.data.role);
+      allow update: if isPlatformOwner() || (isOwner(userId) && (request.resource.data.role == resource.data.role || isPlatformOwner()));
     }
 
     match /user_preferences/{userId} {
@@ -75,8 +75,9 @@ service cloud.firestore {
     }
 
     match /orders/{orderId} {
-      allow get: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin());
-      allow list: if isAdmin();
+      // Allow users to see their own orders, and admins to see everything
+      allow get: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow list: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
       allow write: if isAdmin();
     }
 
