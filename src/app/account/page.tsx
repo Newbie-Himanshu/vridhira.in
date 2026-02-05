@@ -22,7 +22,7 @@ import {
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -37,6 +37,8 @@ export default function AccountPage() {
 
   const [activeTab, setActiveTab] = useState('overview');
   const [isNavExpanded, setIsNavExpanded] = useState(false);
+  const fabRef = useRef<HTMLDivElement>(null);
+  
   const [otp, setOtp] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [showOtpInput, setShowOtpInput] = useState(false);
@@ -64,6 +66,26 @@ export default function AccountPage() {
 
   const { data: customer, isLoading: isCustomerLoading } = useDoc<Customer>(customerRef);
   const { data: orders, isLoading: isOrdersLoading } = useCollection<Order>(ordersQuery);
+
+  // Auto-close FAB on scroll or tap outside
+  useEffect(() => {
+    if (!isNavExpanded) return;
+
+    const handleScroll = () => setIsNavExpanded(false);
+    const handleClickOutside = (e: MouseEvent) => {
+      if (fabRef.current && !fabRef.current.contains(e.target as Node)) {
+        setIsNavExpanded(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isNavExpanded]);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -345,18 +367,24 @@ export default function AccountPage() {
         </div>
       </div>
 
-      {/* Liquid Glass Mobile Floating Navigation (Right-side Expanding FAB) */}
-      <div className="fixed bottom-10 right-6 md:hidden z-50">
+      {/* Liquid Glass Mobile Floating Navigation (Auto-centering Expanding FAB) */}
+      <div 
+        ref={fabRef}
+        className={cn(
+          "fixed bottom-10 z-50 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] md:hidden",
+          isNavExpanded ? "left-1/2 -translate-x-1/2 w-[260px]" : "right-6 w-16 translate-x-0"
+        )}
+      >
         <div 
           className={cn(
-            "bg-secondary/70 backdrop-blur-xl border border-white/10 rounded-full h-16 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] flex items-center transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] relative overflow-hidden",
-            isNavExpanded ? "w-[280px]" : "w-16"
+            "bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full h-16 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] flex items-center transition-all duration-500 relative overflow-hidden",
+            isNavExpanded ? "w-full" : "w-16"
           )}
         >
           {/* Expandable Nav Content */}
           <div className={cn(
-            "flex items-center justify-around w-full h-full px-2 transition-all duration-500 delay-100",
-            isNavExpanded ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10 pointer-events-none"
+            "flex items-center justify-around w-full h-full px-4 transition-all duration-500",
+            isNavExpanded ? "opacity-100 scale-100" : "opacity-0 scale-90 pointer-events-none"
           )}>
             {[
               { id: 'overview', icon: LayoutDashboard, label: 'Stats' },
@@ -372,8 +400,8 @@ export default function AccountPage() {
                     setIsNavExpanded(false);
                   }}
                   className={cn(
-                    "flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-300",
-                    isActive ? "text-primary scale-110" : "text-white/60 hover:text-white"
+                    "flex flex-col items-center justify-center gap-1 transition-all duration-300",
+                    isActive ? "text-primary scale-110" : "text-secondary/60 hover:text-secondary"
                   )}
                 >
                   <nav.icon className="h-5 w-5" />
@@ -381,22 +409,14 @@ export default function AccountPage() {
                 </button>
               );
             })}
-            
-            {/* Close trigger */}
-            <button 
-              onClick={(e) => { e.stopPropagation(); setIsNavExpanded(false); }}
-              className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/80 hover:bg-white/10 transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
           </div>
 
-          {/* Collapsed FAB Trigger (Vanishes when expanded) */}
+          {/* Trigger Button (Vanishes when expanded) */}
           <button 
             onClick={() => setIsNavExpanded(true)}
             className={cn(
-              "absolute inset-0 w-full h-full flex items-center justify-center bg-primary text-white transition-all duration-500 shadow-lg",
-              isNavExpanded ? "opacity-0 scale-50 pointer-events-none translate-y-4" : "opacity-100 scale-100"
+              "absolute inset-0 w-full h-full flex items-center justify-center bg-white/10 backdrop-blur-xl text-secondary transition-all duration-500 shadow-lg",
+              isNavExpanded ? "opacity-0 scale-50 pointer-events-none" : "opacity-100 scale-100"
             )}
           >
             {activeTab === 'overview' && <LayoutDashboard className="h-6 w-6" />}
