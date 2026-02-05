@@ -392,7 +392,7 @@ export default function AccountPage() {
               { id: 'overview', icon: LayoutDashboard, label: 'Stats' },
               { id: 'orders', icon: Package, label: 'Orders' },
               { id: 'profile', icon: UserIcon, label: 'Identity' },
-              { id: 'signout', icon: LogOut, label: 'Exit', action: () => signOut(auth) }
+              { id: 'signout', icon: LogOut, label: 'Sign Out', action: () => signOut(auth) }
             ].map((nav) => {
               const isActive = activeTab === nav.id;
               return (
