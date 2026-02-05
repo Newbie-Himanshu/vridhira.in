@@ -14,26 +14,32 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    // Special Admin: hk8913114@gmail.com / UID: my0UCiI0eCTUCVNSIHx9STUFOt62
     function isSpecialAdmin() {
-      // Grant absolute authority to the developer/owner account
-      // We check both email and UID to ensure access even if email verification is pending
       return isSignedIn() && (
         request.auth.uid == 'my0UCiI0eCTUCVNSIHx9STUFOt62' ||
-        request.auth.token.email == 'hk8913114@gmail.com'
+        (request.auth.token.keys().contains('email') && request.auth.token.email == 'hk8913114@gmail.com')
       );
     }
 
-    function getRole() {
-      let path = /databases/$(database)/documents/customers/$(request.auth.uid);
-      return exists(path) ? get(path).data.role : 'user';
-    }
-
     function isAdmin() {
-      return isSignedIn() && (isSpecialAdmin() || getRole() == 'store admin' || getRole() == 'owner');
+      if (!isSignedIn()) { return false; }
+      if (isSpecialAdmin()) { return true; }
+      let path = /databases/$(database)/documents/customers/$(request.auth.uid);
+      return exists(path) && (get(path).data.role == 'store admin' || get(path).data.role == 'owner');
     }
 
     function isPlatformOwner() {
-      return isSignedIn() && (isSpecialAdmin() || getRole() == 'owner');
+      if (!isSignedIn()) { return false; }
+      if (isSpecialAdmin()) { return true; }
+      let path = /databases/$(database)/documents/customers/$(request.auth.uid);
+      return exists(path) && get(path).data.role == 'owner';
+    }
+
+    // Global check for banned users
+    function isNotBanned() {
+      let path = /databases/$(database)/documents/customers/$(request.auth.uid);
+      return !exists(path) || !('banUntil' in get(path).data) || get(path).data.banUntil == null || timestamp.now() > timestamp(get(path).data.banUntil);
     }
 
     // --- Global Admin Override ---
@@ -47,21 +53,20 @@ service cloud.firestore {
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) || isAdmin();
+      allow update: if (isOwner(userId) || isAdmin()) && isNotBanned();
     }
 
     match /customers/{userId} {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
-      // Allow admins to create/manage any customer record (essential for seeding)
-      allow create: if isAdmin() || isOwner(userId);
-      // Only platform owners or the account owner can update profiles
-      allow update: if isPlatformOwner() || (isOwner(userId) && (request.resource.data.role == resource.data.role || isPlatformOwner()));
+      allow create: if isOwner(userId) || isAdmin();
+      allow update: if (isAdmin() || isOwner(userId)) && isNotBanned();
     }
 
     match /user_preferences/{userId} {
-      allow read, write: if isOwner(userId) || isAdmin();
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if (isOwner(userId) || isAdmin()) && isNotBanned();
     }
 
     match /page_customizations/{document} {
@@ -77,12 +82,15 @@ service cloud.firestore {
     match /orders/{orderId} {
       // Allow users to see their own orders, and admins to see everything
       allow get: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      // For list, we need to allow if it's an admin OR if the query is properly filtered
       allow list: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
-      allow write: if isAdmin();
+      allow create: if isSignedIn() && isNotBanned();
+      allow update, delete: if isAdmin();
     }
 
     match /carts/{userId} {
-      allow read, write: if isOwner(userId) || isAdmin();
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if (isOwner(userId) || isAdmin()) && isNotBanned();
     }
 
     match /platform_settings/{document} {

@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Dialog, 
   DialogContent, 
@@ -74,7 +75,8 @@ export default function AdminManagementPage() {
   const customersQuery = useMemoFirebase(() => collection(db, 'customers'), [db]);
   const { data: allUsers, isLoading } = useCollection<Customer>(customersQuery);
 
-  const isOwner = currentCustomer?.role === 'owner';
+  // Owners and Special Admins have full access
+  const isOwner = currentCustomer?.role === 'owner' || user?.email === 'hk8913114@gmail.com';
 
   const filteredUsers = useMemo(() => {
     if (!allUsers) return [];
@@ -99,6 +101,15 @@ export default function AdminManagementPage() {
     toast({ title: "User Updated", description: "The changes have been applied to the account." });
   };
 
+  const handleSaveEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingUser?.id) {
+      handleUpdateUser(editingUser.id, editingUser);
+      setIsEditDialogOpen(false);
+      setEditingUser(null);
+    }
+  };
+
   const toggleBan = (targetUser: Customer) => {
     const isBanned = !!targetUser.banUntil && new Date(targetUser.banUntil) > new Date();
     if (isBanned) {
@@ -112,85 +123,144 @@ export default function AdminManagementPage() {
 
   const handleExportCSV = () => {
     if (!allUsers || allUsers.length === 0) return;
-    const headers = ['id', 'email', 'firstName', 'lastName', 'role', 'isVerified'];
-    const csv = [headers.join(','), ...allUsers.map(u => [u.id, u.email, u.firstName, u.lastName, u.role, u.isVerified].join(','))].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const headers = ['id', 'email', 'firstName', 'lastName', 'username', 'role', 'isVerified', 'address', 'phoneNumber'];
+    const csvRows = [headers.join(',')];
+    
+    allUsers.forEach(u => {
+      const values = [
+        u.id,
+        u.email,
+        u.firstName,
+        u.lastName,
+        u.username || '',
+        u.role,
+        u.isVerified || false,
+        `"${(u.address || '').replace(/"/g, '""')}"`,
+        u.phoneNumber || ''
+      ];
+      csvRows.push(values.join(','));
+    });
+
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'vridhira-users.csv';
-    a.click();
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `vridhira-users-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (isLoading) return <div className="p-20 flex justify-center"><Loader2 className="animate-spin text-primary" /></div>;
 
   return (
     <div className="p-8 space-y-8">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-3xl font-headline font-bold text-secondary">User Command Center</h1>
-          <p className="text-muted-foreground">Manage marketplace identity and access levels.</p>
+          <p className="text-muted-foreground">Manage marketplace identity, roles, and administrative access.</p>
         </div>
-        <Button variant="outline" className="rounded-full gap-2" onClick={handleExportCSV}>
-          <Download className="h-4 w-4" /> Export Ledger
+        <Button variant="outline" className="rounded-full gap-2 border-primary/20 text-primary hover:bg-primary/5" onClick={handleExportCSV}>
+          <Download className="h-4 w-4" /> Export Ledger (CSV)
         </Button>
       </div>
 
-      <div className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Search users..." className="flex-1 border-none shadow-none" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
-        <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger className="w-48 rounded-xl"><SelectValue placeholder="All Roles" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="user">User</SelectItem>
-            <SelectItem value="store admin">Store Admin</SelectItem>
-            <SelectItem value="owner">Owner</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 bg-white p-4 rounded-3xl shadow-sm border">
+        <div className="md:col-span-7 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input 
+            placeholder="Search by name, email, or username..." 
+            className="pl-10 h-12 rounded-2xl border-none shadow-none focus-visible:ring-1" 
+            value={searchQuery} 
+            onChange={e => setSearchQuery(e.target.value)} 
+          />
+        </div>
+        <div className="md:col-span-5 flex gap-2">
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="h-12 rounded-2xl bg-muted/30 border-none"><SelectValue placeholder="Filter by Role" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="user">Verified Users</SelectItem>
+              <SelectItem value="store admin">Store Admins</SelectItem>
+              <SelectItem value="owner">Platform Owners</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="flex items-center px-4 bg-primary/5 rounded-2xl border border-primary/10">
+            <span className="text-xs font-bold text-primary uppercase tracking-tighter whitespace-nowrap">{filteredUsers.length} total</span>
+          </div>
+        </div>
       </div>
 
-      <Card className="border-none shadow-sm rounded-3xl overflow-hidden">
+      <Card className="border-none shadow-xl rounded-[2.5rem] overflow-hidden">
         <Table>
-          <TableHeader className="bg-muted/30">
-            <TableRow>
-              <TableHead className="px-8">Member</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right px-8">Actions</TableHead>
+          <TableHeader>
+            <TableRow className="bg-muted/30 hover:bg-muted/30">
+              <TableHead className="px-8 h-14 font-bold">Member Details</TableHead>
+              <TableHead className="h-14 font-bold">Access Role</TableHead>
+              <TableHead className="h-14 font-bold">Identity Status</TableHead>
+              <TableHead className="h-14 font-bold">Primary Address</TableHead>
+              <TableHead className="text-right px-8 h-14 font-bold">Control</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredUsers.map((u) => {
               const isBanned = u.banUntil && new Date(u.banUntil) > new Date();
               return (
-                <TableRow key={u.id} className="hover:bg-muted/5">
-                  <TableCell className="px-8 py-5">
+                <TableRow key={u.id} className="hover:bg-muted/5 transition-colors border-b last:border-0">
+                  <TableCell className="px-8 py-6">
                     <div className="flex flex-col">
-                      <span className="font-bold text-secondary">{u.firstName} {u.lastName}</span>
-                      <span className="text-xs text-muted-foreground">{u.email}</span>
+                      <span className="font-bold text-secondary text-lg">{u.firstName} {u.lastName}</span>
+                      <span className="text-xs text-muted-foreground flex items-center gap-1"><Mail className="h-3 w-3" /> {u.email}</span>
+                      {u.username && <span className="text-[10px] text-primary font-bold uppercase tracking-widest mt-1">@{u.username}</span>}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={u.role === 'owner' ? "bg-secondary text-white" : "bg-muted text-muted-foreground"}>
-                      {u.role}
-                    </Badge>
+                    <Select defaultValue={u.role} onValueChange={(val) => handleUpdateUser(u.id, { role: val as UserRole })}>
+                      <SelectTrigger className="w-36 h-9 rounded-xl text-xs font-bold border-none bg-muted/50">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="store admin">Store Admin</SelectItem>
+                        <SelectItem value="owner">Owner</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </TableCell>
                   <TableCell>
-                    {isBanned ? <Badge variant="destructive">Banned</Badge> : 
-                     u.isVerified ? <Badge className="bg-green-100 text-green-700">Verified</Badge> : 
-                     <Badge variant="outline">Unverified</Badge>}
+                    <div className="flex flex-col gap-1">
+                      {isBanned ? (
+                        <Badge variant="destructive" className="w-fit gap-1"><ShieldAlert className="h-3 w-3" /> Banned</Badge>
+                      ) : u.isVerified ? (
+                        <Badge className="bg-green-100 text-green-700 w-fit border-none gap-1"><CheckCircle2 className="h-3 w-3" /> Verified</Badge>
+                      ) : (
+                        <Badge variant="outline" className="w-fit text-muted-foreground gap-1"><ShieldHalf className="h-3 w-3" /> Pending</Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="max-w-[200px]">
+                    <p className="text-xs text-muted-foreground line-clamp-2 italic">{u.address || 'No address on file.'}</p>
                   </TableCell>
                   <TableCell className="text-right px-8">
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="rounded-2xl w-56">
-                        <DropdownMenuItem className="gap-2" onClick={() => handleUpdateUser(u.id, { isVerified: !u.isVerified })}>
-                          <CheckCircle2 className="h-4 w-4" /> {u.isVerified ? 'Revoke Verify' : 'Certify Identity'}
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/10 hover:text-primary"><MoreVertical className="h-4 w-4" /></Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="rounded-2xl w-64 p-2 shadow-2xl border-none">
+                        <DropdownMenuLabel className="font-headline text-lg px-3">Identity Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="rounded-xl cursor-pointer py-2 px-3 gap-2" onClick={() => { setEditingUser(u); setIsEditDialogOpen(true); }}>
+                          <Edit2 className="h-4 w-4" /> Edit Full Profile
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="rounded-xl cursor-pointer py-2 px-3 gap-2" onClick={() => handleUpdateUser(u.id, { isVerified: !u.isVerified })}>
+                          <ShieldCheck className="h-4 w-4" /> {u.isVerified ? 'Revoke Certification' : 'Certify Identity'}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className={cn("gap-2", isBanned ? "text-green-600" : "text-destructive")} onClick={() => toggleBan(u)}>
-                          <Ban className="h-4 w-4" /> {isBanned ? 'Unban Account' : 'Ban Account'}
+                        <DropdownMenuItem 
+                          className={cn("rounded-xl cursor-pointer py-2 px-3 gap-2 font-bold", isBanned ? "text-green-600" : "text-destructive")} 
+                          onClick={() => toggleBan(u)}
+                        >
+                          <Ban className="h-4 w-4" /> {isBanned ? 'Unban Account' : 'Restrict (Ban) User'}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -198,9 +268,50 @@ export default function AdminManagementPage() {
                 </TableRow>
               );
             })}
+            {filteredUsers.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-24 text-muted-foreground italic">
+                  <UserIcon className="h-12 w-12 mx-auto opacity-10 mb-4" />
+                  No users found matching your search criteria.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </Card>
+
+      {/* Full Profile Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="rounded-[2.5rem] max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-headline text-2xl">Edit User Profile</DialogTitle>
+            <DialogDescription>Modify core identity and delivery data for this member.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSaveEdit} className="space-y-6 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2"><Label>First Name</Label><Input value={editingUser?.firstName || ''} onChange={e => setEditingUser({...editingUser!, firstName: e.target.value})} /></div>
+              <div className="space-y-2"><Label>Last Name</Label><Input value={editingUser?.lastName || ''} onChange={e => setEditingUser({...editingUser!, lastName: e.target.value})} /></div>
+              <div className="space-y-2 col-span-2"><Label>Email Address</Label><Input value={editingUser?.email || ''} onChange={e => setEditingUser({...editingUser!, email: e.target.value})} /></div>
+              <div className="space-y-2 col-span-2"><Label>Username</Label><Input value={editingUser?.username || ''} onChange={e => setEditingUser({...editingUser!, username: e.target.value})} placeholder="@heritage_member" /></div>
+              <div className="space-y-2 col-span-2"><Label>Shipping Address</Label><Textarea value={editingUser?.address || ''} onChange={e => setEditingUser({...editingUser!, address: e.target.value})} className="min-h-[100px] rounded-2xl" /></div>
+              <div className="space-y-2"><Label>Phone Number</Label><Input value={editingUser?.phoneNumber || ''} onChange={e => setEditingUser({...editingUser!, phoneNumber: e.target.value})} /></div>
+              <div className="space-y-2"><Label>Role Access</Label>
+                <Select value={editingUser?.role} onValueChange={val => setEditingUser({...editingUser!, role: val as UserRole})}>
+                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">User</SelectItem>
+                    <SelectItem value="store admin">Store Admin</SelectItem>
+                    <SelectItem value="owner">Owner</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit" className="w-full bg-secondary text-white h-12 rounded-2xl">Save Platform Record</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

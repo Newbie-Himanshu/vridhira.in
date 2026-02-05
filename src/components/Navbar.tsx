@@ -3,17 +3,18 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { ShoppingBag, LayoutDashboard, Store, Menu, Home, User, Search, ChevronRight, LogOut, X, Sparkles, ArrowRight, Tag } from 'lucide-react';
+import { ShoppingBag, LayoutDashboard, Store, Menu, Home, User, Search, ChevronRight, LogOut, X, Sparkles, ArrowRight, Tag, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useUser, useDoc, useMemoFirebase, useFirestore, useAuth } from '@/firebase';
-import { doc } from 'firebase/firestore';
-import { Customer, MOCK_PRODUCTS, CATEGORIES } from '@/lib/mock-data';
+import { doc, collection, query, where } from 'firebase/firestore';
+import { Customer, MOCK_PRODUCTS } from '@/lib/mock-data';
 import { signOut } from 'firebase/auth';
 import { getLocalCart, CartItem } from '@/lib/cart-actions';
 import Image from 'next/image';
+import { useCollection } from '@/firebase';
 import {
   Sheet,
   SheetContent,
@@ -62,6 +63,10 @@ export function Navbar() {
     };
   }, []);
 
+  // Fetch dynamic categories
+  const categoriesQuery = useMemoFirebase(() => query(collection(db, 'categories'), where('isActive', '==', true)), [db]);
+  const { data: liveCategories } = useCollection<any>(categoriesQuery);
+
   // Handle clicks outside desktop search to close it
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -107,15 +112,15 @@ export function Navbar() {
     ? (cloudCart?.items?.reduce((acc: number, item: any) => acc + item.quantity, 0) || 0)
     : localCart.reduce((acc, item) => acc + item.quantity, 0);
 
-  const isAdmin = customer?.role === 'owner' || customer?.role === 'store admin';
+  const isAdmin = customer?.role === 'owner' || customer?.role === 'store admin' || user?.email === 'hk8913114@gmail.com';
 
   const navLinks = [
     { href: '/', label: 'Home', icon: Home },
-    { href: '/shop', label: 'Shop', icon: Store },
+    { href: '/shop', label: 'Marketplace', icon: Store },
   ];
 
   if (isAdmin) {
-    navLinks.push({ href: '/admin/dashboard', label: 'Admin', icon: LayoutDashboard });
+    navLinks.push({ href: '/admin/dashboard', label: 'Command', icon: LayoutDashboard });
   }
 
   const handleSignOut = async () => {
@@ -136,15 +141,14 @@ export function Navbar() {
   const isLandingPage = pathname === '/';
   const showTransparent = isLandingPage && !isScrolled;
 
-  const textColor = showTransparent ? "text-white" : "text-secondary";
   const logoTextColor = showTransparent ? "text-white" : "text-primary";
   const navUnderline = showTransparent ? "bg-white" : "bg-primary";
 
   const normalizedQuery = searchQuery.toLowerCase().trim();
   const hasMinQuery = normalizedQuery.length > 1;
 
-  const matchedCategories = hasMinQuery
-    ? CATEGORIES.filter(cat => cat.toLowerCase().includes(normalizedQuery))
+  const matchedCategories = hasMinQuery && liveCategories
+    ? liveCategories.filter((cat: any) => cat.name.toLowerCase().includes(normalizedQuery))
     : [];
 
   const suggestions = hasMinQuery
@@ -154,7 +158,6 @@ export function Navbar() {
       ).slice(0, 3)
     : [];
 
-  // Create a smart login URL that redirects back to current page
   const loginUrl = pathname === '/login' ? '/login' : `/login?returnTo=${encodeURIComponent(pathname)}`;
 
   return (
@@ -193,7 +196,7 @@ export function Navbar() {
                   <Input
                     ref={searchInputRef}
                     type="text"
-                    placeholder="Search treasures, categories, origins..."
+                    placeholder="Search treasures, collections, origins..."
                     className={cn(
                       "h-11 w-full rounded-full pl-11 pr-12 border-transparent transition-all duration-500 shadow-lg backdrop-blur-sm",
                       showTransparent 
@@ -221,17 +224,17 @@ export function Navbar() {
                   <div className="absolute top-14 left-0 w-full bg-white/95 backdrop-blur-xl rounded-[2.5rem] border border-border/50 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300 z-50">
                     {matchedCategories.length > 0 && (
                       <div className="p-5 border-b bg-primary/5">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Suggested Collections</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Live Collections</p>
                         <div className="flex flex-wrap gap-2">
-                          {matchedCategories.map((cat) => (
+                          {matchedCategories.map((cat: any) => (
                             <Link 
-                              key={cat} 
-                              href={`/shop?q=${cat}`}
+                              key={cat.id} 
+                              href={`/shop?q=${cat.name}`}
                               onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}
                               className="flex items-center gap-2 px-4 py-2 bg-white border border-primary/10 rounded-full text-xs font-bold text-secondary hover:bg-primary hover:text-white transition-all shadow-sm"
                             >
                               <Tag className="h-3 w-3" />
-                              {cat}
+                              {cat.name}
                             </Link>
                           ))}
                         </div>
@@ -268,7 +271,7 @@ export function Navbar() {
                       className="w-full h-14 rounded-none text-primary font-bold text-xs gap-2 hover:bg-primary/5 border-t"
                       onClick={() => handleSearchSubmit()}
                     >
-                      Explore Complete Collection <ArrowRight className="h-4 w-4" />
+                      Explore Complete Archive <ArrowRight className="h-4 w-4" />
                     </Button>
                   </div>
                 )}
@@ -354,14 +357,22 @@ export function Navbar() {
                         <span className="max-w-[100px] truncate">{user.displayName || 'Account'}</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 bg-white shadow-2xl border-none">
-                      <DropdownMenuLabel className="font-headline text-lg">My Profile</DropdownMenuLabel>
+                    <DropdownMenuContent align="end" className="w-60 rounded-[1.5rem] p-2 bg-white shadow-2xl border-none">
+                      <DropdownMenuLabel className="font-headline text-lg px-3">Collector Profile</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <Link href="/account">
-                        <DropdownMenuItem className="rounded-xl cursor-pointer py-2 px-3 gap-2"><User className="h-4 w-4" /> Account Settings</DropdownMenuItem>
+                        <DropdownMenuItem className="rounded-xl cursor-pointer py-2.5 px-3 gap-2 font-medium">
+                          <User className="h-4 w-4" /> Account Settings
+                        </DropdownMenuItem>
                       </Link>
-                      <DropdownMenuItem className="rounded-xl cursor-pointer py-2 px-3 gap-2 text-destructive" onClick={handleSignOut}>
-                        <LogOut className="h-4 w-4" /> Sign Out
+                      <Link href="/account?tab=orders">
+                        <DropdownMenuItem className="rounded-xl cursor-pointer py-2.5 px-3 gap-2 font-medium">
+                          <Package className="h-4 w-4" /> My Acquisitions
+                        </DropdownMenuItem>
+                      </Link>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="rounded-xl cursor-pointer py-2.5 px-3 gap-2 text-destructive font-bold" onClick={handleSignOut}>
+                        <LogOut className="h-4 w-4" /> Secure Sign Out
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -411,7 +422,7 @@ export function Navbar() {
                   <div className="flex-1 px-8 py-10 space-y-10 overflow-y-auto">
                       <div className="space-y-4">
                           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1">
-                            {isMobileSearchActive ? 'Refine Search' : 'Quick Access'}
+                            {isMobileSearchActive ? 'Refine Search' : 'Registry Navigation'}
                           </p>
                           
                           <div className="relative transition-all duration-500">
@@ -421,7 +432,7 @@ export function Navbar() {
                                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                                   <Input
                                     ref={mobileSearchRef}
-                                    placeholder="Type to find treasures..."
+                                    placeholder="Find handcrafted treasures..."
                                     className="h-16 rounded-2xl border-primary pl-12 bg-white shadow-xl focus:ring-primary"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -440,17 +451,17 @@ export function Navbar() {
                                   <div className="bg-white rounded-3xl border border-border/50 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
                                     {matchedCategories.length > 0 && (
                                       <div className="p-4 border-b bg-primary/5">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Matching Categories</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Live Categories</p>
                                         <div className="flex flex-wrap gap-2">
-                                          {matchedCategories.map((cat) => (
+                                          {matchedCategories.map((cat: any) => (
                                             <Link 
-                                              key={cat} 
-                                              href={`/shop?q=${cat}`}
+                                              key={cat.id} 
+                                              href={`/shop?q=${cat.name}`}
                                               onClick={() => { setIsMobileSearchActive(false); setSearchQuery(''); }}
                                               className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-primary/20 rounded-full text-xs font-bold text-secondary hover:bg-primary hover:text-white transition-all"
                                             >
                                               <Tag className="h-3 w-3" />
-                                              {cat}
+                                              {cat.name}
                                             </Link>
                                           ))}
                                         </div>
@@ -460,7 +471,7 @@ export function Navbar() {
                                     {suggestions.length > 0 && (
                                       <>
                                         <div className="p-4 border-b bg-muted/20">
-                                          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Top Products</p>
+                                          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Top Results</p>
                                         </div>
                                         <div className="divide-y divide-border/30">
                                           {suggestions.map((product) => (
@@ -489,15 +500,8 @@ export function Navbar() {
                                       className="w-full h-12 rounded-none text-primary font-bold text-xs gap-2 hover:bg-primary/5"
                                       onClick={() => handleSearchSubmit()}
                                     >
-                                      View All Results <ArrowRight className="h-3 w-3" />
+                                      View Complete Archive <ArrowRight className="h-3 w-3" />
                                     </Button>
-                                  </div>
-                                )}
-                                
-                                {searchQuery.trim().length > 1 && matchedCategories.length === 0 && suggestions.length === 0 && (
-                                  <div className="bg-white rounded-3xl border border-border/50 shadow-2xl p-8 text-center animate-in zoom-in-95 duration-300">
-                                    <Search className="h-8 w-8 text-muted-foreground/20 mx-auto mb-2" />
-                                    <p className="text-sm text-muted-foreground italic">No matches found for your search.</p>
                                   </div>
                                 )}
                               </div>
@@ -509,12 +513,12 @@ export function Navbar() {
                                     onClick={() => setIsMobileSearchActive(true)}
                                   >
                                       <Search className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                                      <span className="font-bold text-sm">Search</span>
+                                      <span className="font-bold text-sm">Find Pieces</span>
                                   </Button>
                                   <Button variant="outline" className="h-16 rounded-2xl border-muted-foreground/20 gap-3 justify-start px-6 relative group hover:border-primary transition-all" asChild>
                                       <Link href="/cart">
                                           <ShoppingBag className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                                          <span className="font-bold text-sm">View Cart</span>
+                                          <span className="font-bold text-sm">Cart</span>
                                           {cartCount > 0 && (
                                             <span className="absolute top-1/2 -translate-y-1/2 right-6 w-6 h-6 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-bold shadow-sm">
                                               {cartCount}
@@ -543,13 +547,13 @@ export function Navbar() {
                     {user ? (
                       <div className="flex flex-col gap-3">
                         <Link href="/account" className="w-full">
-                          <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold gap-3 shadow-md"><User className="h-5 w-5" />My Account</Button>
+                          <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold gap-3 shadow-md"><User className="h-5 w-5" />Account Settings</Button>
                         </Link>
-                        <Button variant="outline" className="w-full h-12 rounded-xl text-destructive" onClick={handleSignOut}>Sign Out</Button>
+                        <Button variant="outline" className="w-full h-12 rounded-xl text-destructive font-bold" onClick={handleSignOut}>Log Out</Button>
                       </div>
                     ) : (
                       <Link href={loginUrl}>
-                        <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold shadow-lg animate-pulse-glow">Sign In</Button>
+                        <Button className="w-full h-14 rounded-2xl bg-secondary text-secondary-foreground text-lg font-bold shadow-lg animate-pulse-glow">Secure Sign In</Button>
                       </Link>
                     )}
                   </div>
