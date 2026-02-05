@@ -9,15 +9,17 @@ import { updateCartItemQuantityAction, removeCartItemAction, getLocalCart, CartD
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, Loader2, Sparkles, ShieldAlert } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, Loader2, Sparkles, ShieldAlert, LogIn } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function CartPage() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
+  const router = useRouter();
   const [localCart, setLocalCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
@@ -61,12 +63,20 @@ export default function CartPage() {
 
   const subtotal = cartDetailedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   
-  // Use dynamic fee from platform settings (default to 10% if not found)
   const feePercentage = platformSettings?.platformFeePercentage ?? 0.10;
   const platformFee = subtotal * feePercentage;
   const total = subtotal + platformFee;
 
   const isMaintenance = platformSettings?.maintenanceMode === true;
+
+  const handleCheckoutClick = () => {
+    if (!user) {
+      router.push('/login?returnTo=/cart');
+      return;
+    }
+    // Final checkout logic would go here
+    alert("Proceeding to secure payment portal...");
+  };
 
   if (items.length === 0) {
     return (
@@ -100,6 +110,16 @@ export default function CartPage() {
           <AlertTitle className="text-xl font-bold">Marketplace Maintenance</AlertTitle>
           <AlertDescription className="text-lg opacity-90">
             We are currently performing heritage catalog updates. Checkout is temporarily suspended.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {!user && (
+        <Alert className="mb-8 rounded-[2rem] border-primary/20 bg-primary/5 py-6">
+          <LogIn className="h-6 w-6 text-primary" />
+          <AlertTitle className="text-xl font-bold text-secondary">Guest Collection</AlertTitle>
+          <AlertDescription className="text-lg text-muted-foreground">
+            Sign in to synchronize your collection across devices and complete your acquisition.
           </AlertDescription>
         </Alert>
       )}
@@ -203,10 +223,11 @@ export default function CartPage() {
                   </div>
                 </div>
                 <Button 
+                  onClick={handleCheckoutClick}
                   className="w-full h-20 rounded-3xl bg-primary hover:bg-primary/90 text-white font-bold text-xl shadow-2xl animate-pulse-glow shine-effect overflow-hidden border-none"
                   disabled={isMaintenance}
                 >
-                  {isMaintenance ? "Service Locked" : "Complete Purchase"} <ArrowRight className="ml-3 h-6 w-6" />
+                  {isMaintenance ? "Service Locked" : user ? "Complete Purchase" : "Sign In to Checkout"} <ArrowRight className="ml-3 h-6 w-6" />
                 </Button>
               </div>
             </Card>
