@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -440,9 +439,9 @@ export function Navbar() {
                           >
                             <div className="relative w-8 h-8 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
                                 <div className="absolute inset-0 bg-primary rounded-lg animate-artisanal-rotation shadow-lg" />
-                                <span className="relative text-white font-black text-lg">V</span>
+                                <span className="relative text-white font-black text-xl">V</span>
                             </div>
-                            <SheetTitle className="font-headline text-xl text-secondary transition-colors duration-300 group-hover:text-primary m-0">
+                            <SheetTitle className="font-headline text-2xl text-secondary transition-colors duration-300 group-hover:text-primary m-0">
                               Vridhira
                             </SheetTitle>
                           </div>
