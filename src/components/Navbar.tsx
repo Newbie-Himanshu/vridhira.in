@@ -406,9 +406,9 @@ export function Navbar() {
                     <Menu className="h-7 w-7" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-full sm:max-w-md p-0 overflow-hidden border-none flex flex-col">
-                  <SheetHeader className="px-6 pt-16 pb-8 flex items-center justify-center bg-transparent border-none">
-                    <div className="inline-flex items-center gap-4 px-12 md:px-20 py-3.5 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full shadow-2xl transition-all duration-500 hover:bg-white/10 group cursor-pointer w-auto max-w-[90%]">
+                <SheetContent side="right" className="w-full sm:max-w-md p-0 overflow-hidden border-none flex flex-col bg-background/95 backdrop-blur-2xl">
+                  <SheetHeader className="px-6 pt-20 pb-10 flex items-center justify-center bg-transparent border-none shrink-0 relative z-10">
+                    <div className="flex items-center justify-center gap-4 py-3.5 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full shadow-2xl transition-all duration-500 hover:bg-white/10 group cursor-pointer w-[80%] mx-auto">
                       <div className="relative w-10 h-10 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
                           <div className="absolute inset-0 bg-primary rounded-xl animate-artisanal-rotation shadow-lg" />
                           <span className="relative text-white font-black text-xl">V</span>
@@ -418,7 +418,7 @@ export function Navbar() {
                       </SheetTitle>
                     </div>
                   </SheetHeader>
-                  <div className="flex-1 px-6 py-8 space-y-10 overflow-y-auto">
+                  <div className="flex-1 px-6 py-8 space-y-10 overflow-y-auto relative z-0">
                       <div className="space-y-5">
                           <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/60 px-1">
                             {isMobileSearchActive ? 'Refine Search' : 'Registry Navigation'}
@@ -542,7 +542,7 @@ export function Navbar() {
                           </div>
                       </div>
                   </div>
-                  <div className="px-6 py-6 border-t bg-muted/30">
+                  <div className="px-6 py-6 border-t bg-muted/30 relative z-10">
                     {user ? (
                       <div className="flex flex-col gap-3">
                         <Link href="/account" className="w-full">
