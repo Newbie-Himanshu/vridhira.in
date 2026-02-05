@@ -568,25 +568,25 @@ export function Navbar() {
                   </div>
 
                   {/* Glass Base Actions */}
-                  <div className="px-8 py-8 border-t border-white/20 bg-white/20 backdrop-blur-3xl relative z-10 mt-auto">
+                  <div className="px-6 py-6 border-t border-white/10 bg-white/10 backdrop-blur-3xl relative z-10 mt-auto">
                     {user ? (
-                      <div className="flex flex-col gap-4">
-                        <Link href="/account" className="w-full">
-                          <Button className="w-full h-12 rounded-2xl bg-secondary text-secondary-foreground text-sm font-bold gap-3 shadow-2xl hover:scale-[1.01] transition-transform">
-                            <User className="h-5 w-5" />Collector Settings
+                      <div className="flex items-center gap-3 w-full">
+                        <Link href="/account" className="flex-1">
+                          <Button className="w-full h-12 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold gap-2 shadow-xl hover:scale-[1.02] transition-transform">
+                            <User className="h-4 w-4" />Settings
                           </Button>
                         </Link>
                         <Button 
-                          variant="outline" 
-                          className="w-full h-10 rounded-xl text-destructive font-black text-[10px] uppercase tracking-widest border-destructive/30 bg-destructive/10 hover:bg-destructive/20 transition-colors" 
+                          variant="ghost" 
+                          className="flex-1 h-12 rounded-2xl text-destructive font-bold text-xs border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 transition-all gap-2" 
                           onClick={handleSignOut}
                         >
-                          Secure Sign Out
+                          <LogOut className="h-4 w-4" /> Sign Out
                         </Button>
                       </div>
                     ) : (
-                      <Link href={loginUrl}>
-                        <Button className="w-full h-12 rounded-2xl bg-secondary text-secondary-foreground text-base font-bold shadow-2xl animate-pulse-glow hover:scale-[1.01] transition-transform">Secure Sign In</Button>
+                      <Link href={loginUrl} className="w-full">
+                        <Button className="w-full h-12 rounded-2xl bg-secondary text-secondary-foreground text-sm font-bold shadow-2xl animate-pulse-glow hover:scale-[1.01] transition-transform">Secure Sign In</Button>
                       </Link>
                     )}
                   </div>
