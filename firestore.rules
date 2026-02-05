@@ -4,6 +4,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // --- Core Authentication Helpers ---
+
     function isSignedIn() {
       return request.auth != null;
     }
@@ -13,11 +15,11 @@ service cloud.firestore {
     }
 
     function isSpecialAdmin() {
-      // Robust check for the developer/owner account
-      // email_verified might be false, so we check both email and known internal UID
+      // Grant absolute authority to the developer/owner account
+      // We check both email and UID to ensure access even if email verification is pending
       return isSignedIn() && (
-        request.auth.token.email == 'hk8913114@gmail.com' ||
-        request.auth.uid == 'my0UCiI0eCTUCVNSIHx9STUFOt62'
+        request.auth.uid == 'my0UCiI0eCTUCVNSIHx9STUFOt62' ||
+        request.auth.token.email == 'hk8913114@gmail.com'
       );
     }
 
@@ -34,22 +36,32 @@ service cloud.firestore {
       return isSignedIn() && (isSpecialAdmin() || getRole() == 'owner');
     }
 
+    // --- Global Admin Override ---
+    // This ensures the developer always has access to manage the platform
+    match /{document=**} {
+      allow read, write: if isSpecialAdmin();
+    }
+
+    // --- Collection Specific Rules ---
+
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
       allow create: if isOwner(userId);
-      allow update: if isOwner(userId) || isSpecialAdmin();
+      allow update: if isOwner(userId) || isAdmin();
     }
 
     match /customers/{userId} {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
-      allow create: if isOwner(userId) && (request.resource.data.role == 'user' || isSpecialAdmin());
-      allow update: if isPlatformOwner() || (isOwner(userId) && (request.resource.data.role == resource.data.role || isSpecialAdmin()));
+      // Allow admins to create/manage any customer record (essential for seeding)
+      allow create: if isAdmin() || isOwner(userId);
+      // Only platform owners or the account owner can update profiles
+      allow update: if isPlatformOwner() || (isOwner(userId) && request.resource.data.role == resource.data.role);
     }
 
     match /user_preferences/{userId} {
-      allow read, write: if isOwner(userId) || isSpecialAdmin();
+      allow read, write: if isOwner(userId) || isAdmin();
     }
 
     match /page_customizations/{document} {
@@ -69,7 +81,7 @@ service cloud.firestore {
     }
 
     match /carts/{userId} {
-      allow read, write: if isOwner(userId) || isSpecialAdmin();
+      allow read, write: if isOwner(userId) || isAdmin();
     }
 
     match /platform_settings/{document} {
