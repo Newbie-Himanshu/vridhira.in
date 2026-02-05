@@ -52,6 +52,7 @@ export default function AdminLayout({
   const { user, isUserLoading, userRole } = useUser();
   const pathname = usePathname();
   const [isFabExpanded, setIsFabExpanded] = useState(false);
+  const [isExtended, setIsExtended] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const fabRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -60,7 +61,6 @@ export default function AdminLayout({
   const effectiveRole = user?.email === 'hk8913114@gmail.com' ? 'owner' : userRole;
   const isAuthorized = effectiveRole === 'owner' || effectiveRole === 'store admin';
 
-  // Body scroll lock logic
   useEffect(() => {
     if (isFabExpanded) {
       document.body.style.overflow = 'hidden';
@@ -72,29 +72,41 @@ export default function AdminLayout({
     };
   }, [isFabExpanded]);
 
-  // Close FAB on navigation
   useEffect(() => {
     setIsFabExpanded(false);
+    setIsExtended(false);
   }, [pathname]);
 
-  // Gesture handle logic
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientY);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!touchStart) return;
-    const currentY = e.targetTouches[0].clientY;
-    const distance = currentY - touchStart;
-    
-    // Only close if swiped down significantly from the handle
-    if (distance > 80) {
-      setIsFabExpanded(false);
-      setTouchStart(null);
-    }
+    // We mainly handle the state transition on End for performance, 
+    // but move could be used for real-time tracking if needed.
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStart === null) return;
+    const currentY = e.changedTouches[0].clientY;
+    const distance = currentY - touchStart;
+    const threshold = 50;
+
+    if (!isExtended) {
+      if (distance < -threshold) {
+        // Pull up to extend
+        setIsExtended(true);
+      } else if (distance > threshold) {
+        // Pull down to close
+        setIsFabExpanded(false);
+      }
+    } else {
+      if (distance > threshold) {
+        // Pull down to reset size
+        setIsExtended(false);
+      }
+    }
     setTouchStart(null);
   };
 
@@ -128,10 +140,8 @@ export default function AdminLayout({
 
   return (
     <div className="flex min-h-screen bg-background pt-20 overflow-x-hidden relative">
-      {/* Sidebar - Fixed on Desktop */}
       <AdminSidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
 
-      {/* Main Content Area */}
       <main className={cn(
         "flex-1 min-w-0 bg-background/40 backdrop-blur-sm p-4 md:p-8 lg:p-12 animate-in fade-in duration-700 transition-all duration-700 ease-quint",
         isCollapsed ? "md:ml-20" : "md:ml-64"
@@ -141,16 +151,17 @@ export default function AdminLayout({
         </div>
       </main>
 
-      {/* Backdrop Dimmer - Light Overlay */}
       <div 
         className={cn(
           "fixed inset-0 z-[55] bg-white/5 md:hidden transition-all duration-700 ease-quint",
           isFabExpanded ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         )}
-        onClick={() => setIsFabExpanded(false)}
+        onClick={() => {
+          setIsFabExpanded(false);
+          setIsExtended(false);
+        }}
       />
 
-      {/* Admin Command FAB - Mobile Only with Frosted Glass Aesthetic */}
       <div 
         ref={fabRef}
         className={cn(
@@ -163,15 +174,15 @@ export default function AdminLayout({
         <div 
           className={cn(
             "bg-white/40 backdrop-blur-md border border-white/40 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden relative transition-all duration-700 ease-quint will-change-[height,width,padding]",
-            isFabExpanded ? "p-6 h-[60vh] opacity-100" : "p-0 h-14 opacity-100"
+            isFabExpanded 
+              ? (isExtended ? "p-6 h-[90vh] opacity-100" : "p-6 h-[60vh] opacity-100") 
+              : "p-0 h-14 opacity-100"
           )}
         >
-          {/* Expanded Content Wrapper */}
           <div className={cn(
             "flex flex-col h-full transition-all duration-700 ease-quint",
             isFabExpanded ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 pointer-events-none"
           )}>
-            {/* Gesture Handle & Header */}
             <div 
               className="flex flex-col mb-6 shrink-0 cursor-grab active:cursor-grabbing"
               onTouchStart={handleTouchStart}
@@ -191,7 +202,10 @@ export default function AdminLayout({
                 </div>
                 <Link 
                   href="/shop" 
-                  onClick={() => setIsFabExpanded(false)}
+                  onClick={() => {
+                    setIsFabExpanded(false);
+                    setIsExtended(false);
+                  }}
                   className="flex items-center gap-1.5 text-[9px] font-black text-primary uppercase bg-white/20 px-4 py-2 rounded-full tracking-widest shadow-sm border border-white/10"
                 >
                   <ArrowLeft className="h-3 w-3" /> Shop
@@ -199,7 +213,6 @@ export default function AdminLayout({
               </div>
             </div>
 
-            {/* Scrollable Navigation List */}
             <div 
               ref={scrollContainerRef}
               className="flex-1 overflow-y-auto scrollbar-none pb-4 px-1 space-y-2 overscroll-contain"
@@ -212,7 +225,10 @@ export default function AdminLayout({
                   <Link 
                     key={item.href} 
                     href={item.href}
-                    onClick={() => setIsFabExpanded(false)}
+                    onClick={() => {
+                      setIsFabExpanded(false);
+                      setIsExtended(false);
+                    }}
                     className={cn(
                       "flex items-center justify-between p-4 rounded-2xl transition-all duration-300 active:scale-[0.98] group relative",
                       isActive ? "bg-white/20 border border-white/20 shadow-xl" : "bg-white/5 text-secondary hover:bg-white/15"
@@ -244,7 +260,6 @@ export default function AdminLayout({
             </div>
           </div>
 
-          {/* Trigger Button (Floating State) */}
           <button 
             onClick={() => setIsFabExpanded(true)}
             className={cn(
