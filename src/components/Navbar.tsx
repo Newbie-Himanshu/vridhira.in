@@ -172,25 +172,25 @@ export function Navbar() {
   return (
     <div className="fixed top-0 left-0 w-full z-50 pointer-events-none flex justify-center pt-0">
       <header className={cn(
-        "pointer-events-auto transition-all duration-700 ease-quint flex items-center justify-center will-change-[width,height,margin,border-radius,background-color,backdrop-filter,box-shadow]",
+        "pointer-events-auto transition-all duration-1000 ease-quint flex items-center justify-center transform-gpu translate-z-0 will-change-[width,height,margin,border-radius,background-color,backdrop-filter,box-shadow]",
         isScrolled 
           ? "mt-4 w-[92%] md:w-[70%] max-w-6xl h-16 bg-background/60 backdrop-blur-2xl rounded-full border border-white/20 shadow-2xl" 
           : "mt-0 w-full h-20 bg-transparent border-b border-transparent shadow-none rounded-none"
       )}>
         <div className={cn(
-          "w-full px-6 h-full flex items-center relative transition-all duration-700 ease-quint will-change-[padding,max-width]",
-          isScrolled ? "max-w-none px-8" : "container mx-auto"
+          "w-full px-6 h-full flex items-center relative transition-all duration-1000 ease-quint will-change-[padding,max-width] max-w-7xl mx-auto",
+          isScrolled ? "px-8" : ""
         )}>
           
           <div className="flex-[1_0_0] flex justify-start">
             <Link href="/" className="flex items-center gap-2 group pointer-events-auto">
               <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
                   <div className={cn(
-                    "absolute inset-0 rounded-lg animate-artisanal-rotation transition-colors duration-500",
+                    "absolute inset-0 rounded-lg animate-artisanal-rotation transition-colors duration-1000",
                     showTransparent ? "bg-white/20" : "bg-primary/10"
                   )} />
                   <span className={cn(
-                    "relative font-headline font-bold text-2xl transition-colors duration-500",
+                    "relative font-headline font-bold text-2xl transition-colors duration-1000",
                     logoTextColor
                   )}>V</span>
               </div>
@@ -207,7 +207,7 @@ export function Navbar() {
                     type="text"
                     placeholder="Search treasures, collections, origins..."
                     className={cn(
-                      "h-11 w-full rounded-full pl-11 pr-12 border-transparent transition-all duration-500 shadow-lg backdrop-blur-sm",
+                      "h-11 w-full rounded-full pl-11 pr-12 border-transparent transition-all duration-1000 shadow-lg backdrop-blur-sm",
                       showTransparent 
                         ? "bg-white/10 text-white placeholder:text-white/50 focus:bg-white/20" 
                         : "bg-white/50 border-primary/30 text-secondary focus:ring-primary"
@@ -284,13 +284,13 @@ export function Navbar() {
                 )}
               </div>
             ) : (
-              <nav className="flex items-center gap-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <nav className="flex items-center gap-10 animate-in fade-in slide-in-from-bottom-2 duration-1000">
                 {navLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      "relative py-1 text-xs font-bold transition-all tracking-widest uppercase group pointer-events-auto duration-500",
+                      "relative py-1 text-xs font-bold transition-all tracking-widest uppercase group pointer-events-auto duration-1000",
                       pathname === link.href ? (showTransparent ? "text-white" : "text-primary") : (showTransparent ? "text-white/70 hover:text-white" : "text-muted-foreground hover:text-primary")
                     )}
                   >
@@ -354,7 +354,7 @@ export function Navbar() {
                         variant="secondary" 
                         size="sm" 
                         className={cn(
-                          "gap-2 rounded-full px-5 h-10 shadow-md transition-all duration-500",
+                          "gap-2 rounded-full px-5 h-10 shadow-md transition-all duration-1000",
                           showTransparent 
                             ? "bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm" 
                             : "bg-secondary text-secondary-foreground hover:opacity-90"
@@ -389,7 +389,7 @@ export function Navbar() {
                       variant="secondary" 
                       size="sm" 
                       className={cn(
-                        "rounded-full px-7 h-10 font-bold uppercase text-[11px] shadow-lg animate-pulse-glow shine-effect transition-all duration-500",
+                        "rounded-full px-7 h-10 font-bold uppercase text-[11px] shadow-lg animate-pulse-glow shine-effect transition-all duration-1000",
                         showTransparent 
                           ? "bg-white text-secondary hover:bg-white/90" 
                           : "bg-secondary text-secondary-foreground hover:bg-secondary/90"
@@ -409,7 +409,7 @@ export function Navbar() {
                     variant="ghost" 
                     size="icon" 
                     className={cn(
-                      "rounded-full transition-all duration-500",
+                      "rounded-full transition-all duration-1000",
                       showTransparent ? "text-white" : "text-secondary"
                     )}
                   >
@@ -418,11 +418,9 @@ export function Navbar() {
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-white/40 backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 ease-quint scrollbar-none"
+                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 flex flex-col bg-white/40 backdrop-blur-[80px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-1000 ease-quint scrollbar-none"
                 >
-                  {/* Stable Inner Layout Container */}
                   <div className="h-full flex flex-col relative overflow-hidden">
-                    {/* Animated Scrollable Content Section */}
                     <div className="flex-1 flex flex-col relative overflow-hidden">
                       <div 
                         onScroll={(e) => setIsMenuScrolled(e.currentTarget.scrollTop > 20)}
@@ -430,14 +428,14 @@ export function Navbar() {
                       >
                           <div 
                             className={cn(
-                              "sticky top-0 z-50 flex items-center justify-center gap-3 transition-all duration-700 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] cursor-pointer mx-auto group",
+                              "sticky top-0 z-50 flex items-center justify-center gap-3 transition-all duration-1000 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] cursor-pointer mx-auto group",
                               isMenuScrolled 
                                 ? "py-3 px-6 bg-white/30 backdrop-blur-3xl border border-white/30 rounded-full shadow-2xl scale-90 -translate-y-1" 
                                 : "py-6 bg-transparent"
                             )}
                             onClick={() => { setIsMenuOpen(false); router.push('/'); }}
                           >
-                            <div className="relative w-8 h-8 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
+                            <div className="relative w-8 h-8 flex items-center justify-center transition-transform duration-1000 group-hover:scale-110">
                                 <div className="absolute inset-0 bg-primary rounded-lg animate-artisanal-rotation shadow-lg" />
                                 <span className="relative text-white font-black text-xl">V</span>
                             </div>
@@ -449,7 +447,7 @@ export function Navbar() {
                           <div className="space-y-5">
                               <p className="text-[8px] font-black uppercase tracking-[0.2em] text-primary/80 px-2">Registry</p>
                               
-                              <div className="relative transition-all duration-500">
+                              <div className="relative transition-all duration-1000">
                                 {isMobileSearchActive ? (
                                   <div className="space-y-5 animate-in fade-in zoom-in-95 duration-500">
                                     <form onSubmit={handleSearchSubmit} className="relative w-full">
@@ -556,18 +554,18 @@ export function Navbar() {
                           </div>
 
                           {!isMobileSearchActive && (
-                            <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                            <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-1000">
                                 <p className="text-[8px] font-black uppercase tracking-[0.2em] text-primary/80 px-2">Discover</p>
                                 <div className="grid gap-3">
                                     {navLinks.map((link) => (
-                                        <Link key={link.href} href={link.href} onClick={() => setIsMenuOpen(false)} className={cn("flex items-center justify-between p-4 rounded-[2rem] transition-all duration-500 border border-white/20 shadow-lg group shine-effect overflow-hidden hover:scale-[1.02] active:scale-[0.98]", pathname === link.href ? "bg-primary text-white shadow-primary/20 animate-liquid-flow from-primary via-primary/80 to-primary bg-gradient-to-r" : "bg-white/20 backdrop-blur-xl text-secondary hover:bg-white/30 hover:border-white/30")}>
+                                        <Link key={link.href} href={link.href} onClick={() => setIsMenuOpen(false)} className={cn("flex items-center justify-between p-4 rounded-[2rem] transition-all duration-1000 border border-white/20 shadow-lg group shine-effect overflow-hidden hover:scale-[1.02] active:scale-[0.98]", pathname === link.href ? "bg-primary text-white shadow-primary/20 animate-liquid-flow from-primary via-primary/80 to-primary bg-gradient-to-r" : "bg-white/20 backdrop-blur-xl text-secondary hover:bg-white/30 hover:border-white/30")}>
                                             <div className="flex items-center gap-4 relative z-10">
-                                              <div className={cn("p-2 rounded-xl transition-colors duration-500", pathname === link.href ? "bg-white/30" : "bg-primary/20 group-hover:bg-primary/30")}>
-                                                <link.icon className={cn("h-4 w-4 transition-transform duration-500 group-hover:scale-110", pathname === link.href ? "text-white" : "text-primary")} />
+                                              <div className={cn("p-2 rounded-xl transition-colors duration-1000", pathname === link.href ? "bg-white/30" : "bg-primary/20 group-hover:bg-primary/30")}>
+                                                <link.icon className={cn("h-4 w-4 transition-transform duration-1000 group-hover:scale-110", pathname === link.href ? "text-white" : "text-primary")} />
                                               </div>
                                               <span className="text-base font-headline font-bold">{link.label}</span>
                                             </div>
-                                            <ChevronRight className={cn("h-4 w-4 transition-all duration-500 relative z-10", pathname === link.href ? "opacity-100 translate-x-1" : "opacity-40 group-hover:opacity-100 group-hover:translate-x-1")} />
+                                            <ChevronRight className={cn("h-4 w-4 transition-all duration-1000 relative z-10", pathname === link.href ? "opacity-100 translate-x-1" : "opacity-40 group-hover:opacity-100 group-hover:translate-x-1")} />
                                         </Link>
                                     ))}
                                 </div>
