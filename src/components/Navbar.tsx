@@ -172,25 +172,25 @@ export function Navbar() {
   return (
     <div className="fixed top-0 left-0 w-full z-50 pointer-events-none flex justify-center pt-0">
       <header className={cn(
-        "pointer-events-auto transition-all duration-1000 ease-quint flex items-center justify-center transform-gpu translate-z-0 will-change-[width,height,margin,border-radius,background-color,backdrop-filter,box-shadow]",
+        "pointer-events-auto transition-all duration-1000 ease-quint flex items-center justify-center transform-gpu translate-z-0 will-change-[width,height,margin,border-radius,background-color,backdrop-filter,box-shadow,border-color]",
         isScrolled 
           ? "mt-4 w-[92%] md:w-[70%] max-w-6xl h-16 bg-background/60 backdrop-blur-2xl rounded-full border border-white/20 shadow-2xl" 
-          : "mt-0 w-full h-20 bg-transparent border-b border-transparent shadow-none rounded-none"
+          : "mt-0 w-full h-20 bg-transparent border border-transparent shadow-none rounded-none"
       )}>
         <div className={cn(
-          "w-full px-6 h-full flex items-center relative transition-all duration-1000 ease-quint will-change-[padding,max-width] max-w-7xl mx-auto",
-          isScrolled ? "px-8" : ""
+          "w-full h-full flex items-center relative transition-all duration-1000 ease-quint will-change-[padding,max-width]",
+          isScrolled ? "px-8 max-w-6xl" : "px-6 max-w-7xl mx-auto"
         )}>
           
-          <div className="flex-[1_0_0] flex justify-start">
+          <div className="flex-[1_0_0] flex justify-start transition-all duration-1000 ease-quint">
             <Link href="/" className="flex items-center gap-2 group pointer-events-auto">
-              <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center">
+              <div className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center transition-all duration-1000 ease-quint">
                   <div className={cn(
-                    "absolute inset-0 rounded-lg animate-artisanal-rotation transition-colors duration-1000",
+                    "absolute inset-0 rounded-lg animate-artisanal-rotation transition-all duration-1000 ease-quint",
                     showTransparent ? "bg-white/20" : "bg-primary/10"
                   )} />
                   <span className={cn(
-                    "relative font-headline font-bold text-2xl transition-colors duration-1000",
+                    "relative font-headline font-bold text-2xl transition-all duration-1000 ease-quint",
                     logoTextColor
                   )}>V</span>
               </div>
@@ -199,15 +199,15 @@ export function Navbar() {
 
           <div className="hidden lg:flex flex-[2_0_0] justify-center relative px-8" ref={desktopSearchContainerRef}>
             {isSearchOpen ? (
-              <div className="w-full max-w-lg animate-in fade-in zoom-in-95 duration-300 relative">
+              <div className="w-full max-w-lg animate-in fade-in zoom-in-95 duration-1000 ease-quint relative">
                 <form onSubmit={handleSearchSubmit} className="relative w-full flex items-center">
-                  <Search className={cn("absolute left-4 h-4 w-4", showTransparent ? "text-white" : "text-primary")} />
+                  <Search className={cn("absolute left-4 h-4 w-4 transition-colors duration-1000 ease-quint", showTransparent ? "text-white" : "text-primary")} />
                   <Input
                     ref={searchInputRef}
                     type="text"
                     placeholder="Search treasures, collections, origins..."
                     className={cn(
-                      "h-11 w-full rounded-full pl-11 pr-12 border-transparent transition-all duration-1000 shadow-lg backdrop-blur-sm",
+                      "h-11 w-full rounded-full pl-11 pr-12 border-transparent transition-all duration-1000 ease-quint shadow-lg backdrop-blur-sm",
                       showTransparent 
                         ? "bg-white/10 text-white placeholder:text-white/50 focus:bg-white/20" 
                         : "bg-white/50 border-primary/30 text-secondary focus:ring-primary"
@@ -220,7 +220,7 @@ export function Navbar() {
                     variant="ghost" 
                     size="icon" 
                     className={cn(
-                      "absolute right-1.5 h-8 w-8 rounded-full",
+                      "absolute right-1.5 h-8 w-8 rounded-full transition-all duration-1000 ease-quint",
                       showTransparent ? "text-white/70 hover:text-white" : "text-muted-foreground hover:text-destructive"
                     )}
                     onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}
@@ -230,7 +230,7 @@ export function Navbar() {
                 </form>
 
                 {(matchedCategories.length > 0 || suggestions.length > 0) && (
-                  <div className="absolute top-14 left-0 w-full bg-white/95 backdrop-blur-xl rounded-[2.5rem] border border-border/50 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300 z-50">
+                  <div className="absolute top-14 left-0 w-full bg-white/95 backdrop-blur-xl rounded-[2.5rem] border border-border/50 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-1000 ease-quint z-50">
                     {matchedCategories.length > 0 && (
                       <div className="p-5 border-b bg-primary/5">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Live Collections</p>
@@ -284,13 +284,13 @@ export function Navbar() {
                 )}
               </div>
             ) : (
-              <nav className="flex items-center gap-10 animate-in fade-in slide-in-from-bottom-2 duration-1000">
+              <nav className="flex items-center gap-10 animate-in fade-in slide-in-from-bottom-2 duration-1000 ease-quint">
                 {navLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      "relative py-1 text-xs font-bold transition-all tracking-widest uppercase group pointer-events-auto duration-1000",
+                      "relative py-1 text-xs font-bold transition-all tracking-widest uppercase group pointer-events-auto duration-1000 ease-quint",
                       pathname === link.href ? (showTransparent ? "text-white" : "text-primary") : (showTransparent ? "text-white/70 hover:text-white" : "text-muted-foreground hover:text-primary")
                     )}
                   >
@@ -306,14 +306,14 @@ export function Navbar() {
             )}
           </div>
 
-          <div className="flex-[1_0_0] flex justify-end items-center gap-1 sm:gap-4">
+          <div className="flex-[1_0_0] flex justify-end items-center gap-1 sm:gap-4 transition-all duration-1000 ease-quint">
             <div className="hidden lg:block pointer-events-auto">
               {!isSearchOpen && (
                 <Button 
                   variant="ghost" 
                   size="icon" 
                   className={cn(
-                    "transition-all rounded-full",
+                    "transition-all duration-1000 ease-quint rounded-full",
                     showTransparent ? "text-white/80 hover:text-white" : "text-muted-foreground hover:text-primary"
                   )}
                   onClick={() => setIsSearchOpen(true)}
@@ -327,7 +327,7 @@ export function Navbar() {
               variant="ghost" 
               size="icon" 
               className={cn(
-                "relative group transition-all rounded-full pointer-events-auto",
+                "relative group transition-all duration-1000 ease-quint rounded-full pointer-events-auto",
                 showTransparent ? "text-white/80 hover:text-white" : "text-muted-foreground hover:text-primary"
               )} 
               asChild
@@ -336,7 +336,7 @@ export function Navbar() {
                 <ShoppingBag className="h-5 w-5" />
                 {cartCount > 0 && (
                   <span className={cn(
-                    "absolute -top-1 -right-1 w-4 h-4 text-[10px] flex items-center justify-center rounded-full font-bold shadow-lg ring-2",
+                    "absolute -top-1 -right-1 w-4 h-4 text-[10px] flex items-center justify-center rounded-full font-bold shadow-lg ring-2 transition-all duration-1000 ease-quint",
                     showTransparent ? "bg-white text-secondary ring-black/20" : "bg-primary text-white ring-background"
                   )}>
                     {cartCount}
@@ -354,7 +354,7 @@ export function Navbar() {
                         variant="secondary" 
                         size="sm" 
                         className={cn(
-                          "gap-2 rounded-full px-5 h-10 shadow-md transition-all duration-1000",
+                          "gap-2 rounded-full px-5 h-10 shadow-md transition-all duration-1000 ease-quint",
                           showTransparent 
                             ? "bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm" 
                             : "bg-secondary text-secondary-foreground hover:opacity-90"
@@ -389,7 +389,7 @@ export function Navbar() {
                       variant="secondary" 
                       size="sm" 
                       className={cn(
-                        "rounded-full px-7 h-10 font-bold uppercase text-[11px] shadow-lg animate-pulse-glow shine-effect transition-all duration-1000",
+                        "rounded-full px-7 h-10 font-bold uppercase text-[11px] shadow-lg animate-pulse-glow shine-effect transition-all duration-1000 ease-quint",
                         showTransparent 
                           ? "bg-white text-secondary hover:bg-white/90" 
                           : "bg-secondary text-secondary-foreground hover:bg-secondary/90"
@@ -409,7 +409,7 @@ export function Navbar() {
                     variant="ghost" 
                     size="icon" 
                     className={cn(
-                      "rounded-full transition-all duration-1000",
+                      "rounded-full transition-all duration-1000 ease-quint",
                       showTransparent ? "text-white" : "text-secondary"
                     )}
                   >
