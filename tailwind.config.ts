@@ -14,6 +14,7 @@ export default {
         headline: ['Outfit', 'sans-serif'],
         outfit: ['Outfit', 'sans-serif'],
         code: ['Source Code Pro', 'monospace'],
+        display: ['Playfair Display', 'serif'],
       },
       transitionTimingFunction: {
         quint: 'cubic-bezier(0.16, 1, 0.3, 1)',
@@ -21,6 +22,17 @@ export default {
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        'background-light': '#FDFBF7',
+        'background-dark': '#1F1A16',
+        'surface-light': '#FFFFFF',
+        'surface-subtle': '#F6F1EB',
+        'surface-dark': '#2A2420',
+        'text-main-light': '#2D241E',
+        'text-main-dark': '#EAE0D5',
+        'text-secondary-light': '#6B5D52',
+        'text-secondary-dark': '#B0A090',
+        'border-light': '#E8E0D6',
+        'border-dark': '#3E342E',
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
@@ -32,6 +44,7 @@ export default {
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
+          dark: '#A0420B',
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
@@ -70,10 +83,24 @@ export default {
           ring: 'hsl(var(--sidebar-ring))',
         },
       },
+      spacing: {
+        'gr-1': '10px',
+        'gr-2': '16px',
+        'gr-3': '26px',
+        'gr-4': '42px',
+        'gr-5': '68px',
+        'gr-6': '110px',
+        'gr-7': '178px',
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+        xl: '1rem',
+        '2xl': '1.618rem',
+      },
+      backgroundImage: {
+        'hero-pattern': "url('https://lh3.googleusercontent.com/aida-public/AB6AXuA5X5SY0V3iM9SIwYUSEXGPuaEQfXWrgvGSHbGB-S8LZRiy12oBAoSb3FbROBJqRqHCNaQMxpvoVO-mu3trcTOIqTeSs_gY_KDRnzS4uZHeo4-L0NhcFy2Ut1N7NCobt1oc5f9CG8v-Zb7lyDNQRYjfoxZDNPTbOC6NR55Fj42lPIjDvyA_HDyf3p_qxk0R-5kL55DFBybNyqapn_kr44shNuyTXSiOjpVbE1sLfbed49jlwV9Wr_WzxxVxmoHUehAoZElAMWz2vyy0')",
       },
       keyframes: {
         'accordion-down': {
