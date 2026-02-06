@@ -15,7 +15,8 @@ import {
   Headset, 
   MessageSquare,
   ArrowRight,
-  Home
+  Home,
+  HelpCircle
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -103,11 +104,12 @@ export default function HelpCenterPage() {
                 <h3 className="font-headline text-lg font-bold mb-6 text-text-main-light dark:text-white uppercase tracking-widest opacity-60">Registry Navigation</h3>
                 <nav className="space-y-2">
                   {[
-                    { icon: Home, label: 'Overview', active: true },
-                    { icon: Receipt, label: 'Buying' },
-                    { icon: Store, label: 'Selling' },
-                    { icon: Settings, label: 'Account' },
-                    { icon: MessageSquare, label: 'Trust & Safety' },
+                    { icon: Home, label: 'Overview', active: true, href: '/help-center' },
+                    { icon: Receipt, label: 'Buying', href: '#' },
+                    { icon: Store, label: 'Selling', href: '#' },
+                    { icon: Settings, label: 'Account', href: '#' },
+                    { icon: MessageSquare, label: 'Trust & Safety', href: '#' },
+                    { icon: FileText, label: 'Store Policies', href: '/help-center/store-policies' },
                   ].map((item, i) => (
                     <Link 
                       key={i} 
@@ -117,7 +119,7 @@ export default function HelpCenterPage() {
                           ? "bg-primary/10 text-primary font-bold shadow-sm border-l-4 border-primary" 
                           : "text-text-secondary-light dark:text-text-secondary-dark hover:bg-white dark:hover:bg-white/5 hover:text-primary"
                       )} 
-                      href="#"
+                      href={item.href}
                     >
                       <item.icon className="h-4 w-4" />
                       <span className="text-sm">{item.label}</span>
@@ -188,7 +190,7 @@ export default function HelpCenterPage() {
                         <h4 className="font-headline font-bold text-lg text-text-main-light dark:text-white truncate group-hover:text-primary transition-colors">{art.title}</h4>
                         <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark mt-1 truncate font-light">{art.desc}</p>
                       </div>
-                      <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:translate-x-1 group-hover:text-primary transition-all opacity-40" />
+                      <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:translate-x-1 transition-all opacity-40" />
                     </Link>
                   ))}
                 </div>
