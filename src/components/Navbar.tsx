@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { ShoppingBag, LayoutDashboard, Store, Menu, Home, User, Search, ChevronRight, LogOut, X, Sparkles, ArrowRight, Tag, Package } from 'lucide-react';
+import { ShoppingBag, LayoutDashboard, Store, Menu, Home, User, Search, ChevronRight, LogOut, X, Sparkles, ArrowRight, Tag, Package, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useState, useEffect, useRef } from 'react';
@@ -124,6 +124,7 @@ export function Navbar() {
   const navLinks = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/shop', label: 'Marketplace', icon: Store },
+    { href: '/help-center', label: 'Help', icon: HelpCircle },
   ];
 
   if (isAdmin) {
