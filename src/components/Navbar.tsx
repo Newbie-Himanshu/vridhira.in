@@ -355,14 +355,20 @@ export function Navbar() {
                         variant="secondary" 
                         size="sm" 
                         className={cn(
-                          "gap-2 rounded-full px-5 h-10 shadow-md transition-all duration-1000 ease-quint",
+                          "rounded-full h-10 shadow-md transition-all duration-1000 ease-quint flex items-center justify-center overflow-hidden",
+                          isScrolled ? "px-3 w-10 gap-0" : "px-5 gap-2",
                           showTransparent 
                             ? "bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm" 
                             : "bg-secondary text-secondary-foreground hover:opacity-90"
                         )}
                       >
-                        <User className="h-4 w-4" />
-                        <span className="max-w-[100px] truncate">{user.displayName || 'Account'}</span>
+                        <User className="h-4 w-4 shrink-0" />
+                        <span className={cn(
+                          "truncate transition-all duration-1000 ease-quint",
+                          isScrolled ? "max-w-0 opacity-0" : "max-w-[150px] opacity-100"
+                        )}>
+                          {user.displayName || 'Account'}
+                        </span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-60 rounded-[1.5rem] p-2 bg-white shadow-2xl border-none">
