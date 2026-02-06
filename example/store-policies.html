@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Store Policies - ArtisanMarket</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee7c2b",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#221810",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#1b130d] dark:text-[#f3ece7] overflow-x-hidden flex flex-col min-h-screen">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#e5e0dc] dark:border-[#3a2e26] bg-[#fcfaf8] dark:bg-[#1b130d] px-6 py-3 lg:px-10 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-[#1b130d] dark:text-white">
+<div class="size-8 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl">storefront</span>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-[-0.015em]">ArtisanMarket</h2>
+</div>
+<label class="hidden md:flex flex-col min-w-40 h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full group focus-within:ring-2 ring-primary/50 transition-all">
+<div class="text-[#9a6c4c] flex border-none bg-[#f3ece7] dark:bg-[#2c221b] items-center justify-center pl-4 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#1b130d] dark:text-white focus:outline-0 focus:ring-0 border-none bg-[#f3ece7] dark:bg-[#2c221b] focus:border-none h-full placeholder:text-[#9a6c4c] px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Search for unique items" value=""/>
+</div>
+</label>
+</div>
+<div class="flex flex-1 justify-end gap-6 lg:gap-8 items-center">
+<div class="hidden lg:flex items-center gap-6">
+<a class="text-[#1b130d] dark:text-[#f3ece7] text-sm font-medium hover:text-primary transition-colors" href="#">Shop</a>
+<a class="text-[#1b130d] dark:text-[#f3ece7] text-sm font-medium hover:text-primary transition-colors" href="#">Stories</a>
+<a class="text-[#1b130d] dark:text-[#f3ece7] text-sm font-medium hover:text-primary transition-colors" href="#">About Us</a>
+<a class="text-[#1b130d] dark:text-[#f3ece7] text-sm font-medium hover:text-primary transition-colors" href="#">Help</a>
+</div>
+<div class="flex gap-2">
+<button class="hidden sm:flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary hover:bg-orange-600 transition-colors text-white text-sm font-bold shadow-sm">
+<span class="truncate">Sign In</span>
+</button>
+<button class="hidden sm:flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#f3ece7] dark:bg-[#2c221b] hover:bg-[#e7ded7] dark:hover:bg-[#3a2e26] text-[#1b130d] dark:text-white text-sm font-bold transition-colors">
+<span class="truncate">Sell</span>
+</button>
+<button class="flex items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-[#f3ece7] dark:bg-[#2c221b] hover:bg-[#e7ded7] dark:hover:bg-[#3a2e26] text-[#1b130d] dark:text-white transition-colors relative">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full"></span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Layout -->
+<div class="flex-1 flex justify-center py-6 px-4 sm:px-6 lg:px-8">
+<div class="w-full max-w-7xl flex flex-col gap-6">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-2 text-sm">
+<a class="text-[#9a6c4c] hover:text-primary transition-colors" href="#">Home</a>
+<span class="material-symbols-outlined text-[#9a6c4c] text-[16px]">chevron_right</span>
+<a class="text-[#9a6c4c] hover:text-primary transition-colors" href="#">Help Center</a>
+<span class="material-symbols-outlined text-[#9a6c4c] text-[16px]">chevron_right</span>
+<span class="font-medium text-[#1b130d] dark:text-white">Store Policies</span>
+</nav>
+<div class="flex flex-col lg:flex-row gap-8 lg:gap-12 relative">
+<!-- Sidebar Navigation -->
+<aside class="w-full lg:w-64 flex-shrink-0">
+<div class="lg:sticky lg:top-24 space-y-6">
+<div class="hidden lg:block">
+<h3 class="text-sm uppercase tracking-wider text-[#9a6c4c] font-bold mb-4 px-3">Policies</h3>
+<nav class="flex flex-col space-y-1">
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-primary/10 text-primary font-bold border-l-4 border-primary transition-all" href="#">
+<span>Shipping Policy</span>
+<span class="material-symbols-outlined text-[20px]">local_shipping</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-[#f3ece7] dark:hover:bg-[#2c221b] text-[#5c4a3e] dark:text-[#d4c5bb] font-medium transition-colors border-l-4 border-transparent" href="#">
+<span>Returns &amp; Refunds</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-[#f3ece7] dark:hover:bg-[#2c221b] text-[#5c4a3e] dark:text-[#d4c5bb] font-medium transition-colors border-l-4 border-transparent" href="#">
+<span>Privacy Policy</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-[#f3ece7] dark:hover:bg-[#2c221b] text-[#5c4a3e] dark:text-[#d4c5bb] font-medium transition-colors border-l-4 border-transparent" href="#">
+<span>Terms of Service</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-[#f3ece7] dark:hover:bg-[#2c221b] text-[#5c4a3e] dark:text-[#d4c5bb] font-medium transition-colors border-l-4 border-transparent" href="#">
+<span>Cookie Policy</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-[#f3ece7] dark:hover:bg-[#2c221b] text-[#5c4a3e] dark:text-[#d4c5bb] font-medium transition-colors border-l-4 border-transparent" href="#">
+<span>Seller Guidelines</span>
+</a>
+</nav>
+</div>
+<!-- Mobile Dropdown for Navigation -->
+<div class="lg:hidden">
+<label class="block text-sm font-medium text-[#1b130d] dark:text-white mb-2" for="policy-select">Select Policy</label>
+<div class="relative">
+<select class="block w-full rounded-lg border-[#e5e0dc] dark:border-[#3a2e26] bg-white dark:bg-[#1b130d] py-3 pl-3 pr-10 text-base focus:border-primary focus:outline-none focus:ring-primary sm:text-sm" id="policy-select">
+<option selected="">Shipping Policy</option>
+<option>Returns &amp; Refunds</option>
+<option>Privacy Policy</option>
+<option>Terms of Service</option>
+<option>Cookie Policy</option>
+<option>Seller Guidelines</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[#9a6c4c]">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Contact Support Card -->
+<div class="bg-white dark:bg-[#1b130d] p-5 rounded-xl border border-[#e5e0dc] dark:border-[#3a2e26] shadow-sm">
+<div class="flex items-start gap-3">
+<div class="p-2 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined">support_agent</span>
+</div>
+<div>
+<h4 class="font-bold text-[#1b130d] dark:text-white mb-1">Need more help?</h4>
+<p class="text-sm text-[#5c4a3e] dark:text-[#d4c5bb] mb-3 leading-relaxed">Our support team is available 24/7 to assist with any questions.</p>
+<a class="text-sm font-bold text-primary hover:text-orange-600 inline-flex items-center gap-1" href="#">
+                                        Contact Support
+                                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 min-w-0">
+<div class="bg-white dark:bg-[#1b130d] rounded-2xl shadow-sm border border-[#e5e0dc] dark:border-[#3a2e26] p-6 md:p-10 lg:p-12">
+<!-- Content Header -->
+<header class="mb-10 pb-6 border-b border-[#f3ece7] dark:border-[#2c221b]">
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-2 mb-2">
+<span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">Current Policy</span>
+</div>
+<h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#1b130d] dark:text-white tracking-tight">Shipping Policy</h1>
+<p class="text-[#9a6c4c] text-sm font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">history</span>
+                                    Last updated: October 24, 2023
+                                </p>
+</div>
+</header>
+<!-- Content Body -->
+<div class="prose prose-lg dark:prose-invert max-w-none text-[#5c4a3e] dark:text-[#d4c5bb]">
+<!-- Introduction -->
+<p class="lead text-lg md:text-xl text-[#1b130d] dark:text-[#e5e0dc] mb-8 leading-relaxed">
+                                We want you to be completely satisfied with your unique handmade purchase. Because every item on ArtisanMarket is crafted by an independent artist, shipping times and methods may vary slightly, but we hold all our sellers to the following high standards.
+                            </p>
+<!-- Table of Contents for long policy -->
+<div class="bg-[#fcfaf8] dark:bg-[#221810] p-6 rounded-xl border border-[#e5e0dc] dark:border-[#3a2e26] mb-10">
+<h4 class="text-sm font-bold uppercase tracking-wider text-[#9a6c4c] mb-4">On this page</h4>
+<ul class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm font-medium">
+<li><a class="flex items-center gap-2 hover:text-primary transition-colors" href="#processing"><span class="material-symbols-outlined text-sm text-primary">arrow_right_alt</span> Processing Time</a></li>
+<li><a class="flex items-center gap-2 hover:text-primary transition-colors" href="#delivery"><span class="material-symbols-outlined text-sm text-primary">arrow_right_alt</span> Estimated Delivery</a></li>
+<li><a class="flex items-center gap-2 hover:text-primary transition-colors" href="#tracking"><span class="material-symbols-outlined text-sm text-primary">arrow_right_alt</span> Tracking Your Order</a></li>
+<li><a class="flex items-center gap-2 hover:text-primary transition-colors" href="#customs"><span class="material-symbols-outlined text-sm text-primary">arrow_right_alt</span> Customs &amp; Import Taxes</a></li>
+</ul>
+</div>
+<section class="mb-10 scroll-mt-28" id="processing">
+<div class="flex items-center gap-3 mb-4">
+<span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">1</span>
+<h2 class="text-2xl font-bold text-[#1b130d] dark:text-white m-0">Processing Time</h2>
+</div>
+<p class="mb-4">
+                                    The time I need to prepare an order for shipping varies. For details, see individual items. Generally, since items are handmade with care:
+                                </p>
+<ul class="list-disc pl-6 space-y-2 marker:text-primary">
+<li><strong>In-stock items:</strong> Ships within 1-3 business days.</li>
+<li><strong>Made-to-order items:</strong> Can take 1-2 weeks depending on the complexity of the craft.</li>
+<li><strong>Custom commissions:</strong> Timelines will be agreed upon directly with the artisan via messages.</li>
+</ul>
+</section>
+<section class="mb-10 scroll-mt-28" id="delivery">
+<div class="flex items-center gap-3 mb-4">
+<span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">2</span>
+<h2 class="text-2xl font-bold text-[#1b130d] dark:text-white m-0">Estimated Delivery Times</h2>
+</div>
+<p class="mb-6">
+                                    Once your order is dispatched, estimated transit times are as follows. We do our best to meet these shipping estimates, but cannot guarantee them.
+                                </p>
+<div class="overflow-hidden rounded-xl border border-[#e5e0dc] dark:border-[#3a2e26]">
+<table class="w-full text-left border-collapse text-sm">
+<thead>
+<tr class="bg-[#fcfaf8] dark:bg-[#2c221b] border-b border-[#e5e0dc] dark:border-[#3a2e26]">
+<th class="p-4 font-bold text-[#1b130d] dark:text-white">Region</th>
+<th class="p-4 font-bold text-[#1b130d] dark:text-white">Standard Shipping</th>
+<th class="p-4 font-bold text-[#1b130d] dark:text-white">Express Shipping</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#e5e0dc] dark:divide-[#3a2e26]">
+<tr>
+<td class="p-4">North America</td>
+<td class="p-4">3-5 business days</td>
+<td class="p-4">1-2 business days</td>
+</tr>
+<tr>
+<td class="p-4">Europe</td>
+<td class="p-4">7-14 business days</td>
+<td class="p-4">3-5 business days</td>
+</tr>
+<tr>
+<td class="p-4">Asia Pacific</td>
+<td class="p-4">10-20 business days</td>
+<td class="p-4">5-7 business days</td>
+</tr>
+<tr>
+<td class="p-4">Australia &amp; NZ</td>
+<td class="p-4">12-25 business days</td>
+<td class="p-4">5-10 business days</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section class="mb-10 scroll-mt-28" id="tracking">
+<div class="flex items-center gap-3 mb-4">
+<span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">3</span>
+<h2 class="text-2xl font-bold text-[#1b130d] dark:text-white m-0">Tracking Your Order</h2>
+</div>
+<p>
+                                    All orders include a tracking number which will be emailed to you once the label is created. You can also view tracking information by visiting <a class="text-primary hover:underline font-medium" href="#">My Orders</a> in your account dashboard.
+                                </p>
+<div class="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/30 rounded-lg flex gap-3 text-sm text-yellow-800 dark:text-yellow-200">
+<span class="material-symbols-outlined">info</span>
+<p>Please note that tracking updates may take 24-48 hours to appear in the carrier's system after you receive the shipment notification.</p>
+</div>
+</section>
+<section class="mb-10 scroll-mt-28" id="customs">
+<div class="flex items-center gap-3 mb-4">
+<span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">4</span>
+<h2 class="text-2xl font-bold text-[#1b130d] dark:text-white m-0">Customs and Import Taxes</h2>
+</div>
+<p>
+                                    Buyers are responsible for any customs and import taxes that may apply. ArtisanMarket is not responsible for delays due to customs.
+                                </p>
+</section>
+</div>
+<!-- FAQ Accordion (Optional) -->
+<div class="mt-12 pt-10 border-t border-[#f3ece7] dark:border-[#2c221b]">
+<h3 class="text-2xl font-bold text-[#1b130d] dark:text-white mb-6">Frequently Asked Questions</h3>
+<div class="flex flex-col gap-4">
+<details class="group bg-[#fcfaf8] dark:bg-[#221810] p-4 rounded-xl border border-[#e5e0dc] dark:border-[#3a2e26] open:ring-2 open:ring-primary/20">
+<summary class="flex justify-between items-center font-bold cursor-pointer list-none text-[#1b130d] dark:text-white">
+<span>Can I change my shipping address after ordering?</span>
+<span class="transition group-open:rotate-180">
+<span class="material-symbols-outlined">expand_more</span>
+</span>
+</summary>
+<div class="text-[#5c4a3e] dark:text-[#d4c5bb] mt-3 leading-relaxed text-sm">
+                                        If you need to change your shipping address, please contact the seller immediately. If the item has not yet shipped, they can usually update the label. Once an item is in transit, we cannot redirect it.
+                                    </div>
+</details>
+<details class="group bg-[#fcfaf8] dark:bg-[#221810] p-4 rounded-xl border border-[#e5e0dc] dark:border-[#3a2e26] open:ring-2 open:ring-primary/20">
+<summary class="flex justify-between items-center font-bold cursor-pointer list-none text-[#1b130d] dark:text-white">
+<span>Do you offer gift wrapping?</span>
+<span class="transition group-open:rotate-180">
+<span class="material-symbols-outlined">expand_more</span>
+</span>
+</summary>
+<div class="text-[#5c4a3e] dark:text-[#d4c5bb] mt-3 leading-relaxed text-sm">
+                                        Many of our artisans offer gift wrapping services for a small additional fee. Check the individual item listing or message the seller directly to inquire about gift options.
+                                    </div>
+</details>
+<details class="group bg-[#fcfaf8] dark:bg-[#221810] p-4 rounded-xl border border-[#e5e0dc] dark:border-[#3a2e26] open:ring-2 open:ring-primary/20">
+<summary class="flex justify-between items-center font-bold cursor-pointer list-none text-[#1b130d] dark:text-white">
+<span>What if my package is lost?</span>
+<span class="transition group-open:rotate-180">
+<span class="material-symbols-outlined">expand_more</span>
+</span>
+</summary>
+<div class="text-[#5c4a3e] dark:text-[#d4c5bb] mt-3 leading-relaxed text-sm">
+                                        If your package hasn't arrived within the estimated window, please check your tracking number. If it appears lost, contact the seller first. If you cannot resolve the issue, ArtisanMarket Support can step in to assist.
+                                    </div>
+</details>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</div>
+<!-- Simple Footer -->
+<footer class="mt-auto bg-white dark:bg-[#1b130d] border-t border-[#e5e0dc] dark:border-[#3a2e26] pt-12 pb-8 px-6 lg:px-10">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-[#1b130d] dark:text-white font-bold">
+<span class="material-symbols-outlined text-primary">storefront</span>
+<span>ArtisanMarket</span>
+</div>
+<p class="text-sm text-[#9a6c4c]">© 2023 ArtisanMarket, Inc.</p>
+</div>
+<div class="flex flex-wrap gap-6 justify-center">
+<a class="text-sm text-[#5c4a3e] dark:text-[#d4c5bb] hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="text-sm text-[#5c4a3e] dark:text-[#d4c5bb] hover:text-primary transition-colors" href="#">Terms</a>
+<a class="text-sm text-[#5c4a3e] dark:text-[#d4c5bb] hover:text-primary transition-colors" href="#">Sitemap</a>
+</div>
+<div class="flex gap-4">
+<a class="text-[#9a6c4c] hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">public</span></a>
+<a class="text-[#9a6c4c] hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">alternate_email</span></a>
+</div>
+</div>
+</footer>
+</body></html>

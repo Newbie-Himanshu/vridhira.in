@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Refined Artisan Help Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#C85A17","primary-dark": "#A0420B",
+                        "background-light": "#FDFBF7","background-dark": "#1F1A16",
+                        "surface-light": "#FFFFFF",
+                        "surface-subtle": "#F6F1EB",
+                        "surface-dark": "#2A2420",
+                        "text-main-light": "#2D241E",
+                        "text-main-dark": "#EAE0D5",
+                        "text-secondary-light": "#6B5D52",
+                        "text-secondary-dark": "#B0A090",
+                        "border-light": "#E8E0D6",
+                        "border-dark": "#3E342E",
+                        "golden-overlay": "rgba(45, 36, 30, 0.4)",
+                    },
+                    fontFamily: {
+                        "display": ["Playfair Display", "serif"],
+                        "body": ["Inter", "sans-serif"],
+                    },
+                    spacing: {'gr-1': '10px','gr-2': '16px','gr-3': '26px','gr-4': '42px','gr-5': '68px','gr-6': '110px','gr-7': '178px',},
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "1rem","2xl": "1.618rem",},
+                    backgroundImage: {
+                        'hero-pattern': "url('https://lh3.googleusercontent.com/aida-public/AB6AXuA5X5SY0V3iM9SIwYUSEXGPuaEQfXWrgvGSHbGB-S8LZRiy12oBAoSb3FbROBJqRqHCNaQMxpvoVO-mu3trcTOIqTeSs_gY_KDRnzS4uZHeo4-L0NhcFy2Ut1N7NCobt1oc5f9CG8v-Zb7lyDNQRYjfoxZDNPTbOC6NR55Fj42lPIjDvyA_HDyf3p_qxk0R-5kL55DFBybNyqapn_kr44shNuyTXSiOjpVbE1sLfbed49jlwV9Wr_WzxxVxmoHUehAoZElAMWz2vyy0')",
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .text-display-lg {
+                @apply font-display text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight;
+            }
+            .text-display-md {
+                @apply font-display text-2xl md:text-3xl lg:text-4xl font-medium leading-snug;
+            }
+            .text-display-sm {
+                @apply font-display text-xl font-medium leading-snug;
+            }
+            .text-body-lg {
+                @apply font-body text-lg leading-relaxed;
+            }
+            .text-body-base {
+                @apply font-body text-base leading-relaxed;
+            }
+            .text-body-sm {
+                @apply font-body text-sm leading-relaxed;
+            }.golden-gap {
+                @apply gap-gr-3 md:gap-gr-4;
+            }
+            .golden-p {
+                @apply p-gr-3 md:p-gr-4;
+            }
+            .golden-py {
+                @apply py-gr-4 md:py-gr-5;
+            }
+            .golden-px {
+                @apply px-gr-3 md:px-gr-4;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark transition-colors duration-300 antialiased font-body">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<header class="sticky top-0 z-50 flex items-center justify-between border-b border-border-light dark:border-border-dark bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm px-gr-3 md:px-gr-4 lg:px-gr-5 py-gr-2 transition-all">
+<div class="flex items-center gap-gr-2">
+<div class="flex items-center justify-center size-10 rounded-full bg-primary/10 text-primary">
+<span class="material-symbols-outlined !text-[24px]">handyman</span>
+</div>
+<h2 class="font-display text-2xl font-bold tracking-tight text-text-main-light dark:text-text-main-dark">Artisan</h2>
+</div>
+<div class="flex flex-1 justify-end items-center gap-gr-4">
+<nav class="hidden md:flex items-center gap-gr-3">
+<a class="text-sm font-medium hover:text-primary transition-colors tracking-wide" href="#">Home</a>
+<a class="text-sm font-medium hover:text-primary transition-colors tracking-wide" href="#">Shop</a>
+<a class="text-sm font-medium hover:text-primary transition-colors tracking-wide" href="#">Sell</a>
+<a class="text-sm font-medium hover:text-primary transition-colors tracking-wide" href="#">Journal</a>
+</nav>
+<div class="w-px h-6 bg-border-light dark:bg-border-dark hidden md:block"></div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-surface-light shadow-sm" data-alt="User profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCVPUCkKrXwUh1xNIPOFMY4U1RBtblpdJnb5M1p6-MZisCXP3rDO70oVgjEB_IZwmvmAme2RIf-ZVXxLU3VNsDQq7qmRxlRuVB4hPFoFRzTmZWXHJZHL4KHaNzCaVsnsxkIbOWRk8kBtiM5E_zliahTLYrbUMU8KC51VFMK3cekjx5pS23G87fgt6LB8p8BkzIPzH7Y5_eRwper8vZ35UYvqYv4jdr6mbEjQZ1h6353jhZppICjrgkK_sU5U8R_vQsGg70zr77cCpzs");'></div>
+</div>
+</header>
+<div class="flex flex-col flex-1">
+<div class="relative w-full h-[400px] md:h-[500px] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 z-0 bg-hero-pattern bg-cover bg-center"></div>
+<div class="absolute inset-0 z-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70 mix-blend-multiply"></div>
+<div class="absolute inset-0 z-0 bg-primary/10 mix-blend-overlay"></div>
+<div class="relative z-10 w-full max-w-4xl px-gr-3 text-center flex flex-col items-center gap-gr-3">
+<span class="inline-block py-1 px-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-xs font-medium tracking-widest uppercase">
+                        Help Center
+                    </span>
+<h1 class="text-display-lg text-white font-serif tracking-tight drop-shadow-sm max-w-2xl mx-auto">
+                        Crafting solutions for your journey.
+                    </h1>
+<p class="text-body-lg text-white/80 font-light max-w-lg mx-auto">
+                        Find answers about orders, shipping, and managing your artisan shop.
+                    </p>
+<div class="w-full max-w-2xl mt-gr-3 relative group">
+<div class="absolute -inset-1 bg-gradient-to-r from-primary to-orange-400 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
+<label class="relative flex w-full items-center bg-surface-light rounded-xl overflow-hidden shadow-2xl ring-1 ring-black/5">
+<span class="pl-6 text-text-secondary-light">
+<span class="material-symbols-outlined !text-[28px]">search</span>
+</span>
+<input class="w-full h-16 border-none bg-transparent px-4 text-lg text-text-main-light placeholder:text-text-secondary-light/60 focus:ring-0 font-body" placeholder="How can we help you today?" type="text"/>
+<button class="mr-2 px-8 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors text-sm tracking-wide">
+                                Search
+                            </button>
+</label>
+</div>
+</div>
+</div>
+<div class="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
+<div class="max-w-7xl mx-auto px-gr-3 md:px-gr-4 lg:px-gr-5 py-gr-2">
+<nav class="flex text-sm text-text-secondary-light dark:text-text-secondary-dark">
+<a class="hover:text-primary transition-colors" href="#">Home</a>
+<span class="mx-2 text-border-dark/30 dark:text-border-light/30">/</span>
+<span class="text-text-main-light dark:text-text-main-dark font-medium">Help Center</span>
+</nav>
+</div>
+</div>
+<div class="w-full max-w-7xl mx-auto px-gr-3 md:px-gr-4 lg:px-gr-5 py-gr-5">
+<div class="flex flex-col lg:flex-row gap-gr-5">
+<aside class="w-full lg:w-[280px] flex-shrink-0 order-2 lg:order-1">
+<div class="sticky top-24 space-y-gr-4">
+<div>
+<h3 class="font-display text-xl font-semibold mb-gr-2 text-text-main-light dark:text-text-main-dark">Quick Navigation</h3>
+<nav class="space-y-1">
+<a class="group flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-subtle dark:bg-surface-dark/50 text-primary font-medium border-l-4 border-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">home</span>
+<span>Overview</span>
+</a>
+<a class="group flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-surface-subtle dark:hover:bg-surface-dark/50 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">shopping_bag</span>
+<span>Buying</span>
+</a>
+<a class="group flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-surface-subtle dark:hover:bg-surface-dark/50 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">storefront</span>
+<span>Selling</span>
+</a>
+<a class="group flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-surface-subtle dark:hover:bg-surface-dark/50 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">manage_accounts</span>
+<span>Account</span>
+</a>
+<a class="group flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-surface-subtle dark:hover:bg-surface-dark/50 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">verified_user</span>
+<span>Trust &amp; Safety</span>
+</a>
+</nav>
+</div>
+<div class="p-gr-3 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 -mr-4 -mt-4 opacity-5">
+<span class="material-symbols-outlined text-[100px]">support_agent</span>
+</div>
+<h4 class="font-display font-semibold text-lg mb-2 relative z-10">Need personal help?</h4>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-4 relative z-10 leading-relaxed">
+                                    Our artisan support team is here to assist you with specific inquiries.
+                                </p>
+<button class="w-full py-2.5 px-4 bg-transparent border border-primary text-primary hover:bg-primary hover:text-white rounded-lg text-sm font-medium transition-all relative z-10">
+                                    Contact Support
+                                </button>
+</div>
+</div>
+</aside>
+<main class="flex-1 order-1 lg:order-2">
+<section class="mb-gr-5">
+<div class="flex items-end justify-between mb-gr-3 border-b border-border-light dark:border-border-dark pb-4">
+<div>
+<h2 class="text-display-md text-text-main-light dark:text-text-main-dark">Browse Categories</h2>
+<p class="text-text-secondary-light dark:text-text-secondary-dark mt-1 font-light">Select a topic to find answers</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gr-3">
+<a class="group flex flex-col p-gr-3 bg-surface-light dark:bg-surface-dark rounded-xl border border-transparent hover:border-border-light dark:hover:border-border-dark shadow-sm hover:shadow-md transition-all duration-300" href="#">
+<div class="mb-4 text-primary opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all">
+<span class="material-symbols-outlined !text-[32px]">receipt_long</span>
+</div>
+<h3 class="font-display text-xl font-bold text-text-main-light dark:text-text-main-dark mb-2 group-hover:text-primary transition-colors">Buying &amp; Orders</h3>
+<p class="text-body-sm text-text-secondary-light dark:text-text-secondary-dark">Tracking, returns, cancellations and order issues.</p>
+</a>
+<a class="group flex flex-col p-gr-3 bg-surface-light dark:bg-surface-dark rounded-xl border border-transparent hover:border-border-light dark:hover:border-border-dark shadow-sm hover:shadow-md transition-all duration-300" href="#">
+<div class="mb-4 text-primary opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all">
+<span class="material-symbols-outlined !text-[32px]">local_shipping</span>
+</div>
+<h3 class="font-display text-xl font-bold text-text-main-light dark:text-text-main-dark mb-2 group-hover:text-primary transition-colors">Shipping &amp; Delivery</h3>
+<p class="text-body-sm text-text-secondary-light dark:text-text-secondary-dark">Delivery times, shipping costs, and international policies.</p>
+</a>
+<a class="group flex flex-col p-gr-3 bg-surface-light dark:bg-surface-dark rounded-xl border border-transparent hover:border-border-light dark:hover:border-border-dark shadow-sm hover:shadow-md transition-all duration-300" href="#">
+<div class="mb-4 text-primary opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all">
+<span class="material-symbols-outlined !text-[32px]">storefront</span>
+</div>
+<h3 class="font-display text-xl font-bold text-text-main-light dark:text-text-main-dark mb-2 group-hover:text-primary transition-colors">Selling &amp; Shop</h3>
+<p class="text-body-sm text-text-secondary-light dark:text-text-secondary-dark">Managing listings, shop policies, and sales analytics.</p>
+</a>
+<a class="group flex flex-col p-gr-3 bg-surface-light dark:bg-surface-dark rounded-xl border border-transparent hover:border-border-light dark:hover:border-border-dark shadow-sm hover:shadow-md transition-all duration-300" href="#">
+<div class="mb-4 text-primary opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all">
+<span class="material-symbols-outlined !text-[32px]">credit_card</span>
+</div>
+<h3 class="font-display text-xl font-bold text-text-main-light dark:text-text-main-dark mb-2 group-hover:text-primary transition-colors">Payments &amp; Billing</h3>
+<p class="text-body-sm text-text-secondary-light dark:text-text-secondary-dark">Payout schedules, taxes, fees and banking setup.</p>
+</a>
+<a class="group flex flex-col p-gr-3 bg-surface-light dark:bg-surface-dark rounded-xl border border-transparent hover:border-border-light dark:hover:border-border-dark shadow-sm hover:shadow-md transition-all duration-300" href="#">
+<div class="mb-4 text-primary opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all">
+<span class="material-symbols-outlined !text-[32px]">settings</span>
+</div>
+<h3 class="font-display text-xl font-bold text-text-main-light dark:text-text-main-dark mb-2 group-hover:text-primary transition-colors">Account Settings</h3>
+<p class="text-body-sm text-text-secondary-light dark:text-text-secondary-dark">Password resets, profile updates, and privacy controls.</p>
+</a>
+<a class="group flex flex-col p-gr-3 bg-surface-light dark:bg-surface-dark rounded-xl border border-transparent hover:border-border-light dark:hover:border-border-dark shadow-sm hover:shadow-md transition-all duration-300" href="#">
+<div class="mb-4 text-primary opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all">
+<span class="material-symbols-outlined !text-[32px]">diversity_3</span>
+</div>
+<h3 class="font-display text-xl font-bold text-text-main-light dark:text-text-main-dark mb-2 group-hover:text-primary transition-colors">Community</h3>
+<p class="text-body-sm text-text-secondary-light dark:text-text-secondary-dark">Forums, artisan teams, local events and workshops.</p>
+</a>
+</div>
+</section>
+<section class="bg-surface-light dark:bg-surface-dark rounded-2xl p-gr-4 shadow-sm border border-border-light/50 dark:border-border-dark/50">
+<div class="flex items-baseline justify-between mb-gr-3">
+<h2 class="text-display-md text-text-main-light dark:text-text-main-dark">Most Viewed</h2>
+<a class="text-sm font-semibold text-primary hover:text-primary-dark transition-colors tracking-wide" href="#">View all articles →</a>
+</div>
+<div class="space-y-4">
+<a class="group flex items-center gap-gr-3 p-4 rounded-xl hover:bg-surface-subtle dark:hover:bg-background-dark/30 transition-colors border border-transparent hover:border-border-light dark:hover:border-border-dark" href="#">
+<div class="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-orange-50 dark:bg-orange-900/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">article</span>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-display font-bold text-lg text-text-main-light dark:text-text-main-dark truncate group-hover:text-primary transition-colors">How do I open a shop?</h4>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mt-1 truncate">Step-by-step guide to setting up your first artisan storefront.</p>
+</div>
+<span class="material-symbols-outlined text-border-dark/20 dark:text-border-light/20 group-hover:text-primary transition-colors">chevron_right</span>
+</a>
+<a class="group flex items-center gap-gr-3 p-4 rounded-xl hover:bg-surface-subtle dark:hover:bg-background-dark/30 transition-colors border border-transparent hover:border-border-light dark:hover:border-border-dark" href="#">
+<div class="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-orange-50 dark:bg-orange-900/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">local_shipping</span>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-display font-bold text-lg text-text-main-light dark:text-text-main-dark truncate group-hover:text-primary transition-colors">Tracking my handmade order</h4>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mt-1 truncate">Find out when your unique item will arrive.</p>
+</div>
+<span class="material-symbols-outlined text-border-dark/20 dark:text-border-light/20 group-hover:text-primary transition-colors">chevron_right</span>
+</a>
+<a class="group flex items-center gap-gr-3 p-4 rounded-xl hover:bg-surface-subtle dark:hover:bg-background-dark/30 transition-colors border border-transparent hover:border-border-light dark:hover:border-border-dark" href="#">
+<div class="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-orange-50 dark:bg-orange-900/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-display font-bold text-lg text-text-main-light dark:text-text-main-dark truncate group-hover:text-primary transition-colors">Understanding artisan fees</h4>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mt-1 truncate">Breakdown of listing fees, transaction costs, and VAT.</p>
+</div>
+<span class="material-symbols-outlined text-border-dark/20 dark:text-border-light/20 group-hover:text-primary transition-colors">chevron_right</span>
+</a>
+</div>
+</section>
+</main>
+</div>
+</div>
+</div>
+<footer class="mt-auto border-t border-border-light dark:border-border-dark bg-white dark:bg-surface-dark py-gr-5">
+<div class="max-w-3xl mx-auto px-4 text-center">
+<div class="mb-gr-3 flex justify-center text-primary">
+<span class="material-symbols-outlined text-[48px]">support</span>
+</div>
+<h2 class="text-display-md font-bold mb-4 text-text-main-light dark:text-text-main-dark">Still can't find what you need?</h2>
+<p class="text-body-lg text-text-secondary-light dark:text-text-secondary-dark mb-8 font-light max-w-lg mx-auto">
+                    Our dedicated support team is available 24/7 to assist with your creative journey and shop management.
+                </p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+<button class="w-full sm:w-auto inline-flex justify-center items-center gap-2 rounded-full bg-primary px-8 py-3 text-base font-semibold text-white shadow-lg shadow-primary/30 hover:bg-primary-dark hover:shadow-primary/50 transition-all transform hover:-translate-y-0.5">
+                        Contact Support
+                    </button>
+<button class="w-full sm:w-auto inline-flex justify-center items-center gap-2 rounded-full bg-surface-subtle dark:bg-white/10 px-8 py-3 text-base font-semibold text-text-main-light dark:text-text-main-dark border border-transparent hover:border-border-light dark:hover:border-white/20 transition-all">
+                        Visit Community Forum
+                    </button>
+</div>
+<div class="mt-12 text-sm text-text-secondary-light/60 dark:text-text-secondary-dark/60">
+                    © 2023 Artisan Platform. All rights reserved.
+                </div>
+</div>
+</footer>
+</div>
+
+</body></html>
