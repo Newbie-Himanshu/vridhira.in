@@ -26,12 +26,13 @@ export default function HelpCenterPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const categories = [
-    { icon: Receipt, title: 'Buying & Orders', desc: 'Tracking, returns, cancellations and order issues.' },
-    { icon: Truck, title: 'Shipping & Delivery', desc: 'Delivery times, shipping costs, and international policies.' },
-    { icon: Store, title: 'Selling & Shop', desc: 'Managing listings, shop policies, and sales analytics.' },
-    { icon: CreditCard, title: 'Payments & Billing', desc: 'Payout schedules, taxes, fees and banking setup.' },
-    { icon: Settings, title: 'Account Settings', desc: 'Password resets, profile updates, and privacy controls.' },
-    { icon: Users, title: 'Community', desc: 'Forums, artisan teams, local events and workshops.' },
+    { icon: Receipt, title: 'Buying & Orders', desc: 'Tracking, returns, cancellations and order issues.', href: '#' },
+    { icon: Truck, title: 'Shipping & Delivery', desc: 'Delivery times, shipping costs, and international policies.', href: '#' },
+    { icon: Store, title: 'Selling & Shop', desc: 'Managing listings, shop policies, and sales analytics.', href: '#' },
+    { icon: CreditCard, title: 'Payments & Billing', desc: 'Payout schedules, taxes, fees and banking setup.', href: '#' },
+    { icon: Settings, title: 'Account Settings', desc: 'Password resets, profile updates, and privacy controls.', href: '#' },
+    { icon: Users, title: 'Community', desc: 'Forums, artisan teams, local events and workshops.', href: '#' },
+    { icon: FileText, title: 'Store Policies', desc: 'Review our legal, shipping, and privacy guidelines.', href: '/help-center/store-policies' },
   ];
 
   const articles = [
@@ -50,6 +51,10 @@ export default function HelpCenterPage() {
     art.desc.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleSearchSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
+  };
+
   return (
     <div className="flex flex-col flex-1 pt-20 bg-background-light dark:bg-background-dark animate-in fade-in duration-1000">
       {/* Minimal Studio Hero Section */}
@@ -65,7 +70,7 @@ export default function HelpCenterPage() {
           </div>
 
           <div className="w-full max-w-2xl relative">
-            <div className="relative flex items-center bg-white dark:bg-zinc-900 rounded-2xl border border-black/10 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden transition-all focus-within:shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
+            <form onSubmit={handleSearchSubmit} className="relative flex items-center bg-white dark:bg-zinc-900 rounded-2xl border border-black/10 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden transition-all focus-within:shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
               <Search className="ml-6 h-5 w-5 text-black/40" />
               <Input 
                 className="h-16 md:h-20 border-none bg-transparent text-lg text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 px-4" 
@@ -73,10 +78,10 @@ export default function HelpCenterPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <Button className="mr-3 h-12 md:h-14 px-8 rounded-xl bg-black text-white dark:bg-white dark:text-black font-bold shadow-xl hover:opacity-90 transition-all">
+              <Button type="submit" className="mr-3 h-12 md:h-14 px-8 rounded-xl bg-black text-white dark:bg-white dark:text-black font-bold shadow-xl hover:opacity-90 transition-all">
                 Search
               </Button>
-            </div>
+            </form>
           </div>
         </div>
       </div>
@@ -156,7 +161,7 @@ export default function HelpCenterPage() {
               {filteredCategories.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredCategories.map((cat, i) => (
-                    <Link key={i} className="group flex flex-col p-8 bg-white dark:bg-white/5 rounded-[2rem] border border-transparent hover:border-primary/20 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-700" href="#">
+                    <Link key={i} className="group flex flex-col p-8 bg-white dark:bg-white/5 rounded-[2rem] border border-transparent hover:border-primary/20 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-700" href={cat.href}>
                       <div className="mb-6 h-14 w-14 rounded-2xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner">
                         <cat.icon className="h-7 w-7" />
                       </div>

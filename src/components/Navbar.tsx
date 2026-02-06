@@ -602,7 +602,7 @@ export function Navbar() {
                           </div>
                         ) : (
                           <Link href={loginUrl} className="w-full" onClick={() => setIsMenuOpen(false)}>
-                            <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold shadow-2xl animate-pulse-glow hover:scale-[1.01] active:scale-[0.99] transition-transform shine-effect overflow-hidden">
+                            <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold shadow-2xl animate-pulse-glow hover:scale-101 active:scale-0.99 transition-transform shine-effect overflow-hidden">
                               <span className="relative z-10">Secure Sign In</span>
                             </Button>
                           </Link>
