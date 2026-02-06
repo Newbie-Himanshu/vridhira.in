@@ -51,39 +51,28 @@ export default function HelpCenterPage() {
 
   return (
     <div className="flex flex-col flex-1 pt-20 bg-background-light dark:bg-background-dark animate-in fade-in duration-1000">
-      {/* Classic Full-Screen Hero */}
-      <div className="relative w-full min-h-[60vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://picsum.photos/seed/heritage-help/1920/1080" 
-            alt="Support Background" 
-            className="w-full h-full object-cover brightness-[0.4]"
-            data-ai-hint="heritage support"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-background-light dark:to-background-dark" />
-        </div>
-        
-        <div className="relative z-10 w-full max-w-4xl px-6 text-center flex flex-col items-center gap-8">
+      {/* Minimal Studio Hero Section */}
+      <div className="relative w-full py-24 md:py-32 flex items-center justify-center overflow-hidden bg-[#FDFBF7] dark:bg-[#1A1A1A]">
+        <div className="relative z-10 w-full max-w-4xl px-6 text-center flex flex-col items-center gap-10">
           <div className="space-y-4">
-            <span className="inline-flex px-4 py-1.5 rounded-full bg-primary/20 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold uppercase tracking-[0.3em] animate-subtle-float">
-              Knowledge Base
+            <span className="inline-flex px-4 py-1 rounded-full bg-black/5 text-black/60 text-[10px] font-black uppercase tracking-[0.3em]">
+              Heritage Registry
             </span>
-            <h1 className="font-headline text-5xl md:text-7xl font-bold text-white tracking-tight drop-shadow-2xl">
+            <h1 className="font-headline text-5xl md:text-7xl font-bold text-black dark:text-white tracking-tighter leading-none">
               How can we help you?
             </h1>
           </div>
 
-          <div className="w-full max-w-2xl relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary to-orange-400 rounded-[2rem] blur opacity-25 group-hover:opacity-40 transition duration-1000" />
-            <div className="relative flex items-center bg-white/10 backdrop-blur-3xl rounded-[2rem] border border-white/20 shadow-2xl overflow-hidden group-focus-within:bg-white/20 transition-all">
-              <Search className="ml-6 h-6 w-6 text-white/60" />
+          <div className="w-full max-w-2xl relative">
+            <div className="relative flex items-center bg-white dark:bg-zinc-900 rounded-2xl border border-black/10 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden transition-all focus-within:shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
+              <Search className="ml-6 h-5 w-5 text-black/40" />
               <Input 
-                className="h-16 md:h-20 border-none bg-transparent text-lg md:text-xl text-white placeholder:text-white/40 focus-visible:ring-0 focus-visible:ring-offset-0 px-4" 
+                className="h-16 md:h-20 border-none bg-transparent text-lg text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 px-4" 
                 placeholder="Search articles, policies, or topics..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <Button className="mr-3 h-12 md:h-14 px-8 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold shadow-xl transition-all">
+              <Button className="mr-3 h-12 md:h-14 px-8 rounded-xl bg-black text-white dark:bg-white dark:text-black font-bold shadow-xl hover:opacity-90 transition-all">
                 Search
               </Button>
             </div>
@@ -104,7 +93,7 @@ export default function HelpCenterPage() {
         </div>
       </div>
 
-      {/* Main Content Sections - Preservation of existing structure */}
+      {/* Main Content Sections */}
       <div className="w-full max-w-7xl mx-auto px-6 py-12 md:py-20">
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
           {/* Aside Sidebar */}
