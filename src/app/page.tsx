@@ -14,7 +14,7 @@ export default function LandingPage() {
     <div className="flex flex-col gap-24 md:gap-32 pb-32">
       {/* Hero Section */}
       <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden py-24 px-4 [clip-path:inset(0_0_0_0)]">
-        <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden transform-gpu translate-z-0">
           {/* Desktop Image */}
           {heroDesktop && (
             <div className="hidden md:block absolute inset-0">
@@ -23,7 +23,7 @@ export default function LandingPage() {
                 alt={heroDesktop.description}
                 fill
                 priority
-                className="object-cover brightness-[0.5] transition-all duration-1000"
+                className="object-cover brightness-[0.5]"
                 data-ai-hint={heroDesktop.imageHint}
               />
             </div>
@@ -36,7 +36,7 @@ export default function LandingPage() {
                 alt={heroMobile.description}
                 fill
                 priority
-                className="object-cover brightness-[0.5] transition-all duration-1000"
+                className="object-cover brightness-[0.5]"
                 data-ai-hint={heroMobile.imageHint}
               />
             </div>
