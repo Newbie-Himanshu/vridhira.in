@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, useUser, useDoc } from '@/firebase';
 import { collection, query, limit, orderBy, doc } from 'firebase/firestore';
 import { MOCK_ORDERS, MOCK_PRODUCTS, MOCK_CUSTOMERS, Product, Order, Customer } from '@/lib/mock-data';
@@ -60,6 +59,11 @@ export default function AdminDashboard() {
   const { user } = useUser();
   const { toast } = useToast();
   const [seeding, setSeeding] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const productsQuery = useMemoFirebase(() => collection(db, 'products'), [db]);
   const { data: products, isLoading: productsLoading } = useCollection<Product>(productsQuery);
@@ -81,19 +85,16 @@ export default function AdminDashboard() {
   const handleSeedData = async () => {
     setSeeding(true);
     try {
-      // Seed Products
       MOCK_PRODUCTS.forEach(p => {
         const pRef = doc(db, 'products', p.id);
         setDocumentNonBlocking(pRef, p, { merge: true });
       });
 
-      // Seed Orders
       MOCK_ORDERS.forEach(o => {
         const oRef = doc(db, 'orders', o.id);
         setDocumentNonBlocking(oRef, o, { merge: true });
       });
 
-      // Seed Customers & Users
       MOCK_CUSTOMERS.forEach(c => {
         const cRef = doc(db, 'customers', c.id);
         setDocumentNonBlocking(cRef, c, { merge: true });
@@ -149,13 +150,15 @@ export default function AdminDashboard() {
               variant="outline" 
               onClick={handleSeedData} 
               disabled={seeding}
-              className="flex-1 sm:flex-none rounded-full px-6 bg-primary/5 border-primary/20 hover:bg-primary/10 text-primary font-bold"
+              className="flex-1 sm:flex-none h-10 md:h-12 lg:h-14 px-4 md:px-8 lg:px-12 rounded-full bg-primary/5 border-primary/20 hover:bg-primary/10 text-primary font-bold text-xs md:text-sm lg:text-base"
             >
               {seeding ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Database className="h-4 w-4 mr-2" />}
               Seed Demo Data
             </Button>
           )}
-          <Button className="flex-1 sm:flex-none rounded-full px-8 bg-secondary text-white shadow-lg">Download Report</Button>
+          <Button className="flex-1 sm:flex-none h-10 md:h-12 lg:h-14 px-4 md:px-8 lg:px-12 rounded-full bg-secondary text-white shadow-lg text-xs md:text-sm lg:text-base font-bold">
+            Download Report
+          </Button>
         </div>
       </div>
 
@@ -169,7 +172,9 @@ export default function AdminDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-secondary">${stats.totalRevenue.toLocaleString()}</div>
+            <div className="text-3xl font-black text-secondary">
+              {mounted ? `$${stats.totalRevenue.toLocaleString()}` : '---'}
+            </div>
             <div className="flex items-center gap-1 text-xs text-green-600 mt-2 font-bold">
               <TrendingUp className="h-3 w-3" />
               <span>+12.5% vs last month</span>
@@ -201,7 +206,9 @@ export default function AdminDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-secondary">${stats.avgOrderValue.toFixed(2)}</div>
+            <div className="text-3xl font-black text-secondary">
+              {mounted ? `$${stats.avgOrderValue.toFixed(2)}` : '---'}
+            </div>
             <div className="flex items-center gap-1 text-xs text-destructive mt-2 font-bold">
               <TrendingDown className="h-3 w-3" />
               <span>-2.1% seasonality drop</span>
@@ -277,14 +284,11 @@ export default function AdminDashboard() {
                   <p className="text-sm font-bold truncate text-secondary group-hover:text-primary transition-colors">{product.title}</p>
                   <Badge variant="outline" className="text-[10px] mt-1 px-2 border-primary/20 text-primary">{product.category}</Badge>
                 </div>
-                <div className="text-sm font-black text-secondary">${product.price.toFixed(0)}</div>
+                <div className="text-sm font-black text-secondary">
+                  {mounted ? `$${product.price.toFixed(0)}` : '---'}
+                </div>
               </div>
             ))}
-            {(!products || products.length === 0) && (
-                <div className="text-center py-8">
-                    <p className="text-sm text-muted-foreground">No live products found.</p>
-                </div>
-            )}
           </CardContent>
         </Card>
       </div>
@@ -328,18 +332,14 @@ export default function AdminDashboard() {
                         {order.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground font-medium">{new Date(order.date).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-right font-black text-secondary py-6 px-8">${order.totalAmount.toFixed(2)}</TableCell>
+                    <TableCell className="text-muted-foreground font-medium">
+                      {mounted ? new Date(order.date).toLocaleDateString() : '---'}
+                    </TableCell>
+                    <TableCell className="text-right font-black text-secondary py-6 px-8">
+                      {mounted ? `$${order.totalAmount.toFixed(2)}` : '---'}
+                    </TableCell>
                   </TableRow>
                 ))}
-                {(!orders || orders.length === 0) && (
-                    <TableRow>
-                        <TableCell colSpan={5} className="text-center py-20">
-                            <ShoppingBag className="h-12 w-12 text-muted-foreground/20 mx-auto mb-4" />
-                            <p className="text-xl font-headline font-bold text-muted-foreground">No acquisitions recorded yet.</p>
-                        </TableCell>
-                    </TableRow>
-                )}
               </TableBody>
             </Table>
           </div>

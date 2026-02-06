@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function StorePoliciesPage() {
   return (
-    <div className="flex-1 flex justify-center py-6 px-4 sm:px-6 lg:px-8 bg-background-light dark:bg-background-dark">
+    <div className="flex-1 flex justify-center pt-32 pb-12 px-4 sm:px-6 lg:px-8 bg-background-light dark:bg-background-dark">
       <div className="w-full max-w-7xl flex flex-col gap-6">
         {/* Breadcrumbs */}
         <nav className="flex items-center gap-2 text-sm">
@@ -117,7 +117,68 @@ export default function StorePoliciesPage() {
                   </ul>
                 </section>
 
-                {/* Rest of the sections following the same pattern... */}
+                <section className="mb-10 scroll-mt-28" id="estimated-delivery">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">2</span>
+                    <h2 className="text-2xl font-bold text-text-main-light dark:text-white m-0">Estimated Delivery Times</h2>
+                  </div>
+                  <p className="mb-6">
+                    Once your order is dispatched, estimated transit times are as follows. We do our best to meet these shipping estimates, but cannot guarantee them.
+                  </p>
+                  <div className="overflow-hidden rounded-xl border border-border-light dark:border-border-dark">
+                    <table className="w-full text-left border-collapse text-sm">
+                      <thead>
+                        <tr className="bg-surface-subtle dark:bg-surface-dark border-b border-border-light dark:border-border-dark">
+                          <th className="p-4 font-bold text-text-main-light dark:text-white">Region</th>
+                          <th className="p-4 font-bold text-text-main-light dark:text-white">Standard Shipping</th>
+                          <th className="p-4 font-bold text-text-main-light dark:text-white">Express Shipping</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border-light dark:divide-border-dark">
+                        <tr>
+                          <td className="p-4">North America</td>
+                          <td className="p-4">3-5 business days</td>
+                          <td className="p-4">1-2 business days</td>
+                        </tr>
+                        <tr>
+                          <td className="p-4">Europe</td>
+                          <td className="p-4">7-14 business days</td>
+                          <td className="p-4">3-5 business days</td>
+                        </tr>
+                        <tr>
+                          <td className="p-4">Asia Pacific</td>
+                          <td className="p-4">10-20 business days</td>
+                          <td className="p-4">5-7 business days</td>
+                        </tr>
+                        <tr>
+                          <td className="p-4">Australia & NZ</td>
+                          <td className="p-4">12-25 business days</td>
+                          <td className="p-4">5-10 business days</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
+                <section className="mb-10 scroll-mt-28" id="tracking-your-order">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">3</span>
+                    <h2 className="text-2xl font-bold text-text-main-light dark:text-white m-0">Tracking Your Order</h2>
+                  </div>
+                  <p>
+                    All orders include a tracking number which will be emailed to you once the label is created. You can also view tracking information by visiting your account dashboard.
+                  </p>
+                </section>
+
+                <section className="mb-10 scroll-mt-28" id="customs-&-import-taxes">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">4</span>
+                    <h2 className="text-2xl font-bold text-text-main-light dark:text-white m-0">Customs and Import Taxes</h2>
+                  </div>
+                  <p>
+                    Buyers are responsible for any customs and import taxes that may apply. Vridhira is not responsible for delays due to customs.
+                  </p>
+                </section>
               </div>
             </div>
           </main>

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useFirestore, useCollection, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { Order } from '@/lib/mock-data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -25,18 +25,22 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { doc } from 'firebase/firestore';
 import { format, isAfter, isBefore, startOfDay, endOfDay } from 'date-fns';
 
 export default function OrdersManagementPage() {
   const db = useFirestore();
   const { toast } = useToast();
+  const [mounted, setMounted] = useState(false);
 
   // State for filters
   const [searchQuery, setSearchQuery] = useState('');
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [pageSize, setPageSize] = useState('10');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const ordersQuery = useMemoFirebase(() => query(collection(db, 'orders'), orderBy('date', 'desc')), [db]);
   const { data: orders, isLoading } = useCollection<Order>(ordersQuery);
@@ -60,10 +64,7 @@ export default function OrdersManagementPage() {
     if (!orders) return [];
     
     let result = orders.filter(order => {
-      // Filter by Order ID
       const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      // Filter by Date Range
       const orderDate = new Date(order.date);
       let matchesDate = true;
       
@@ -77,7 +78,6 @@ export default function OrdersManagementPage() {
       return matchesSearch && matchesDate;
     });
 
-    // Handle "Show X entries"
     return result.slice(0, parseInt(pageSize));
   }, [orders, searchQuery, dateFrom, dateTo, pageSize]);
 
@@ -217,8 +217,12 @@ export default function OrdersManagementPage() {
                   <TableRow key={order.id} className="hover:bg-muted/10 transition-colors border-b last:border-0">
                     <TableCell className="px-8 py-5 font-black text-primary">{order.id}</TableCell>
                     <TableCell className="font-bold text-secondary">{order.customerName}</TableCell>
-                    <TableCell className="text-muted-foreground">{new Date(order.date).toLocaleDateString()}</TableCell>
-                    <TableCell className="font-bold text-secondary">${order.totalAmount.toFixed(2)}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {mounted ? new Date(order.date).toLocaleDateString() : '---'}
+                    </TableCell>
+                    <TableCell className="font-bold text-secondary">
+                      {mounted ? `$${order.totalAmount.toFixed(2)}` : '---'}
+                    </TableCell>
                     <TableCell>
                       <Badge className={cn(
                         "rounded-full px-4 py-1 text-[10px] font-black uppercase tracking-widest border-none",

@@ -38,6 +38,7 @@ export default function AccountPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [isNavExpanded, setIsNavExpanded] = useState(false);
   const fabRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
   
   const [otp, setOtp] = useState('');
   const [verifying, setVerifying] = useState(false);
@@ -53,6 +54,10 @@ export default function AccountPage() {
     phoneNumber: ''
   });
   const [savingProfile, setSavingProfile] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const customerRef = useMemoFirebase(() => 
     user ? doc(db, 'customers', user.uid) : null, 
@@ -73,7 +78,7 @@ export default function AccountPage() {
 
     const handleScroll = () => setIsNavExpanded(false);
     const handleClickOutside = (e: MouseEvent) => {
-      if (fabRef.current && !fabRef.current.contains(e.target as Node)) {
+      if (fabRef.current && fabRef.current.contains(e.target as Node)) {
         setIsNavExpanded(false);
       }
     };
@@ -231,14 +236,11 @@ export default function AccountPage() {
           </Alert>
         )}
 
-        {/* Dynamic Desktop Tabs List - Enhanced Liquid Glass Layout */}
+        {/* Dynamic Desktop Tabs List */}
         <div className="hidden md:block">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="bg-white/40 backdrop-blur-3xl border border-white/40 rounded-[2.5rem] p-2 mb-12 h-20 w-full shadow-[0_20px_80px_rgba(0,0,0,0.06)] relative overflow-hidden group">
-              {/* Subtle background flow effect for the container */}
               <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
-              
-              {/* Shimmering highlight line */}
               <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/60 to-transparent pointer-events-none" />
               
               <TabsTrigger 
@@ -320,10 +322,14 @@ export default function AccountPage() {
                         <TableCell className="px-6 md:px-10 py-6 md:py-8">
                           <div className="flex flex-col">
                             <span className="font-black text-primary font-code text-xs md:text-sm">{o.id}</span>
-                            <span className="text-[10px] text-muted-foreground mt-1">{new Date(o.date).toLocaleDateString()}</span>
+                            <span className="text-[10px] text-muted-foreground mt-1">
+                              {mounted ? new Date(o.date).toLocaleDateString() : '---'}
+                            </span>
                           </div>
                         </TableCell>
-                        <TableCell className="font-black text-secondary text-sm md:text-base">${o.totalAmount.toFixed(2)}</TableCell>
+                        <TableCell className="font-black text-secondary text-sm md:text-base">
+                          {mounted ? `$${o.totalAmount.toFixed(2)}` : '---'}
+                        </TableCell>
                         <TableCell>
                           <Badge className={cn(
                             "rounded-full px-3 py-0.5 text-[9px] md:text-[10px] font-black uppercase tracking-widest border-none",
@@ -391,7 +397,7 @@ export default function AccountPage() {
         </div>
       </div>
 
-      {/* Liquid Glass Mobile Floating Navigation - Refined Minimalist Aesthetic */}
+      {/* Liquid Glass Mobile Floating Navigation */}
       <div 
         ref={fabRef}
         className={cn(
@@ -407,7 +413,6 @@ export default function AccountPage() {
             isNavExpanded ? "w-full" : "w-14"
           )}
         >
-          {/* Expandable Nav Content */}
           <div className={cn(
             "flex items-center justify-around w-full h-full px-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
             isNavExpanded ? "opacity-100 scale-100 translate-y-0 delay-150" : "opacity-0 scale-90 translate-y-2 pointer-events-none"
@@ -443,7 +448,6 @@ export default function AccountPage() {
             })}
           </div>
 
-          {/* Trigger Button */}
           <button 
             onClick={() => setIsNavExpanded(true)}
             className={cn(
