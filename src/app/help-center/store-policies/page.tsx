@@ -33,20 +33,24 @@ export default function StorePoliciesPage() {
                 </nav>
               </div>
 
-              {/* Mobile Dropdown */}
+              {/* Mobile Dropdown - Liquid Glass Style */}
               <div className="lg:hidden">
-                <label className="block text-sm font-medium text-text-main-light dark:text-white mb-2" htmlFor="policy-select">Select Policy</label>
-                <div className="relative">
-                  <select defaultValue="Shipping Policy" className="block w-full rounded-lg border-[#e5e0dc] dark:border-[#3a2e26] bg-white dark:bg-background-dark py-3 pl-3 pr-10 text-base focus:border-primary focus:outline-none focus:ring-primary sm:text-sm" id="policy-select">
-                    <option>Shipping Policy</option>
-                    <option>Returns & Refunds</option>
-                    <option>Privacy Policy</option>
-                    <option>Terms of Service</option>
-                    <option>Cookie Policy</option>
-                    <option>Seller Guidelines</option>
+                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-3 px-2" htmlFor="policy-select">Select Policy</label>
+                <div className="relative group">
+                  <select 
+                    defaultValue="Shipping Policy" 
+                    className="block w-full rounded-[1.5rem] border border-white/40 bg-white/20 backdrop-blur-2xl py-4 pl-5 pr-12 text-base font-bold text-secondary focus:border-primary/50 focus:outline-none focus:ring-0 shadow-xl appearance-none transition-all duration-500 hover:bg-white/30 cursor-pointer" 
+                    id="policy-select"
+                  >
+                    <option className="bg-white text-secondary">Shipping Policy</option>
+                    <option className="bg-white text-secondary">Returns & Refunds</option>
+                    <option className="bg-white text-secondary">Privacy Policy</option>
+                    <option className="bg-white text-secondary">Terms of Service</option>
+                    <option className="bg-white text-secondary">Cookie Policy</option>
+                    <option className="bg-white text-secondary">Seller Guidelines</option>
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[#9a6c4c]">
-                    <span className="material-symbols-outlined">expand_more</span>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-5 text-primary group-hover:scale-110 transition-transform duration-500">
+                    <span className="material-symbols-outlined !text-[24px]">expand_more</span>
                   </div>
                 </div>
               </div>
