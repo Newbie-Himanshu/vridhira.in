@@ -121,6 +121,7 @@ export default function AdminLayout({
     const distance = currentY - touchStart;
     const threshold = 50;
 
+    // Golden Ratio logic for pulling transitions
     if (!isExtended) {
       if (distance < -threshold) {
         setIsExtended(true);
@@ -149,7 +150,6 @@ export default function AdminLayout({
     const touchX = e.targetTouches[0].clientX;
     const deltaX = Math.abs(touchX - dragStartPosition.current);
     
-    // Only start dragging if moved more than 5px to avoid sensitivity issues
     if (deltaX > 5) {
       setIsDraggingFab(true);
       setWasDragged(true);
@@ -164,7 +164,6 @@ export default function AdminLayout({
 
   const handleFabDragEnd = () => {
     setIsDraggingFab(false);
-    // Use timeout to reset wasDragged so onClick can check its value
     setTimeout(() => setWasDragged(false), 100);
   };
 
@@ -223,14 +222,14 @@ export default function AdminLayout({
       <div 
         ref={fabRef}
         style={{
-          left: isFabExpanded ? '1.5rem' : (fabX !== undefined ? `${fabX}px` : undefined),
-          right: isFabExpanded ? '1.5rem' : (fabX === undefined ? '1.5rem' : 'auto'),
+          left: isFabExpanded ? '1rem' : (fabX !== undefined ? `${fabX}px` : undefined),
+          right: isFabExpanded ? '1rem' : (fabX === undefined ? '1rem' : 'auto'),
         }}
         className={cn(
           "fixed bottom-6 z-[60] md:hidden",
           !isDraggingFab && "transition-all duration-700 ease-quint",
           isFabExpanded 
-            ? "w-[calc(100%-3rem)]" 
+            ? "w-[calc(100%-2rem)]" 
             : "w-16 h-16"
         )}
       >
@@ -238,7 +237,7 @@ export default function AdminLayout({
           className={cn(
             "bg-white/40 backdrop-blur-md border border-white/40 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden relative transition-all duration-700 ease-quint will-change-[height,width,padding,opacity]",
             isFabExpanded 
-              ? (isExtended ? "p-6 h-[90vh] opacity-100" : "p-6 h-[60vh] opacity-100") 
+              ? (isExtended ? "p-6 h-[95vh] opacity-100" : "p-6 h-[61.8vh] opacity-100") 
               : "p-0 h-16 opacity-100"
           )}
         >
