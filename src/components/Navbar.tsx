@@ -170,16 +170,16 @@ export function Navbar() {
   const loginUrl = pathname === '/login' ? '/login' : `/login?returnTo=${encodeURIComponent(pathname)}`;
 
   return (
-    <div className="fixed top-0 left-0 w-full z-50 pointer-events-none flex justify-center pt-0 transition-all duration-700 ease-quint">
+    <div className="fixed top-0 left-0 w-full z-50 pointer-events-none flex justify-center pt-0">
       <header className={cn(
-        "pointer-events-auto transition-all duration-700 ease-quint flex items-center justify-center",
+        "pointer-events-auto transition-all duration-700 ease-quint flex items-center justify-center will-change-[width,height,margin,border-radius,background-color,backdrop-filter,box-shadow]",
         isScrolled 
           ? "mt-4 w-[92%] md:w-[70%] max-w-6xl h-16 bg-background/60 backdrop-blur-2xl rounded-full border border-white/20 shadow-2xl" 
-          : "w-full h-20 bg-transparent border-b border-transparent shadow-none rounded-none"
+          : "mt-0 w-full h-20 bg-transparent border-b border-transparent shadow-none rounded-none"
       )}>
         <div className={cn(
-          "w-full px-6 h-full flex items-center relative transition-all duration-700 ease-quint",
-          isScrolled ? "max-w-none" : "container mx-auto"
+          "w-full px-6 h-full flex items-center relative transition-all duration-700 ease-quint will-change-[padding,max-width]",
+          isScrolled ? "max-w-none px-8" : "container mx-auto"
         )}>
           
           <div className="flex-[1_0_0] flex justify-start">
