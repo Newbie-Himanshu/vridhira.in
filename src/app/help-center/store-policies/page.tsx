@@ -37,8 +37,8 @@ export default function StorePoliciesPage() {
               <div className="lg:hidden">
                 <label className="block text-sm font-medium text-text-main-light dark:text-white mb-2" htmlFor="policy-select">Select Policy</label>
                 <div className="relative">
-                  <select className="block w-full rounded-lg border-[#e5e0dc] dark:border-[#3a2e26] bg-white dark:bg-background-dark py-3 pl-3 pr-10 text-base focus:border-primary focus:outline-none focus:ring-primary sm:text-sm" id="policy-select">
-                    <option selected>Shipping Policy</option>
+                  <select defaultValue="Shipping Policy" className="block w-full rounded-lg border-[#e5e0dc] dark:border-[#3a2e26] bg-white dark:bg-background-dark py-3 pl-3 pr-10 text-base focus:border-primary focus:outline-none focus:ring-primary sm:text-sm" id="policy-select">
+                    <option>Shipping Policy</option>
                     <option>Returns & Refunds</option>
                     <option>Privacy Policy</option>
                     <option>Terms of Service</option>
