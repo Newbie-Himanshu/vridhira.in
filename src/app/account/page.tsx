@@ -212,7 +212,7 @@ export default function AccountPage() {
                   {showOtpStep ? (
                     <form onSubmit={handleVerify} className="flex flex-col sm:flex-row gap-3">
                       <Input 
-                        className="max-w-full sm:max-w-[200px] h-12 rounded-xl text-center text-2xl font-black tracking-widest border-primary/40" 
+                        className="max-w-full sm:max-w-[200px] h-12 rounded-xl text-center text-2xl font-black tracking-widest border-primary/40 bg-background" 
                         placeholder="123456" 
                         value={otp} 
                         onChange={(e) => setOtp(e.target.value)} 
@@ -239,27 +239,27 @@ export default function AccountPage() {
         {/* Dynamic Desktop Tabs List */}
         <div className="hidden md:block">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="bg-white/40 backdrop-blur-3xl border border-white/40 rounded-[2.5rem] p-2 mb-12 h-20 w-full shadow-[0_20px_80px_rgba(0,0,0,0.06)] relative overflow-hidden group">
+            <TabsList className="bg-background/40 backdrop-blur-3xl border border-border/40 rounded-[2.5rem] p-2 mb-12 h-20 w-full shadow-[0_20px_80px_rgba(0,0,0,0.06)] relative overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
-              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/60 to-transparent pointer-events-none" />
+              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
               
               <TabsTrigger 
                 value="overview" 
-                className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-[0.25em] transition-all duration-700 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-[0_15px_30px_rgba(224,124,84,0.3)] data-[state=active]:scale-[1.02] hover:bg-white/20 active:scale-95 z-10 flex items-center justify-center gap-3 px-6 group/tab"
+                className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-[0.25em] transition-all duration-700 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-[0_15px_30px_rgba(224,124,84,0.3)] data-[state=active]:scale-[1.02] hover:bg-white/10 active:scale-95 z-10 flex items-center justify-center gap-3 px-6 group/tab"
               >
                 <LayoutDashboard className="h-4 w-4 transition-transform duration-500 group-hover/tab:scale-110" />
                 Overview
               </TabsTrigger>
               <TabsTrigger 
                 value="orders" 
-                className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-[0.25em] transition-all duration-700 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-[0_15px_30px_rgba(224,124,84,0.3)] data-[state=active]:scale-[1.02] hover:bg-white/20 active:scale-95 z-10 flex items-center justify-center gap-3 px-6 group/tab"
+                className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-[0.25em] transition-all duration-700 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-[0_15px_30px_rgba(224,124,84,0.3)] data-[state=active]:scale-[1.02] hover:bg-white/10 active:scale-95 z-10 flex items-center justify-center gap-3 px-6 group/tab"
               >
                 <Package className="h-4 w-4 transition-transform duration-500 group-hover/tab:scale-110" />
                 Acquisitions
               </TabsTrigger>
               <TabsTrigger 
                 value="profile" 
-                className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-[0.25em] transition-all duration-700 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-[0_15px_30px_rgba(224,124,84,0.3)] data-[state=active]:scale-[1.02] hover:bg-white/20 active:scale-95 z-10 flex items-center justify-center gap-3 px-6 group/tab"
+                className="flex-1 rounded-2xl text-[10px] font-black uppercase tracking-[0.25em] transition-all duration-700 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-[0_15px_30px_rgba(224,124,84,0.3)] data-[state=active]:scale-[1.02] hover:bg-white/10 active:scale-95 z-10 flex items-center justify-center gap-3 px-6 group/tab"
               >
                 <UserIcon className="h-4 w-4 transition-transform duration-500 group-hover/tab:scale-110" />
                 Identity Details
@@ -273,7 +273,7 @@ export default function AccountPage() {
           {activeTab === 'overview' && (
             <Card className="rounded-[2rem] md:rounded-[2.5rem] shadow-xl border-none artisan-pattern p-6 md:p-10 relative overflow-hidden">
               <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 md:gap-8 mb-8 md:mb-10 relative z-10">
-                <Avatar className="h-24 w-20 md:h-28 md:w-24 rounded-2xl md:rounded-3xl border-4 border-white shadow-2xl">
+                <Avatar className="h-24 w-20 md:h-28 md:w-24 rounded-2xl md:rounded-3xl border-4 border-background shadow-2xl">
                   <AvatarFallback className="text-3xl md:text-4xl font-bold bg-primary text-white">{(user.displayName || 'A')[0]}</AvatarFallback>
                 </Avatar>
                 <div className="space-y-1">
@@ -282,7 +282,7 @@ export default function AccountPage() {
                     <AtSign className="h-4 w-4 text-primary" /> {user.email}
                   </p>
                   {customer?.isVerified && (
-                    <Badge className="bg-green-100 text-green-700 mt-2 border-none rounded-full px-3 py-1 text-[10px] font-bold uppercase">
+                    <Badge className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 mt-2 border-none rounded-full px-3 py-1 text-[10px] font-bold uppercase">
                       <CheckCircle2 className="h-3 w-3 mr-1" /> Certified Identity
                     </Badge>
                   )}
@@ -295,7 +295,7 @@ export default function AccountPage() {
                   { label: 'Total Acquisitions', value: `${orders?.length || 0} items` },
                   { label: 'Platform Role', value: customer?.role || 'User', capitalize: true }
                 ].map((stat, i) => (
-                  <div key={i} className="bg-white/80 backdrop-blur-sm p-5 md:p-6 rounded-2xl md:rounded-3xl border shadow-sm flex flex-col items-center sm:items-start">
+                  <div key={i} className="bg-card/80 backdrop-blur-sm p-5 md:p-6 rounded-2xl md:rounded-3xl border shadow-sm flex flex-col items-center sm:items-start">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1 md:mb-2">{stat.label}</p>
                     <p className={cn("text-lg md:text-xl font-bold text-secondary", stat.capitalize && "capitalize")}>{stat.value}</p>
                   </div>
@@ -305,7 +305,7 @@ export default function AccountPage() {
           )}
 
           {activeTab === 'orders' && (
-            <Card className="rounded-[2rem] md:rounded-[2.5rem] shadow-xl border-none overflow-hidden bg-white/60 backdrop-blur-xl">
+            <Card className="rounded-[2rem] md:rounded-[2.5rem] shadow-xl border-none overflow-hidden bg-card/60 backdrop-blur-xl">
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader className="bg-muted/30">
@@ -333,8 +333,8 @@ export default function AccountPage() {
                         <TableCell>
                           <Badge className={cn(
                             "rounded-full px-3 py-0.5 text-[9px] md:text-[10px] font-black uppercase tracking-widest border-none",
-                            o.status === 'Delivered' ? "bg-green-100 text-green-700" : 
-                            o.status === 'Cancelled' ? "bg-destructive/10 text-destructive" : "bg-blue-100 text-blue-700"
+                            o.status === 'Delivered' ? "bg-green-100 dark:bg-green-900/30 text-green-700" : 
+                            o.status === 'Cancelled' ? "bg-destructive/10 text-destructive" : "bg-blue-100 dark:bg-blue-900/30 text-blue-700"
                           )}>
                             {o.status}
                           </Badge>
@@ -360,32 +360,32 @@ export default function AccountPage() {
           )}
 
           {activeTab === 'profile' && (
-            <Card className="rounded-[2rem] md:rounded-[2.5rem] shadow-xl border-none p-6 md:p-10 bg-white/60 backdrop-blur-xl">
+            <Card className="rounded-[2rem] md:rounded-[2.5rem] shadow-xl border-none p-6 md:p-10 bg-card/60 backdrop-blur-xl">
               <form onSubmit={handleSaveProfile} className="space-y-6 md:space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                   <div className="space-y-2">
                     <Label className="text-xs font-bold uppercase tracking-wider opacity-60">First Name</Label>
-                    <Input value={profileData.firstName} onChange={e => setProfileData({...profileData, firstName: e.target.value})} className="h-12 rounded-xl" />
+                    <Input value={profileData.firstName} onChange={e => setProfileData({...profileData, firstName: e.target.value})} className="h-12 rounded-xl bg-background" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs font-bold uppercase tracking-wider opacity-60">Last Name</Label>
-                    <Input value={profileData.lastName} onChange={e => setProfileData({...profileData, lastName: e.target.value})} className="h-12 rounded-xl" />
+                    <Input value={profileData.lastName} onChange={e => setProfileData({...profileData, lastName: e.target.value})} className="h-12 rounded-xl bg-background" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs font-bold uppercase tracking-wider opacity-60 flex items-center gap-1"><AtSign className="h-3 w-3" /> Unique @Username</Label>
-                    <Input value={profileData.username} onChange={e => setProfileData({...profileData, username: e.target.value})} className="h-12 rounded-xl" placeholder="artisan_collector" />
+                    <Input value={profileData.username} onChange={e => setProfileData({...profileData, username: e.target.value})} className="h-12 rounded-xl bg-background" placeholder="artisan_collector" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs font-bold uppercase tracking-wider opacity-60 flex items-center gap-1"><UserIcon className="h-3 w-3" /> Contact Phone</Label>
-                    <Input value={profileData.phoneNumber} onChange={e => setProfileData({...profileData, phoneNumber: e.target.value})} className="h-12 rounded-xl" />
+                    <Input value={profileData.phoneNumber} onChange={e => setProfileData({...profileData, phoneNumber: e.target.value})} className="h-12 rounded-xl bg-background" />
                   </div>
                   <div className="md:col-span-2 space-y-2">
                     <Label className="text-xs font-bold uppercase tracking-wider opacity-60 flex items-center gap-1"><MapPin className="h-3 w-3" /> Primary Delivery Address</Label>
-                    <Textarea value={profileData.address} onChange={e => setProfileData({...profileData, address: e.target.value})} className="min-h-[100px] rounded-[1.2rem] md:rounded-[1.5rem]" placeholder="Full shipping coordinates..." />
+                    <Textarea value={profileData.address} onChange={e => setProfileData({...profileData, address: e.target.value})} className="min-h-[100px] rounded-[1.2rem] md:rounded-[1.5rem] bg-background" placeholder="Full shipping coordinates..." />
                   </div>
                   <div className="md:col-span-2 space-y-2">
                     <Label className="text-xs font-bold uppercase tracking-wider opacity-60">Identity Bio</Label>
-                    <Textarea value={profileData.bio} onChange={e => setProfileData({...profileData, bio: e.target.value})} className="min-h-[100px] rounded-[1.2rem] md:rounded-[1.5rem]" placeholder="Tell us about your love for handcrafted treasures..." />
+                    <Textarea value={profileData.bio} onChange={e => setProfileData({...profileData, bio: e.target.value})} className="min-h-[100px] rounded-[1.2rem] md:rounded-[1.5rem] bg-background" placeholder="Tell us about your love for handcrafted treasures..." />
                   </div>
                 </div>
                 <Button type="submit" className="w-full bg-secondary text-white h-14 rounded-2xl font-bold text-lg shadow-xl hover:scale-[1.01] transition-all" disabled={savingProfile}>
@@ -409,7 +409,7 @@ export default function AccountPage() {
       >
         <div 
           className={cn(
-            "bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full h-14 shadow-lg flex items-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] relative overflow-hidden",
+            "bg-background/5 backdrop-blur-2xl border border-border/10 rounded-full h-14 shadow-lg flex items-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] relative overflow-hidden",
             isNavExpanded ? "w-full" : "w-14"
           )}
         >
@@ -451,7 +451,7 @@ export default function AccountPage() {
           <button 
             onClick={() => setIsNavExpanded(true)}
             className={cn(
-              "absolute inset-0 w-full h-full flex items-center justify-center bg-white/10 backdrop-blur-xl text-secondary transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              "absolute inset-0 w-full h-full flex items-center justify-center bg-background/10 backdrop-blur-xl text-secondary transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
               isNavExpanded ? "opacity-0 scale-50 pointer-events-none" : "opacity-100 scale-100"
             )}
           >

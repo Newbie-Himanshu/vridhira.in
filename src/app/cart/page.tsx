@@ -153,9 +153,9 @@ export default function CartPage() {
             <Badge variant="outline" className="rounded-full border-primary/20 text-primary bg-primary/5 px-4 font-bold">{cartDetailedItems.length} Pieces</Badge>
           </div>
           {cartDetailedItems.map((item) => (
-            <Card key={`${item.productId}-${item.variantId}`} className="border-none shadow-xl rounded-[2.5rem] bg-white/60 backdrop-blur-xl p-8 hover:bg-white/80 transition-all">
+            <Card key={`${item.productId}-${item.variantId}`} className="border-none shadow-xl rounded-[2.5rem] bg-card/60 backdrop-blur-xl p-8 hover:bg-card/80 transition-all">
               <div className="flex flex-col sm:grid sm:grid-cols-12 gap-8 items-center">
-                <div className="sm:col-span-3 relative aspect-square w-full rounded-3xl overflow-hidden shadow-inner border border-white/20">
+                <div className="sm:col-span-3 relative aspect-square w-full rounded-3xl overflow-hidden shadow-inner border border-border/20">
                   <Image src={item.product?.imageUrl || ''} alt={item.product?.title || ''} fill className="object-cover" />
                 </div>
                 <div className="sm:col-span-9 flex flex-col justify-between h-full w-full py-2">
@@ -169,9 +169,9 @@ export default function CartPage() {
                   </div>
                   <div className="flex items-center justify-between mt-8">
                     <div className="flex items-center gap-6 bg-muted/30 rounded-2xl px-6 py-2 border border-black/5">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-white" onClick={() => updateCartItemQuantityAction(db, user?.uid || null, item.productId, item.variantId, item.quantity - 1)}><Minus className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-background" onClick={() => updateCartItemQuantityAction(db, user?.uid || null, item.productId, item.variantId, item.quantity - 1)}><Minus className="h-4 w-4" /></Button>
                       <span className="font-black text-lg w-4 text-center">{item.quantity}</span>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-white" onClick={() => updateCartItemQuantityAction(db, user?.uid || null, item.productId, item.variantId, item.quantity + 1)}><Plus className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-background" onClick={() => updateCartItemQuantityAction(db, user?.uid || null, item.productId, item.variantId, item.quantity + 1)}><Plus className="h-4 w-4" /></Button>
                     </div>
                     <Button variant="ghost" className="text-destructive/60 hover:text-destructive hover:bg-destructive/5 rounded-full" onClick={() => removeCartItemAction(db, user?.uid || null, item.productId, item.variantId)}><Trash2 className="h-5 w-5" /></Button>
                   </div>
@@ -182,7 +182,7 @@ export default function CartPage() {
         </div>
 
         <div className="lg:col-span-4">
-          <Card className="border border-white/40 shadow-2xl bg-white/20 backdrop-blur-3xl rounded-[2.5rem] p-8 space-y-8 sticky top-32 overflow-hidden animate-liquid-flow bg-gradient-to-br from-white/30 via-white/5 to-white/20 text-secondary group">
+          <Card className="border border-border/40 shadow-2xl bg-card/20 backdrop-blur-3xl rounded-[2.5rem] p-8 space-y-8 sticky top-32 overflow-hidden animate-liquid-flow bg-gradient-to-br from-card/30 via-card/5 to-card/20 text-secondary group">
             <div className="relative z-10 space-y-8">
               <h2 className="text-3xl font-headline font-black tracking-tight">Summary</h2>
               <div className="space-y-6">
