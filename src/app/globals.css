@@ -4,19 +4,19 @@
 
 @layer base {
   :root {
-    --background: 40 40% 91%; /* #F5F5DC - Warm Beige */
+    --background: 40 40% 91%; /* Warm Beige */
     --foreground: 20 10% 10%;
     --card: 40 40% 95%;
     --card-foreground: 20 10% 10%;
     --popover: 40 40% 95%;
     --popover-foreground: 20 10% 10%;
-    --primary: 17 72% 61%; /* #E07C54 - Terracotta */
+    --primary: 17 72% 61%; /* Terracotta */
     --primary-foreground: 40 40% 98%;
-    --secondary: 275 100% 25%; /* #4B0082 - Deep Indigo */
+    --secondary: 275 100% 25%; /* Deep Indigo */
     --secondary-foreground: 40 40% 98%;
     --muted: 40 20% 85%;
     --muted-foreground: 20 10% 40%;
-    --accent: 40 20% 88%; /* Refined subtle accent for hover states */
+    --accent: 40 20% 88%;
     --accent-foreground: 17 72% 30%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -26,24 +26,24 @@
     --radius: 0.75rem;
   }
   .dark {
-    --background: 20 10% 10%;
-    --foreground: 40 40% 98%;
-    --card: 20 10% 12%;
-    --card-foreground: 40 40% 98%;
-    --popover: 20 10% 12%;
-    --popover-foreground: 40 40% 98%;
-    --primary: 17 72% 61%;
+    --background: 20 15% 8%; /* Warmer Obsidian Umber */
+    --foreground: 40 30% 95%; /* Warmer white for heritage feel */
+    --card: 20 15% 10%;
+    --card-foreground: 40 30% 95%;
+    --popover: 20 15% 10%;
+    --popover-foreground: 40 30% 95%;
+    --primary: 17 72% 61%; /* Terracotta stays consistent */
     --primary-foreground: 40 40% 98%;
-    --secondary: 275 100% 70%;
+    --secondary: 275 80% 75%; /* More vibrant, readable Indigo for dark mode */
     --secondary-foreground: 20 10% 10%;
-    --muted: 20 10% 25%;
-    --muted-foreground: 40 10% 65%;
-    --accent: 20 10% 20%;
-    --accent-foreground: 40 40% 98%;
+    --muted: 20 15% 20%;
+    --muted-foreground: 40 15% 65%;
+    --accent: 20 15% 15%;
+    --accent-foreground: 40 30% 95%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 20 10% 30%;
-    --input: 20 10% 30%;
+    --border: 20 15% 25%;
+    --input: 20 15% 25%;
     --ring: 17 72% 61%;
   }
 }
@@ -61,7 +61,6 @@
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* Prevent transition on initial load where layout shifts might occur */
   .no-transition * {
     transition: none !important;
   }
@@ -77,11 +76,11 @@
 
 @layer utilities {
   .scrollbar-none {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
   .scrollbar-none::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
+    display: none;
   }
 }
 
@@ -91,7 +90,11 @@
   background-blend-mode: overlay;
   background-attachment: fixed;
   background-size: cover;
-  opacity: 0.98;
+}
+
+.dark .artisan-pattern {
+  background-blend-mode: soft-light;
+  opacity: 0.95;
 }
 
 @keyframes subtle-float {

@@ -16,14 +16,19 @@ import {
   MessageSquare,
   ArrowRight,
   Home,
-  HelpCircle
+  HelpCircle,
+  Tag
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { MOCK_PRODUCTS } from '@/lib/mock-data';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where } from 'firebase/firestore';
 
 export default function HelpCenterPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const db = useFirestore();
 
   const categories = [
     { icon: Receipt, title: 'Buying & Orders', desc: 'Tracking, returns, cancellations and order issues.', href: '#' },
@@ -41,6 +46,9 @@ export default function HelpCenterPage() {
     { icon: CreditCard, title: 'Understanding artisan fees', desc: 'Breakdown of listing fees, transaction costs, and VAT.' },
   ];
 
+  const categoriesQuery = useMemoFirebase(() => query(collection(db, 'categories'), where('isActive', '==', true)), [db]);
+  const { data: liveCategories } = useCollection<any>(categoriesQuery);
+
   const filteredCategories = categories.filter(cat => 
     cat.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
     cat.desc.toLowerCase().includes(searchQuery.toLowerCase())
@@ -56,29 +64,29 @@ export default function HelpCenterPage() {
   };
 
   return (
-    <div className="flex flex-col flex-1 pt-20 bg-background-light dark:bg-background-dark animate-in fade-in duration-1000">
+    <div className="flex flex-col flex-1 pt-20 bg-background animate-in fade-in duration-1000 transition-colors">
       {/* Minimal Studio Hero Section */}
-      <div className="relative w-full py-24 md:py-32 flex items-center justify-center overflow-hidden bg-[#FDFBF7] dark:bg-[#1A1A1A]">
+      <div className="relative w-full py-24 md:py-32 flex items-center justify-center overflow-hidden bg-background border-b">
         <div className="relative z-10 w-full max-w-4xl px-6 text-center flex flex-col items-center gap-10">
           <div className="space-y-4">
-            <span className="inline-flex px-4 py-1 rounded-full bg-black/5 text-black/60 text-[10px] font-black uppercase tracking-[0.3em]">
+            <span className="inline-flex px-4 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em]">
               Heritage Registry
             </span>
-            <h1 className="font-headline text-5xl md:text-7xl font-bold text-black dark:text-white tracking-tighter leading-none">
+            <h1 className="font-headline text-5xl md:text-7xl font-bold text-foreground tracking-tighter leading-none">
               How can we help you?
             </h1>
           </div>
 
           <div className="w-full max-w-2xl relative">
-            <form onSubmit={handleSearchSubmit} className="relative flex items-center bg-white dark:bg-zinc-900 rounded-2xl border border-black/10 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden transition-all focus-within:shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
-              <Search className="ml-6 h-5 w-5 text-black/40" />
+            <form onSubmit={handleSearchSubmit} className="relative flex items-center bg-card rounded-2xl border border-border shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden transition-all focus-within:border-primary/50">
+              <Search className="ml-6 h-5 w-5 text-muted-foreground" />
               <Input 
-                className="h-16 md:h-20 border-none bg-transparent text-lg text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus-visible:ring-0 focus-visible:ring-offset-0 px-4" 
+                className="h-16 md:h-20 border-none bg-transparent text-lg text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 px-4" 
                 placeholder="Search articles, policies, or topics..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <Button type="submit" className="mr-3 h-12 md:h-14 px-8 rounded-xl bg-black text-white dark:bg-white dark:text-black font-bold shadow-xl hover:opacity-90 transition-all">
+              <Button type="submit" className="mr-3 h-12 md:h-14 px-8 rounded-xl bg-primary text-white font-bold shadow-xl hover:opacity-90 transition-all">
                 Search
               </Button>
             </form>
@@ -87,14 +95,14 @@ export default function HelpCenterPage() {
       </div>
 
       {/* Breadcrumbs Navigation */}
-      <div className="border-b border-border-light dark:border-border-dark bg-white/50 dark:bg-black/20 backdrop-blur-sm">
+      <div className="border-b border-border bg-card/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <nav className="flex items-center gap-2 text-sm text-text-secondary-light dark:text-text-secondary-dark font-medium">
+          <nav className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
             <Link className="hover:text-primary transition-colors flex items-center gap-1" href="/">
               <Home className="h-3 w-3" /> Home
             </Link>
             <ChevronRight className="h-3 w-3 opacity-30" />
-            <span className="text-text-main-light dark:text-white">Help Center</span>
+            <span className="text-foreground">Help Center</span>
           </nav>
         </div>
       </div>
@@ -106,7 +114,7 @@ export default function HelpCenterPage() {
           <aside className="w-full lg:w-72 flex-shrink-0 order-2 lg:order-1">
             <div className="sticky top-32 space-y-10">
               <div>
-                <h3 className="font-headline text-lg font-bold mb-6 text-text-main-light dark:text-white uppercase tracking-widest opacity-60">Registry Navigation</h3>
+                <h3 className="font-headline text-lg font-bold mb-6 text-foreground uppercase tracking-widest opacity-60">Registry Navigation</h3>
                 <nav className="space-y-2">
                   {[
                     { icon: Home, label: 'Overview', active: true, href: '/help-center' },
@@ -122,7 +130,7 @@ export default function HelpCenterPage() {
                         "group flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all duration-500",
                         item.active 
                           ? "bg-primary/10 text-primary font-bold shadow-sm border-l-4 border-primary" 
-                          : "text-text-secondary-light dark:text-text-secondary-dark hover:bg-white dark:hover:bg-white/5 hover:text-primary"
+                          : "text-muted-foreground hover:bg-card hover:text-primary"
                       )} 
                       href={item.href}
                     >
@@ -133,15 +141,15 @@ export default function HelpCenterPage() {
                 </nav>
               </div>
 
-              <div className="p-8 rounded-[2.5rem] bg-white dark:bg-white/5 border border-border-light dark:border-white/10 shadow-xl relative overflow-hidden group">
+              <div className="p-8 rounded-[2.5rem] bg-card border border-border shadow-xl relative overflow-hidden group">
                 <div className="absolute -top-10 -right-10 opacity-5 group-hover:scale-110 transition-transform duration-1000">
                   <Headset className="h-40 w-40" />
                 </div>
                 <h4 className="font-headline font-bold text-xl mb-3 relative z-10">Personal Assistance</h4>
-                <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-6 relative z-10 leading-relaxed font-light">
+                <p className="text-sm text-muted-foreground mb-6 relative z-10 leading-relaxed font-light">
                   Our heritage support team is standing by to assist with complex inquiries.
                 </p>
-                <Button className="w-full h-12 bg-secondary text-white rounded-xl shadow-lg font-bold gap-2 group/btn relative z-10">
+                <Button className="w-full h-12 bg-secondary text-secondary-foreground rounded-xl shadow-lg font-bold gap-2 group/btn relative z-10">
                   Contact Support <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                 </Button>
               </div>
@@ -151,36 +159,36 @@ export default function HelpCenterPage() {
           {/* Main Content Area */}
           <main className="flex-1 order-1 lg:order-2 space-y-20">
             <section>
-              <div className="flex items-end justify-between mb-8 border-b border-border-light dark:border-white/10 pb-6">
+              <div className="flex items-end justify-between mb-8 border-b border-border pb-6">
                 <div>
-                  <h2 className="font-headline text-3xl text-text-main-light dark:text-white font-bold">Browse Categories</h2>
-                  <p className="text-text-secondary-light dark:text-text-secondary-dark mt-2 font-light">Select a collection to find solutions.</p>
+                  <h2 className="font-headline text-3xl text-foreground font-bold">Browse Categories</h2>
+                  <p className="text-muted-foreground mt-2 font-light">Select a collection to find solutions.</p>
                 </div>
               </div>
               
               {filteredCategories.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredCategories.map((cat, i) => (
-                    <Link key={i} className="group flex flex-col p-8 bg-white dark:bg-white/5 rounded-[2rem] border border-transparent hover:border-primary/20 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-700" href={cat.href}>
+                    <Link key={i} className="group flex flex-col p-8 bg-card rounded-[2rem] border border-transparent hover:border-primary/20 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-700" href={cat.href}>
                       <div className="mb-6 h-14 w-14 rounded-2xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner">
                         <cat.icon className="h-7 w-7" />
                       </div>
-                      <h3 className="font-headline text-xl font-bold text-text-main-light dark:text-white mb-2 group-hover:text-primary transition-colors">{cat.title}</h3>
-                      <p className="text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark font-light">{cat.desc}</p>
+                      <h3 className="font-headline text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">{cat.title}</h3>
+                      <p className="text-sm leading-relaxed text-muted-foreground font-light">{cat.desc}</p>
                     </Link>
                   ))}
                 </div>
               ) : (
-                <div className="py-20 text-center bg-white/50 dark:bg-white/5 rounded-[2rem] border-2 border-dashed">
+                <div className="py-20 text-center bg-card rounded-[2rem] border-2 border-dashed">
                   <Search className="h-12 w-12 mx-auto text-muted-foreground opacity-20 mb-4" />
                   <p className="text-xl font-headline font-bold text-muted-foreground">No categories matched your query.</p>
                 </div>
               )}
             </section>
 
-            <section className="bg-white dark:bg-white/5 rounded-[3rem] p-8 md:p-12 shadow-xl border border-border-light dark:border-white/10">
+            <section className="bg-card rounded-[3rem] p-8 md:p-12 shadow-xl border border-border">
               <div className="flex items-baseline justify-between mb-10">
-                <h2 className="font-headline text-3xl font-bold text-text-main-light dark:text-white">Frequent Articles</h2>
+                <h2 className="font-headline text-3xl font-bold text-foreground">Frequent Articles</h2>
                 <Link className="text-sm font-bold text-primary hover:underline flex items-center gap-2" href="#">View Archive <ArrowRight className="h-4 w-4" /></Link>
               </div>
               
@@ -192,8 +200,8 @@ export default function HelpCenterPage() {
                         <art.icon className="h-6 w-6" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-headline font-bold text-lg text-text-main-light dark:text-white truncate group-hover:text-primary transition-colors">{art.title}</h4>
-                        <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark mt-1 truncate font-light">{art.desc}</p>
+                        <h4 className="font-headline font-bold text-lg text-foreground truncate group-hover:text-primary transition-colors">{art.title}</h4>
+                        <p className="text-sm text-muted-foreground mt-1 truncate font-light">{art.desc}</p>
                       </div>
                       <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:translate-x-1 transition-all opacity-40" />
                     </Link>
@@ -210,14 +218,14 @@ export default function HelpCenterPage() {
       </div>
 
       {/* Footer Design Callout */}
-      <div className="mt-auto border-t border-border-light dark:border-white/10 bg-white dark:bg-background-dark py-20 artisan-pattern">
+      <div className="mt-auto border-t border-border bg-card py-20 artisan-pattern">
         <div className="max-w-3xl mx-auto px-6 text-center space-y-8">
           <div className="h-20 w-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto text-primary animate-pulse-glow">
             <Headset className="h-10 w-10" />
           </div>
           <div className="space-y-4">
-            <h2 className="font-headline text-4xl font-bold text-text-main-light dark:text-white">Still searching?</h2>
-            <p className="text-lg leading-relaxed text-text-secondary-light dark:text-text-secondary-dark font-light max-w-lg mx-auto">
+            <h2 className="font-headline text-4xl font-bold text-foreground">Still searching?</h2>
+            <p className="text-lg leading-relaxed text-muted-foreground font-light max-w-lg mx-auto">
               Our master support team is available 24/7 to safeguard your creative journey and shop experience.
             </p>
           </div>

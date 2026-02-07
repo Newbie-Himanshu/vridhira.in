@@ -30,9 +30,7 @@ export default {
         'text-main-light': '#2D241E',
         'text-main-dark': '#EAE0D5',
         'text-secondary-light': '#6B5D52',
-        'text-secondary-dark': '#B0A090',
-        'border-light': '#E8E0D6',
-        'border-dark': '#3E342E',
+        'text-secondary-dark': '#D4C5BB', /* Lightened for better dark mode visibility */
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
