@@ -111,12 +111,15 @@
   -webkit-transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
   transition: filter 1s ease, opacity 1s ease;
+  /* Restoration of haze effect in light mode */
+  filter: blur(2px) brightness(1.02);
+  opacity: 0.5;
 }
 
 .dark .artisan-pattern::before {
-  /* Cinematic Night Scene: Deep shadows, moonlit contrast, and cold saturation shift */
-  filter: brightness(0.2) contrast(1.4) saturate(0.4) hue-rotate(200deg);
-  opacity: 0.85;
+  /* Cinematic Night Scene: Increased visibility while maintaining mood */
+  filter: blur(3px) brightness(0.45) contrast(1.3) saturate(0.6) hue-rotate(200deg);
+  opacity: 0.75;
 }
 
 @keyframes subtle-float {
