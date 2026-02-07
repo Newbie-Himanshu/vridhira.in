@@ -425,7 +425,7 @@ export function Navbar() {
                 </SheetTrigger>
                 <SheetContent 
                   side="right" 
-                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 dark:border-white/10 flex flex-col bg-white/20 dark:bg-black/40 backdrop-blur-[100px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-1000 ease-quint scrollbar-none"
+                  className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 dark:border-white/10 flex flex-col bg-white/10 dark:bg-white/5 backdrop-blur-[100px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-1000 ease-quint scrollbar-none"
                 >
                   <div className="h-full flex flex-col relative overflow-hidden">
                     <div className="flex-1 flex flex-col relative overflow-hidden">
@@ -582,7 +582,7 @@ export function Navbar() {
                     </div>
 
                     {!isMobileSearchActive && (
-                      <div className="px-6 py-5 border-t border-white/10 bg-white/5 dark:bg-white/5 backdrop-blur-3xl relative z-10 mt-auto shrink-0">
+                      <div className="px-6 py-5 border-t border-white/10 bg-white/5 relative z-10 mt-auto shrink-0">
                         {user ? (
                           <div className="flex items-center gap-3 w-full">
                             <Link href="/account" className="flex-1" onClick={() => setIsMenuOpen(false)}>
