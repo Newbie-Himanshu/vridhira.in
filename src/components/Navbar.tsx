@@ -547,18 +547,20 @@ export function Navbar() {
                                   <div className="grid grid-cols-2 gap-3">
                                       <Button 
                                         variant="outline" 
-                                        className="h-16 rounded-[2rem] bg-white/20 backdrop-blur-xl border-white/20 gap-3 justify-start px-6 group hover:bg-white/30 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shine-effect overflow-hidden"
+                                        className="h-16 rounded-[2rem] bg-white/10 backdrop-blur-xl border-white/20 gap-3 justify-start px-6 group hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shine-effect overflow-hidden"
                                         onClick={() => setIsMobileSearchActive(true)}
                                       >
                                           <Search className="h-5 w-5 text-primary group-hover:scale-110 transition-transform relative z-10" />
                                           <span className="font-black text-xs uppercase tracking-widest text-secondary relative z-10">Find</span>
                                       </Button>
-                                      <Button variant="outline" className="h-16 rounded-[2rem] bg-white/20 backdrop-blur-xl border-white/20 gap-3 justify-start px-6 relative group hover:bg-white/30 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shine-effect overflow-hidden" asChild onClick={() => setIsMenuOpen(false)}>
+                                      <Button variant="outline" className="h-16 rounded-[2rem] bg-white/10 backdrop-blur-xl border-white/20 justify-between px-5 group hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shine-effect overflow-hidden" asChild onClick={() => setIsMenuOpen(false)}>
                                           <Link href="/cart">
-                                              <ShoppingBag className="h-5 w-5 text-primary group-hover:scale-110 transition-transform relative z-10" />
-                                              <span className="font-black text-xs uppercase tracking-widest text-secondary relative z-10">Cart</span>
+                                              <div className="flex items-center gap-3 relative z-10">
+                                                  <ShoppingBag className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                                                  <span className="font-black text-xs uppercase tracking-widest text-secondary">Cart</span>
+                                              </div>
                                               {cartCount > 0 && (
-                                                <span className="absolute top-1/2 -translate-y-1/2 right-6 w-6 h-6 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-black shadow-lg ring-4 ring-white/20 z-20">
+                                                <span className="w-6 h-6 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-black shadow-lg ring-4 ring-white/20 z-20 shrink-0">
                                                   {cartCount}
                                                 </span>
                                               )}
