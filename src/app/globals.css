@@ -84,41 +84,42 @@
   }
 }
 
-/* High-Fidelity Background Engine: Fixed-Window Hardware Acceleration */
+/* High-Fidelity Background Engine: Scrolling Stability */
 .artisan-pattern {
   position: relative;
   background-color: hsl(var(--background));
   isolation: isolate;
+  min-height: 100vh;
 }
 
 /* 
- * Pseudo-element strategy for fixed backgrounds.
- * This element is fixed to the viewport and does not scroll with the content.
- * Using translate3d forces the browser to treat this as a composite layer, 
- * preventing the shifting jumps encountered on mobile and desktop scrolling.
+ * Stable Background Strategy:
+ * By using position: absolute instead of fixed, we ensure the heritage texture 'stays with the page position'.
+ * This completely eliminates the momentum-scroll 'snapping' or 'corrections' that occur with 
+ * background-attachment: fixed on many devices. 
  */
 .artisan-pattern::before {
   content: "";
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: -1;
   background-image: url('https://picsum.photos/seed/heritage-texture/1920/1080');
   background-size: cover;
-  background-position: center;
+  background-position: top center;
   background-repeat: no-repeat;
   pointer-events: none;
-  transform: translate3d(0, 0, 0); 
-  -webkit-transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
   transition: filter 1s ease, opacity 1s ease;
   /* Restoration of haze effect in light mode */
-  filter: blur(2px) brightness(1.02);
+  filter: blur(3px) brightness(1.02);
   opacity: 0.5;
 }
 
 .dark .artisan-pattern::before {
-  /* Cinematic Night Scene: Increased visibility while maintaining mood */
-  filter: blur(3px) brightness(0.45) contrast(1.3) saturate(0.6) hue-rotate(200deg);
+  /* Night Scene: Moonlit mountain with improved visibility */
+  filter: blur(4px) brightness(0.5) contrast(1.2) saturate(0.7) hue-rotate(210deg);
   opacity: 0.75;
 }
 
