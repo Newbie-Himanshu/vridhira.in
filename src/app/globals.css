@@ -93,8 +93,9 @@
 
 /* 
  * Pseudo-element strategy for fixed backgrounds.
- * Decouples background image from main container dimensions to prevent resizing jumps 
- * on mobile browsers when the address bar hides/shows.
+ * This element is fixed to the viewport and does not scroll with the content.
+ * Using translate3d forces the browser to treat this as a composite layer, 
+ * preventing the shifting jumps encountered on mobile and desktop scrolling.
  */
 .artisan-pattern::before {
   content: "";
@@ -105,14 +106,17 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-blend-mode: overlay;
   pointer-events: none;
-  transform: translateZ(0); /* Hardware acceleration hint */
+  transform: translate3d(0, 0, 0); 
+  -webkit-transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  transition: filter 1s ease, opacity 1s ease;
 }
 
 .dark .artisan-pattern::before {
-  background-blend-mode: soft-light;
-  opacity: 0.95;
+  /* Cinematic Night Scene: Deep shadows, moonlit contrast, and cold saturation shift */
+  filter: brightness(0.2) contrast(1.4) saturate(0.4) hue-rotate(200deg);
+  opacity: 0.85;
 }
 
 @keyframes subtle-float {
