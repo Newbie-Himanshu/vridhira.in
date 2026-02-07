@@ -20,6 +20,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetClose,
 } from "@/components/ui/sheet";
 import {
   DropdownMenu,
@@ -435,20 +436,28 @@ export function Navbar() {
                       >
                           <div 
                             className={cn(
-                              "sticky top-0 z-50 flex items-center justify-center gap-3 transition-all duration-1000 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] cursor-pointer mx-auto group",
+                              "sticky top-0 z-50 flex items-center transition-all duration-1000 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] cursor-pointer mx-auto group overflow-hidden",
                               isMenuScrolled 
-                                ? "py-3 px-6 bg-white/30 backdrop-blur-3xl border border-white/30 rounded-full shadow-2xl scale-90 -translate-y-1" 
-                                : "py-6 bg-transparent"
+                                ? "py-3 px-6 bg-white/20 backdrop-blur-3xl border border-white/20 rounded-full shadow-2xl scale-90 -translate-y-1 w-fit min-w-[240px] hover:bg-white/30" 
+                                : "py-6 px-8 bg-white/5 backdrop-blur-md border border-white/10 rounded-[2.5rem] w-full hover:bg-white/10"
                             )}
-                            onClick={() => { setIsMenuOpen(false); router.push('/'); }}
                           >
-                            <div className="relative w-8 h-8 flex items-center justify-center transition-transform duration-1000 group-hover:scale-110">
-                                <div className="absolute inset-0 bg-primary rounded-lg animate-artisanal-rotation shadow-lg" />
-                                <span className="relative text-white font-black text-xl">V</span>
+                            <div 
+                              className="flex items-center gap-3 flex-1"
+                              onClick={() => { setIsMenuOpen(false); router.push('/'); }}
+                            >
+                              <div className="relative w-8 h-8 flex items-center justify-center transition-transform duration-1000 group-hover:scale-110">
+                                  <div className="absolute inset-0 bg-primary rounded-lg animate-artisanal-rotation shadow-lg" />
+                                  <span className="relative text-white font-black text-xl">V</span>
+                              </div>
+                              <SheetTitle className="font-headline text-2xl text-secondary transition-colors duration-300 group-hover:text-primary m-0">
+                                Vridhira
+                              </SheetTitle>
                             </div>
-                            <SheetTitle className="font-headline text-2xl text-secondary transition-colors duration-300 group-hover:text-primary m-0">
-                              Vridhira
-                            </SheetTitle>
+
+                            <SheetClose className="shrink-0 p-1 rounded-full hover:bg-primary/10 transition-colors ml-4">
+                              <X className="h-4 w-4 text-secondary/40 hover:text-primary" />
+                            </SheetClose>
                           </div>
 
                           <div className="space-y-5">
