@@ -565,7 +565,7 @@ export function Navbar() {
                                 <p className="text-[8px] font-black uppercase tracking-[0.2em] text-primary/80 px-2">Discover</p>
                                 <div className="grid gap-3">
                                     {navLinks.map((link) => (
-                                        <Link key={link.href} href={link.href} onClick={() => setIsMenuOpen(false)} className={cn("flex items-center justify-between p-4 rounded-[2rem] transition-all duration-1000 border border-white/20 shadow-lg group shine-effect overflow-hidden hover:scale-[1.02] active:scale-[0.98]", pathname === link.href ? "bg-primary text-white shadow-primary/20 animate-liquid-flow from-primary via-primary/80 to-primary bg-gradient-to-r" : "bg-white/20 backdrop-blur-xl text-secondary hover:bg-white/30 hover:border-white/30")}>
+                                        <Link key={link.href} href={link.href} onClick={() => setIsMenuOpen(false)} className={cn("flex items-center justify-between p-4 rounded-[2rem] transition-all duration-1000 border border-white/20 shadow-lg group shine-effect overflow-hidden hover:scale-[1.02] active:scale-[0.98] backdrop-blur-xl", pathname === link.href ? "bg-primary text-white shadow-primary/20 animate-liquid-flow from-primary via-primary/80 to-primary bg-gradient-to-r" : "bg-white/20 backdrop-blur-xl text-secondary hover:bg-white/30 hover:border-white/30")}>
                                             <div className="flex items-center gap-4 relative z-10">
                                               <div className={cn("p-2 rounded-xl transition-colors duration-1000", pathname === link.href ? "bg-white/30" : "bg-primary/20 group-hover:bg-primary/30")}>
                                                 <link.icon className={cn("h-4 w-4 transition-transform duration-1000 group-hover:scale-110", pathname === link.href ? "text-white" : "text-primary")} />
@@ -586,14 +586,14 @@ export function Navbar() {
                         {user ? (
                           <div className="flex items-center gap-3 w-full">
                             <Link href="/account" className="flex-1" onClick={() => setIsMenuOpen(false)}>
-                              <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold gap-2 shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-transform animate-liquid-flow from-secondary via-secondary/80 to-secondary bg-gradient-to-r shine-effect overflow-hidden">
+                              <Button className="w-full h-11 rounded-2xl bg-secondary/80 backdrop-blur-xl text-secondary-foreground text-xs font-bold gap-2 shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-transform animate-liquid-flow from-secondary via-secondary/80 to-secondary bg-gradient-to-r shine-effect overflow-hidden border border-white/10">
                                 <User className="h-4 w-4 relative z-10" />
                                 <span className="relative z-10">Settings</span>
                               </Button>
                             </Link>
                             <Button 
                               variant="ghost" 
-                              className="flex-1 h-11 rounded-2xl text-destructive font-bold text-xs border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 hover:scale-[1.02] active:scale-[0.98] transition-all gap-2 shine-effect overflow-hidden" 
+                              className="flex-1 h-11 rounded-2xl text-destructive font-bold text-xs border border-destructive/20 bg-destructive/10 backdrop-blur-xl hover:bg-destructive/20 hover:scale-[1.02] active:scale-[0.98] transition-all gap-2 shine-effect overflow-hidden" 
                               onClick={handleSignOut}
                             >
                               <LogOut className="h-4 w-4 relative z-10" />
@@ -602,7 +602,7 @@ export function Navbar() {
                           </div>
                         ) : (
                           <Link href={loginUrl} className="w-full" onClick={() => setIsMenuOpen(false)}>
-                            <Button className="w-full h-11 rounded-2xl bg-secondary text-secondary-foreground text-xs font-bold shadow-2xl animate-pulse-glow hover:scale-101 active:scale-0.99 transition-transform shine-effect overflow-hidden">
+                            <Button className="w-full h-11 rounded-2xl bg-secondary/80 backdrop-blur-xl text-secondary-foreground text-xs font-bold shadow-2xl animate-pulse-glow hover:scale-101 active:scale-0.99 transition-transform shine-effect overflow-hidden border border-white/10">
                               <span className="relative z-10">Secure Sign In</span>
                             </Button>
                           </Link>
