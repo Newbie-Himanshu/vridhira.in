@@ -84,15 +84,33 @@
   }
 }
 
+/* High-Fidelity Background Engine: Fixed-Window Hardware Acceleration */
 .artisan-pattern {
+  position: relative;
   background-color: hsl(var(--background));
-  background-image: url('https://picsum.photos/seed/heritage-texture/1920/1080');
-  background-blend-mode: overlay;
-  background-attachment: fixed;
-  background-size: cover;
+  isolation: isolate;
 }
 
-.dark .artisan-pattern {
+/* 
+ * Pseudo-element strategy for fixed backgrounds.
+ * Decouples background image from main container dimensions to prevent resizing jumps 
+ * on mobile browsers when the address bar hides/shows.
+ */
+.artisan-pattern::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url('https://picsum.photos/seed/heritage-texture/1920/1080');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-blend-mode: overlay;
+  pointer-events: none;
+  transform: translateZ(0); /* Hardware acceleration hint */
+}
+
+.dark .artisan-pattern::before {
   background-blend-mode: soft-light;
   opacity: 0.95;
 }
