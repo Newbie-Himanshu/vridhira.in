@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
@@ -10,6 +9,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, SlidersHorizontal, Sparkles, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 function ShopContent() {
   const searchParams = useSearchParams();
@@ -65,46 +65,52 @@ function ShopContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 pt-32 pb-12">
+    <div className="container mx-auto px-4 pt-32 pb-24">
       {/* Hero Section */}
-      <section className="text-center mb-12 space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-2">
-          <Sparkles className="h-4 w-4" />
-          Directly from the Artisan's Hands
+      <section className="text-center mb-16 space-y-6">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-2 shadow-sm border border-primary/5">
+          <Sparkles className="h-3.5 w-3.5" />
+          Handcrafted Heritage Registry
         </div>
-        <h1 className="text-4xl md:text-6xl font-headline font-bold text-secondary">
+        <h1 className="text-5xl md:text-7xl font-headline font-bold text-secondary tracking-tighter leading-none">
           The Marketplace
         </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed italic">
           Discover a curated collection of hand-woven textiles, intricate pottery, and timeless art pieces from across the Indian subcontinent.
         </p>
       </section>
 
       {/* Search & Filter Controls */}
-      <div className="flex flex-col md:flex-row gap-4 mb-8">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="flex flex-col md:flex-row gap-6 mb-12">
+        <div className="relative flex-1 group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <Input
-            placeholder="Search products, descriptions, or categories..."
-            className="pl-10"
+            placeholder="Search treasures, descriptions, or origins..."
+            className="h-14 rounded-2xl pl-12 bg-card/50 backdrop-blur-xl border-border/50 focus:ring-primary shadow-inner text-base"
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-4 md:pb-0 scrollbar-none px-1">
           <Button
             variant={selectedCategory === 'All' ? 'default' : 'outline'}
             onClick={() => setSelectedCategory('All')}
-            className="rounded-full"
+            className={cn(
+              "rounded-full h-14 px-8 font-bold uppercase text-[10px] tracking-widest transition-all",
+              selectedCategory === 'All' ? "shadow-lg scale-105" : "bg-card/30"
+            )}
           >
-            All
+            All Pieces
           </Button>
           {CATEGORIES.map((cat) => (
             <Button
               key={cat}
               variant={selectedCategory === cat ? 'default' : 'outline'}
               onClick={() => setSelectedCategory(cat)}
-              className="rounded-full whitespace-nowrap"
+              className={cn(
+                "rounded-full h-14 px-8 font-bold uppercase text-[10px] tracking-widest whitespace-nowrap transition-all",
+                selectedCategory === cat ? "shadow-lg scale-105" : "bg-card/30"
+              )}
             >
               {cat}
             </Button>
@@ -114,25 +120,27 @@ function ShopContent() {
 
       {/* Products Grid */}
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       ) : (
-        <div className="text-center py-20 border-2 border-dashed border-border rounded-xl">
-          <SlidersHorizontal className="mx-auto h-12 w-12 text-muted-foreground mb-4 opacity-20" />
-          <p className="text-xl font-headline font-semibold text-muted-foreground">
-            No treasures found matching your search.
+        <div className="text-center py-32 bg-card/20 rounded-[3rem] border-2 border-dashed border-border/50 backdrop-blur-sm">
+          <SlidersHorizontal className="mx-auto h-16 w-16 text-muted-foreground mb-6 opacity-20" />
+          <p className="text-2xl font-headline font-bold text-secondary mb-2">
+            No treasures found in this classification.
           </p>
+          <p className="text-muted-foreground mb-8 font-light">Try broadening your search or adjusting your registry filters.</p>
           <Button
             variant="link"
+            className="text-primary font-black uppercase tracking-[0.2em] text-xs hover:no-underline"
             onClick={() => {
               handleSearchChange('');
               setSelectedCategory('All');
             }}
           >
-            Clear all filters
+            Clear All Registry Filters
           </Button>
         </div>
       )}
@@ -143,8 +151,8 @@ function ShopContent() {
 export default function ShopPage() {
   return (
     <Suspense fallback={
-      <div className="container mx-auto px-4 pt-32 flex justify-center">
-        <Sparkles className="h-8 w-8 animate-spin text-primary" />
+      <div className="container mx-auto px-4 pt-32 flex justify-center min-h-[600px] items-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     }>
       <ShopContent />
