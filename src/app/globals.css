@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 40 40% 91%; /* Warm Beige */
+    --background: 40 40% 91%; /* Warm Cream/Beige */
     --foreground: 20 10% 10%;
     --card: 40 40% 95%;
     --card-foreground: 20 10% 10%;
@@ -26,15 +26,15 @@
     --radius: 0.75rem;
   }
   .dark {
-    --background: 20 15% 8%; /* Warmer Obsidian Umber */
-    --foreground: 40 30% 95%; /* Warmer white for heritage feel */
+    --background: 20 15% 8%; /* Obsidian Umber */
+    --foreground: 40 30% 95%;
     --card: 20 15% 10%;
     --card-foreground: 40 30% 95%;
     --popover: 20 15% 10%;
     --popover-foreground: 40 30% 95%;
-    --primary: 17 72% 61%; /* Terracotta stays consistent */
+    --primary: 17 72% 61%;
     --primary-foreground: 40 40% 98%;
-    --secondary: 275 80% 75%; /* More vibrant, readable Indigo for dark mode */
+    --secondary: 275 80% 75%;
     --secondary-foreground: 20 10% 10%;
     --muted: 20 15% 20%;
     --muted-foreground: 40 15% 65%;
@@ -84,43 +84,11 @@
   }
 }
 
-/* High-Fidelity Background Engine: Scrolling Stability */
 .artisan-pattern {
   position: relative;
   background-color: hsl(var(--background));
   isolation: isolate;
   min-height: 100vh;
-}
-
-/* 
- * Stable Background Strategy:
- * By using position: absolute instead of fixed, we ensure the heritage texture 'stays with the page position'.
- * This completely eliminates the momentum-scroll 'snapping' or 'corrections' that occur with 
- * background-attachment: fixed on many devices. 
- */
-.artisan-pattern::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: -1;
-  background-image: url('https://picsum.photos/seed/heritage-texture/1920/1080');
-  background-size: cover;
-  background-position: top center;
-  background-repeat: no-repeat;
-  pointer-events: none;
-  transition: filter 1s ease, opacity 1s ease;
-  /* Restoration of haze effect in light mode */
-  filter: blur(3px) brightness(1.02);
-  opacity: 0.5;
-}
-
-.dark .artisan-pattern::before {
-  /* Night Scene: Moonlit mountain with improved visibility */
-  filter: blur(4px) brightness(0.5) contrast(1.2) saturate(0.7) hue-rotate(210deg);
-  opacity: 0.75;
 }
 
 @keyframes subtle-float {

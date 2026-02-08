@@ -13,12 +13,6 @@
       "imageHint": "traditional pottery"
     },
     {
-      "id": "global-texture",
-      "description": "Subtle aged handmade paper texture with natural fibers",
-      "imageUrl": "https://picsum.photos/seed/aged-paper-texture/1920/1080",
-      "imageHint": "vintage paper"
-    },
-    {
       "id": "terracotta-pot",
       "description": "Hand-painted terracotta vessels with traditional motifs in soft morning light",
       "imageUrl": "https://picsum.photos/seed/heritage-clay/600/400",

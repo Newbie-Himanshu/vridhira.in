@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { 
   ChevronRight, 
   History, 
-  ArrowRightAlt, 
-  LocalShipping, 
-  SupportAgent, 
-  ArrowForward,
-  ExpandMore
+  ArrowRight, 
+  Truck, 
+  Headset, 
+  ArrowRightCircle,
+  ChevronDown
 } from 'lucide-react';
 import {
   Select,
@@ -18,10 +18,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from '@/lib/utils';
 
 export default function StorePoliciesPage() {
   const policies = [
-    { name: 'Shipping Policy', icon: <LocalShipping className="h-5 w-5" /> },
+    { name: 'Shipping Policy', icon: <Truck className="h-5 w-5" /> },
     { name: 'Returns & Refunds' },
     { name: 'Privacy Policy' },
     { name: 'Terms of Service' },
@@ -205,8 +206,4 @@ export default function StorePoliciesPage() {
       </div>
     </div>
   );
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
 }

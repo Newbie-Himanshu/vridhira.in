@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect } from 'react';
@@ -15,7 +14,9 @@ export default function ProductPage(props: {
   params: Promise<{ productId: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  // Next.js 15 requires unwrapping params and searchParams promises in Client Components
   const params = use(props.params);
+  const searchParams = use(props.searchParams);
   const productId = params.productId;
   
   const db = useFirestore();

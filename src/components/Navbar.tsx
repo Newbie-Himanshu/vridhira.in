@@ -50,7 +50,6 @@ export function Navbar() {
   const mobileSearchRef = useRef<HTMLInputElement>(null);
   const desktopSearchContainerRef = useRef<HTMLDivElement>(null);
 
-  // Close menu on navigation
   useEffect(() => {
     setIsMenuOpen(false);
     setIsMobileSearchActive(false);
@@ -63,8 +62,10 @@ export function Navbar() {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll, { passive: true });
     
+    // Hydrate cart from local storage only on client to avoid hydration mismatch
+    setLocalCart(getLocalCart());
+    
     const updateLocal = () => setLocalCart(getLocalCart());
-    updateLocal();
     window.addEventListener('cart-updated', updateLocal);
     
     return () => {
@@ -336,7 +337,7 @@ export function Navbar() {
             >
               <Link href="/cart">
                 <ShoppingBag className="h-5 w-5" />
-                {cartCount > 0 && (
+                {mounted && cartCount > 0 && (
                   <span className={cn(
                     "absolute -top-1 -right-1 w-4 h-4 text-[10px] flex items-center justify-center rounded-full font-bold shadow-lg ring-2 transition-all duration-1000 ease-quint",
                     showTransparent ? "bg-white text-secondary ring-black/20" : "bg-primary text-white ring-background"
@@ -428,6 +429,9 @@ export function Navbar() {
                   side="right" 
                   className="inset-4 sm:left-auto sm:right-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] sm:max-w-sm rounded-[3.5rem] p-0 overflow-hidden border border-white/40 dark:border-white/10 flex flex-col bg-white/10 dark:bg-white/5 backdrop-blur-[100px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-1000 ease-quint scrollbar-none"
                 >
+                  <SheetHeader className="sr-only">
+                    <SheetTitle>Mobile Navigation Menu</SheetTitle>
+                  </SheetHeader>
                   <div className="h-full flex flex-col relative overflow-hidden">
                     <div className="flex-1 flex flex-col relative overflow-hidden">
                       <div 
@@ -450,9 +454,9 @@ export function Navbar() {
                                   <div className="absolute inset-0 bg-primary rounded-lg animate-artisanal-rotation shadow-lg" />
                                   <span className="relative text-white font-black text-xl">V</span>
                               </div>
-                              <SheetTitle className="font-headline text-2xl text-secondary transition-colors duration-300 group-hover:text-primary m-0">
+                              <h2 className="font-headline text-2xl text-secondary transition-colors duration-300 group-hover:text-primary m-0">
                                 Vridhira
-                              </SheetTitle>
+                              </h2>
                             </div>
 
                             <SheetClose className="shrink-0 p-1 rounded-full hover:bg-primary/10 transition-colors ml-4">
@@ -559,7 +563,7 @@ export function Navbar() {
                                                   <ShoppingBag className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
                                                   <span className="font-black text-xs uppercase tracking-widest text-secondary">Cart</span>
                                               </div>
-                                              {cartCount > 0 && (
+                                              {mounted && cartCount > 0 && (
                                                 <span className="w-6 h-6 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-black shadow-lg ring-4 ring-white/20 z-20 shrink-0">
                                                   {cartCount}
                                                 </span>
@@ -594,7 +598,7 @@ export function Navbar() {
 
                     {!isMobileSearchActive && (
                       <div className="px-6 py-5 border-t border-white/10 bg-white/5 relative z-10 mt-auto shrink-0">
-                        {user ? (
+                        {mounted && user ? (
                           <div className="flex items-center gap-3 w-full">
                             <Link href="/account" className="flex-1" onClick={() => setIsMenuOpen(false)}>
                               <Button className="w-full h-11 rounded-2xl bg-secondary/80 backdrop-blur-xl text-secondary-foreground text-xs font-bold gap-2 shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-transform animate-liquid-flow from-secondary via-secondary/80 to-secondary bg-gradient-to-r shine-effect overflow-hidden border border-white/10">
