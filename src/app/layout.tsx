@@ -5,17 +5,22 @@ import { Toaster } from '@/components/ui/toaster';
 
 import { ThemeProvider } from '@/components/theme-provider';
 import { Suspense } from 'react';
+import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google';
+import { getAnalyticsSettings } from '@/lib/analytics-server';
 
 export const metadata: Metadata = {
   title: 'Vridhira Marketplace',
   description: 'Handcrafted heritage marketplace for authentic Indian artisans.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Fetch analytics settings from database
+  const analyticsSettings = await getAnalyticsSettings();
+
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
@@ -39,7 +44,18 @@ export default function RootLayout({
           </main>
           <Toaster />
         </ThemeProvider>
+
+        {/* Google Analytics 4 */}
+        {analyticsSettings.analytics_enabled && analyticsSettings.ga4_measurement_id && (
+          <GoogleAnalytics gaId={analyticsSettings.ga4_measurement_id} />
+        )}
+
+        {/* Google Tag Manager */}
+        {analyticsSettings.analytics_enabled && analyticsSettings.gtm_container_id && (
+          <GoogleTagManager gtmId={analyticsSettings.gtm_container_id} />
+        )}
       </body>
     </html>
   );
 }
+
