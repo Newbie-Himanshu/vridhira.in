@@ -2,7 +2,8 @@
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { CATEGORIES, Category, Product } from '@/lib/mock-data';
+import { CATEGORIES } from '@/lib/mock-data';
+import { Category, Product } from '@/types/index';
 import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,8 @@ function ShopContent() {
       const { data, error } = await supabase
         .from('products')
         .select('*')
+        .is('is_hidden', false)
+        .is('is_blocked', false)
         .order('title', { ascending: true });
 
       if (data) {
@@ -51,7 +54,7 @@ function ShopContent() {
     return products.filter((product) => {
       const matchesSearch =
         product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (product.description || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.category.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;

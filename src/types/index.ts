@@ -37,6 +37,12 @@ export interface Product {
     specs?: Record<string, string> | null;
     tags?: string[] | null;
     is_featured?: boolean;
+    // Owner controls
+    is_hidden?: boolean;
+    is_blocked?: boolean;
+    visibility_note?: string;
+    hidden_at?: string;
+    hidden_by?: string;
 }
 
 export interface Order {
@@ -70,6 +76,11 @@ export interface Customer {
     // Metadata fields often stored in a separate profile or metadata column
     phoneNumber?: string;
     bio?: string;
+    // Admin controls
+    is_banned?: boolean;
+    banned_reason?: string;
+    promoted_at?: string;
+    promoted_by?: string;
 }
 
 // Cart Types

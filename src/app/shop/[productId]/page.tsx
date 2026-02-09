@@ -1,7 +1,7 @@
 'use client';
 
 import { use, useState, useEffect } from 'react';
-import { Product, PageSettings } from '@/lib/mock-data';
+import { PageSettings, Product } from '@/types/index';
 import { V0Template } from '@/components/product-templates/V0Template';
 import { ModernTemplate } from '@/components/product-templates/ModernTemplate';
 import { Button } from '@/components/ui/button';
@@ -52,11 +52,11 @@ export default function ProductPage(props: {
     );
   }
 
-  if (!product) {
+  if (!product || (product.is_hidden || product.is_blocked)) {
     return (
       <div className="container mx-auto px-4 py-32 text-center space-y-4">
         <h2 className="text-3xl font-headline font-bold">Treasure Not Found</h2>
-        <p className="text-muted-foreground">This handcrafted piece might have found a home already.</p>
+        <p className="text-muted-foreground">This handcrafted piece might have found a home already, or is currently unavailable.</p>
         <Link href="/shop">
           <Button variant="outline">Back to Shop</Button>
         </Link>
