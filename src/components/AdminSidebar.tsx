@@ -16,7 +16,8 @@ import {
   BarChart3,
   CreditCard,
   Home,
-  ChevronLeft
+  ChevronLeft,
+  Activity
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -45,6 +46,7 @@ const navItems = [
   { name: 'Billing', href: '/admin/billing', icon: <CreditCard className="h-4 w-4" /> },
   { name: 'Theme', href: '/admin/customization', icon: <Palette className="h-4 w-4" /> },
   { name: 'Revenue', href: '/admin/fee-optimization', icon: <PiggyBank className="h-4 w-4" />, roles: ['owner'] },
+  { name: 'Activity', href: '/admin/activity', icon: <Activity className="h-4 w-4" /> },
   { name: 'Global', href: '/admin/settings', icon: <Settings className="h-4 w-4" /> },
 ];
 

@@ -2,7 +2,9 @@
 
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Product, CATEGORIES, Category, ProductType, ProductVariant } from '@/lib/mock-data';
+import { useUser } from '@/hooks/use-user';
+import { CATEGORIES } from '@/lib/mock-data';
+import { Product, Category, ProductType, ProductVariant } from '@/types/index';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -43,7 +45,11 @@ import {
   XCircle,
   Percent,
   DollarSign,
-  ImagePlus
+  ImagePlus,
+  Eye,
+  EyeOff,
+  Shield,
+  ShieldBan
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -54,22 +60,89 @@ export default function ProductsManagementPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageUploadRef = useRef<HTMLInputElement>(null);
 
+  const [stock, setStock] = useState<number>(0);
+
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const isOwner = currentUserRole === 'owner';
 
   useEffect(() => {
     fetchProducts();
+    checkUserRole();
   }, []);
+
+  const checkUserRole = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: customer } = await supabase
+        .from('customers')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      if (customer) setCurrentUserRole(customer.role);
+    }
+  };
 
   const fetchProducts = async () => {
     setIsLoading(true);
     const { data } = await supabase.from('products').select('*').order('title', { ascending: true });
     if (data) setProducts(data as Product[]);
     setIsLoading(false);
+  };
+
+  const handleToggleHide = async (productId: string, currentHidden: boolean) => {
+    if (!isOwner) {
+      toast({ variant: "destructive", title: "Unauthorized", description: "Only the Owner can hide products." });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/products/${productId}/hide`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          hidden: !currentHidden,
+          reason: !currentHidden ? 'Hidden by Owner' : 'Unhidden by Owner'
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update visibility');
+
+      setProducts(prev => prev.map(p => p.id === productId ? { ...p, is_hidden: !currentHidden } : p));
+      toast({ title: !currentHidden ? "Product Hidden" : "Product Visible", description: "Updated visibility status." });
+    } catch (error) {
+      toast({ variant: "destructive", title: "Error", description: "Failed to update product." });
+    }
+  };
+
+  const handleToggleBlock = async (productId: string, currentBlocked: boolean) => {
+    if (!isOwner) {
+      toast({ variant: "destructive", title: "Unauthorized", description: "Only the Owner can block products." });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/products/${productId}/block`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          blocked: !currentBlocked,
+          reason: !currentBlocked ? 'Blocked by Owner' : 'Unblocked by Owner'
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update block status');
+
+      setProducts(prev => prev.map(p => p.id === productId ? { ...p, is_blocked: !currentBlocked } : p));
+      toast({ title: !currentBlocked ? "Product Blocked" : "Product Unblocked", description: "Updated block status." });
+    } catch (error) {
+      toast({ variant: "destructive", title: "Error", description: "Failed to update product." });
+    }
   };
 
   const filteredProducts = useMemo(() => {
@@ -81,20 +154,20 @@ export default function ProductsManagementPage() {
     );
   }, [products, searchQuery]);
 
-  const handlePriceChange = (field: 'price' | 'salePrice' | 'discountPercentage', value: number) => {
+  const handlePriceChange = (field: 'price' | 'sale_price' | 'discount_percentage', value: number) => {
     if (!editingProduct) return;
 
     let updates: Partial<Product> = { [field]: value };
     const price = field === 'price' ? value : Number(editingProduct.price || 0);
 
-    if (field === 'price' || field === 'salePrice') {
-      const sPrice = field === 'salePrice' ? value : Number(editingProduct.salePrice || 0);
+    if (field === 'price' || field === 'sale_price') {
+      const sPrice = field === 'sale_price' ? value : Number(editingProduct.sale_price || 0);
       if (price > 0 && sPrice > 0) {
-        updates.discountPercentage = Math.round(((price - sPrice) / price) * 100);
+        updates.discount_percentage = Math.round(((price - sPrice) / price) * 100);
       }
-    } else if (field === 'discountPercentage') {
+    } else if (field === 'discount_percentage') {
       if (price > 0 && value > 0) {
-        updates.salePrice = Number((price * (1 - value / 100)).toFixed(2));
+        updates.sale_price = Number((price * (1 - value / 100)).toFixed(2));
       }
     }
 
@@ -114,7 +187,7 @@ export default function ProductsManagementPage() {
       }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setEditingProduct({ ...editingProduct, imageUrl: reader.result as string });
+        setEditingProduct({ ...editingProduct, image_url: reader.result as string });
       };
       reader.readAsDataURL(file);
     }
@@ -142,8 +215,8 @@ export default function ProductsManagementPage() {
     const productData = {
       ...editingProduct,
       price: editingProduct.price !== undefined ? Number(editingProduct.price) : 0,
-      salePrice: editingProduct.salePrice !== undefined ? Number(editingProduct.salePrice) : undefined,
-      discountPercentage: editingProduct.discountPercentage !== undefined ? Number(editingProduct.discountPercentage) : undefined,
+      sale_price: editingProduct.sale_price !== undefined ? Number(editingProduct.sale_price) : undefined,
+      discount_percentage: editingProduct.discount_percentage !== undefined ? Number(editingProduct.discount_percentage) : undefined,
       stock: editingProduct.stock !== undefined ? Number(editingProduct.stock) : 0,
       type: (editingProduct.type || 'single') as ProductType,
       category: (editingProduct.category || 'Decor') as Category,
@@ -237,10 +310,12 @@ export default function ProductsManagementPage() {
     }
   };
 
+
+
   const handleExportCSV = () => {
     if (!products || products.length === 0) return;
 
-    const headers = ['id', 'sku', 'brand', 'title', 'price', 'salePrice', 'discountPercentage', 'stock', 'category', 'description', 'imageUrl', 'type', 'tags'];
+    const headers = ['id', 'sku', 'brand', 'title', 'price', 'sale_price', 'discount_percentage', 'stock', 'category', 'description', 'image_url', 'type', 'tags'];
     const csvContent = [
       headers.join(','),
       ...products.map(p => [
@@ -249,12 +324,12 @@ export default function ProductsManagementPage() {
         p.brand || '',
         `"${p.title.replace(/"/g, '""')}"`,
         p.price,
-        p.salePrice || '',
-        p.discountPercentage || '',
+        p.sale_price || '',
+        p.discount_percentage || '',
         p.stock,
         p.category,
         `"${(p.description || '').replace(/"/g, '""')}"`,
-        `"${p.imageUrl}"`,
+        `"${p.image_url}"`,
         p.type,
         `"${(p.tags || []).join(',')}"`
       ].join(','))
@@ -302,8 +377,8 @@ export default function ProductsManagementPage() {
           const finalData = {
             ...productData,
             price: Number(productData.price || 0),
-            salePrice: productData.salePrice ? Number(productData.salePrice) : undefined,
-            discountPercentage: productData.discountPercentage ? Number(productData.discountPercentage) : undefined,
+            sale_price: productData.sale_price ? Number(productData.sale_price) : undefined,
+            discount_percentage: productData.discount_percentage ? Number(productData.discount_percentage) : undefined,
             stock: Number(productData.stock || 0),
             tags: productData.tags ? productData.tags.split(',') : []
           };
@@ -366,7 +441,7 @@ export default function ProductsManagementPage() {
             <DialogTrigger asChild>
               <Button
                 className="rounded-full bg-primary text-white hover:bg-primary/90 shadow-lg gap-2"
-                onClick={() => setEditingProduct({ type: 'single', category: 'Decor', stock: 0, price: 0, specs: {}, variants: [], tags: [], imageUrl: '' })}
+                onClick={() => setEditingProduct({ type: 'single', category: 'Decor', stock: 0, price: 0, specs: {}, variants: [], tags: [], image_url: '' })}
               >
                 <Plus className="h-4 w-4" />
                 Add New Piece
@@ -456,10 +531,10 @@ export default function ProductsManagementPage() {
                       <div className="space-y-2">
                         <Label className="text-xs font-bold uppercase tracking-wider">Product Image</Label>
                         <div className="flex flex-col gap-4">
-                          {editingProduct?.imageUrl ? (
+                          {editingProduct?.image_url ? (
                             <div className="relative aspect-video rounded-xl overflow-hidden border bg-muted group">
                               <Image
-                                src={editingProduct.imageUrl}
+                                src={editingProduct.image_url}
                                 alt="Preview"
                                 fill
                                 className="object-cover"
@@ -470,7 +545,7 @@ export default function ProductsManagementPage() {
                                   variant="destructive"
                                   size="sm"
                                   className="rounded-full"
-                                  onClick={() => setEditingProduct({ ...editingProduct, imageUrl: '' })}
+                                  onClick={() => setEditingProduct({ ...editingProduct, image_url: '' })}
                                 >
                                   Remove Image
                                 </Button>
@@ -528,15 +603,15 @@ export default function ProductsManagementPage() {
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-primary/5 p-4 rounded-xl border border-primary/10">
                         <div className="space-y-2">
-                          <Label htmlFor="salePrice" className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1">
+                          <Label htmlFor="sale_price" className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1">
                             Sale Price ($) <DollarSign className="h-3 w-3" />
                           </Label>
                           <Input
-                            id="salePrice"
+                            id="sale_price"
                             type="number"
                             step="0.01"
-                            value={editingProduct?.salePrice !== undefined ? editingProduct.salePrice : ''}
-                            onChange={(e) => handlePriceChange('salePrice', Number(e.target.value))}
+                            value={editingProduct?.sale_price ?? ''}
+                            onChange={(e) => handlePriceChange('sale_price', Number(e.target.value))}
                             className="border-primary/20 focus:border-primary bg-white"
                             placeholder="Optional"
                           />
@@ -548,8 +623,8 @@ export default function ProductsManagementPage() {
                           <Input
                             id="discount"
                             type="number"
-                            value={editingProduct?.discountPercentage !== undefined ? editingProduct.discountPercentage : ''}
-                            onChange={(e) => handlePriceChange('discountPercentage', Number(e.target.value))}
+                            value={editingProduct?.discount_percentage ?? ''}
+                            onChange={(e) => handlePriceChange('discount_percentage', Number(e.target.value))}
                             className="border-primary/20 focus:border-primary bg-white"
                             placeholder="Auto-calc"
                           />
@@ -563,8 +638,8 @@ export default function ProductsManagementPage() {
                         <Tags className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="tags"
-                          value={Array.isArray(editingProduct?.tags) ? editingProduct.tags.join(', ') : editingProduct?.tags || ''}
-                          onChange={(e) => setEditingProduct({ ...editingProduct, tags: e.target.value })}
+                          value={Array.isArray(editingProduct?.tags) ? editingProduct.tags.join(', ') : (editingProduct?.tags || '')}
+                          onChange={(e) => setEditingProduct({ ...editingProduct, tags: e.target.value.split(',').map(s => s.trim()) })}
                           placeholder="handmade, vintage, gift"
                           className="pl-10"
                         />
@@ -607,7 +682,7 @@ export default function ProductsManagementPage() {
                               </div>
                               <div className="w-full sm:col-span-2 space-y-1">
                                 <Label className="text-[10px] font-bold">Sale ($)</Label>
-                                <Input type="number" value={v.salePrice} onChange={(e) => handleUpdateVariant(v.id, { salePrice: Number(e.target.value) })} />
+                                <Input type="number" value={v.sale_price} onChange={(e) => handleUpdateVariant(v.id, { sale_price: Number(e.target.value) })} />
                               </div>
                               <div className="w-full sm:col-span-2 space-y-1">
                                 <Label className="text-[10px] font-bold">Stock</Label>
@@ -710,8 +785,8 @@ export default function ProductsManagementPage() {
                     <TableCell className="px-8 py-4">
                       <div className="flex items-center gap-4">
                         <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-sm border shrink-0 bg-muted">
-                          {product.imageUrl ? (
-                            <Image src={product.imageUrl} alt={product.title} fill className="object-cover" />
+                          {product.image_url ? (
+                            <Image src={product.image_url} alt={product.title} fill className="object-cover" />
                           ) : (
                             <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
                               <Package className="h-6 w-6 opacity-20" />
@@ -722,7 +797,7 @@ export default function ProductsManagementPage() {
                           <p className="font-bold text-secondary truncate">{product.title}</p>
                           <div className="flex items-center gap-2">
                             <p className="text-[10px] text-muted-foreground uppercase font-medium opacity-60">{product.brand || 'Vridhira Heritage'}</p>
-                            {product.salePrice && <Badge variant="secondary" className="h-4 text-[8px] px-1 bg-primary/10 text-primary border-none">Sale</Badge>}
+                            {product.sale_price && <Badge variant="secondary" className="h-4 text-[8px] px-1 bg-primary/10 text-primary border-none">Sale</Badge>}
                           </div>
                         </div>
                       </div>
@@ -734,10 +809,10 @@ export default function ProductsManagementPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="font-bold text-secondary">
-                      {product.salePrice ? (
+                      {product.sale_price ? (
                         <div className="flex flex-col">
                           <span className="line-through text-muted-foreground text-xs font-normal">${product.price.toFixed(2)}</span>
-                          <span className="text-primary">${product.salePrice.toFixed(2)}</span>
+                          <span className="text-primary">${product.sale_price.toFixed(2)}</span>
                         </div>
                       ) : (
                         <span>${product.price.toFixed(2)}</span>
@@ -774,6 +849,29 @@ export default function ProductsManagementPage() {
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
+
+                        {currentUserRole === 'owner' && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={`rounded-full hover:bg-secondary/10 hover:text-secondary ${product.is_hidden ? 'text-muted-foreground' : 'text-secondary'}`}
+                              onClick={() => handleToggleHide(product.id, !!product.is_hidden)}
+                              title={product.is_hidden ? "Unhide Product" : "Hide Product"}
+                            >
+                              {product.is_hidden ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={`rounded-full hover:bg-destructive/10 hover:text-destructive ${product.is_blocked ? 'text-destructive' : 'text-muted-foreground'}`}
+                              onClick={() => handleToggleBlock(product.id, !!product.is_blocked)}
+                              title={product.is_blocked ? "Unblock Product" : "Block Product"}
+                            >
+                              {product.is_blocked ? <ShieldBan className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

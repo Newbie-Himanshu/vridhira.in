@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Customer, UserRole } from '@/lib/mock-data';
+import { Customer, UserRole } from '@/types/index';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -53,7 +53,8 @@ import {
   Mail,
   User as UserIcon,
   Filter,
-  ShieldHalf
+  ShieldHalf,
+  Shield
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -136,14 +137,79 @@ export default function AdminManagementPage() {
     }
   };
 
-  const toggleBan = (targetUser: Customer) => {
-    const isBanned = !!targetUser.banUntil && new Date(targetUser.banUntil) > new Date();
-    if (isBanned) {
-      handleUpdateUser(targetUser.id, { banUntil: undefined, failedAttempts: 0 }); // undefined or null
-    } else {
-      const banDate = new Date();
-      banDate.setFullYear(banDate.getFullYear() + 10);
-      handleUpdateUser(targetUser.id, { banUntil: banDate.toISOString() });
+  const handleRoleChange = async (userId: string, newRole: UserRole) => {
+    if (!isOwner) {
+      toast({ variant: "destructive", title: "Unauthorized", description: "Only the Owner can change roles." });
+      return;
+    }
+
+    if (newRole === 'owner') {
+      toast({ variant: "destructive", title: "Restricted", description: "Ownership transfer is not available via UI." });
+      return;
+    }
+
+    try {
+      // Determine endpoint based on target role
+      // If ensuring 'store admin', use promote. If 'user', use demote.
+      const endpoint = newRole === 'store admin' ? 'promote' : 'demote';
+
+      const response = await fetch(`/api/users/${userId}/${endpoint}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: 'Changed via Admin Dashboard' }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update role');
+      }
+
+      setAllUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
+      toast({ title: "Role Updated", description: `User is now a ${newRole}` });
+    } catch (error) {
+      console.error('Role update error:', error);
+      toast({ variant: "destructive", title: "Error", description: "Could not update user role." });
+    }
+  };
+
+  const toggleBan = async (targetUser: Customer) => {
+    try {
+      const isBanned = !!targetUser.is_banned;
+
+      const response = await fetch(`/api/users/${targetUser.id}/ban`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          banned: !isBanned,
+          reason: !isBanned ? 'Banned via Admin Dashboard' : 'Unbanned via Admin Dashboard'
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update ban status');
+
+      // Update local state
+      // Note: backend sets is_banned and banUntil/banned_at
+      setAllUsers(prev => prev.map(u => {
+        if (u.id === targetUser.id) {
+          // Simplified update for UI feedback
+          const now = new Date();
+          const future = new Date(); future.setFullYear(future.getFullYear() + 10);
+          return {
+            ...u,
+            is_banned: !isBanned,
+            banUntil: !isBanned ? future.toISOString() : undefined
+          };
+        }
+        return u;
+      }));
+
+      toast({
+        title: !isBanned ? "User Banned" : "User Unbanned",
+        description: `User access has been ${!isBanned ? 'restricted' : 'restored'}.`
+      });
+
+    } catch (error) {
+      console.error('Ban error:', error);
+      toast({ variant: "destructive", title: "Error", description: "Could not update ban status." });
     }
   };
 
@@ -231,7 +297,7 @@ export default function AdminManagementPage() {
           </TableHeader>
           <TableBody>
             {filteredUsers.map((u) => {
-              const isBanned = u.banUntil && new Date(u.banUntil) > new Date();
+              const isBanned = !!u.is_banned;
               return (
                 <TableRow key={u.id} className="hover:bg-muted/5 transition-colors border-b last:border-0">
                   <TableCell className="px-8 py-6">
@@ -242,7 +308,7 @@ export default function AdminManagementPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Select defaultValue={u.role} onValueChange={(val) => handleUpdateUser(u.id, { role: val as UserRole })}>
+                    <Select defaultValue={u.role} onValueChange={(val) => handleRoleChange(u.id, val as UserRole)}>
                       <SelectTrigger className="w-36 h-9 rounded-xl text-xs font-bold border-none bg-muted/50">
                         <SelectValue />
                       </SelectTrigger>

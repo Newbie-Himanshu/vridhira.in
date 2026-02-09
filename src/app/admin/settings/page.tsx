@@ -18,7 +18,8 @@ import {
   Zap,
   Lock,
   Unlock,
-  AlertCircle
+  AlertCircle,
+  Activity
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -41,13 +42,14 @@ export default function GlobalSettingsPage() {
     if (data) {
       setSettings({
         ...data,
-        // Map DB snake_case to matched camelCase for local state consistency if needed, 
-        // BUT simpler to just use DB structure directly. Let's adapt state to DB structure.
         maintenance_mode: data.maintenance_mode,
         platform_fee_percentage: data.platform_fee_percentage,
         show_announcement: data.show_announcement,
         announcement_message: data.announcement_message,
-        announcement_type: data.announcement_type
+        announcement_type: data.announcement_type,
+        analytics_enabled: data.analytics_enabled,
+        ga4_measurement_id: data.ga4_measurement_id,
+        gtm_container_id: data.gtm_container_id
       });
     } else {
       // Init default if not exists
@@ -57,7 +59,10 @@ export default function GlobalSettingsPage() {
         platform_fee_percentage: 0.10,
         show_announcement: false,
         announcement_message: "",
-        announcement_type: "info"
+        announcement_type: "info",
+        analytics_enabled: false,
+        ga4_measurement_id: "",
+        gtm_container_id: ""
       });
     }
     setIsLoading(false);
@@ -65,9 +70,7 @@ export default function GlobalSettingsPage() {
 
   const handleSave = async (updates: any) => {
     setSaving(true);
-    // If it's a strongly typed table:
-    // maintenance_mode, platform_fee_percentage, etc.
-    // I'll stick to generic object for now.
+    const newSettings = { ...settings, ...updates };
 
     const { error } = await supabase.from('platform_settings').upsert(newSettings);
 
@@ -92,7 +95,10 @@ export default function GlobalSettingsPage() {
     platformFeePercentage: 0.10,
     showAnnouncement: false,
     announcementMessage: "",
-    announcementType: "info"
+    announcementType: "info",
+    analyticsEnabled: false,
+    ga4MeasurementId: "",
+    gtmContainerId: ""
   };
 
   return (
@@ -226,6 +232,48 @@ export default function GlobalSettingsPage() {
               {saving && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
             </div>
           </CardFooter>
+        </Card>
+        {/* Analytics Configuration */}
+        <Card className="shadow-xl border-blue-100">
+          <CardHeader className="bg-blue-50/30">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-blue-600" />
+                <CardTitle>Analytics & Tracking</CardTitle>
+              </div>
+              <Switch
+                checked={currentSettings.analytics_enabled}
+                onCheckedChange={(val) => handleSave({ analytics_enabled: val })}
+              />
+            </div>
+            <CardDescription>Configure Google Analytics 4 and Tag Manager integration.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>GA4 Measurement ID</Label>
+                <Input
+                  placeholder="G-XXXXXXXXXX"
+                  value={currentSettings.ga4_measurement_id || ''}
+                  onChange={(e) => setSettings({ ...currentSettings, ga4_measurement_id: e.target.value })}
+                  onBlur={() => handleSave({ ga4_measurement_id: currentSettings.ga4_measurement_id })}
+                  className="font-mono"
+                />
+                <p className="text-[10px] text-muted-foreground">Found in GA4 Admin &gt; Data Streams.</p>
+              </div>
+              <div className="space-y-2">
+                <Label>GTM Container ID</Label>
+                <Input
+                  placeholder="GTM-XXXXXXX"
+                  value={currentSettings.gtm_container_id || ''}
+                  onChange={(e) => setSettings({ ...currentSettings, gtm_container_id: e.target.value })}
+                  onBlur={() => handleSave({ gtm_container_id: currentSettings.gtm_container_id })}
+                  className="font-mono"
+                />
+                <p className="text-[10px] text-muted-foreground">Found in GTM Workspace header.</p>
+              </div>
+            </div>
+          </CardContent>
         </Card>
       </div>
     </div>

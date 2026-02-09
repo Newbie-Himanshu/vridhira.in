@@ -102,27 +102,33 @@ export default function OrdersManagementPage() {
   };
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
-    const { error } = await supabase
-      .from('orders')
-      .update({ status: newStatus })
-      .eq('id', orderId);
+    try {
+      // Use API route for status update (handles stock restoration on cancel)
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
 
-    if (error) {
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update order');
+      }
+
+      // Optimistic update
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus as any } : o));
+
+      toast({
+        title: "Order Updated",
+        description: `Order successfully marked as ${newStatus}.${newStatus === 'Cancelled' ? ' Stock has been restored.' : ''}`,
+      });
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Update Failed",
-        description: error.message,
+        description: error instanceof Error ? error.message : 'Unknown error',
       });
-      return;
     }
-
-    // Optimistic update
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus as any } : o));
-
-    toast({
-      title: "Order Updated",
-      description: `Order successfully marked as ${newStatus}.`,
-    });
   };
 
   const clearFilters = () => {

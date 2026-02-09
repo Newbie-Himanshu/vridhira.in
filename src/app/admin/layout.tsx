@@ -21,7 +21,8 @@ import {
   ArrowLeft,
   Loader2,
   ShieldAlert,
-  ChevronRight
+  ChevronRight,
+  Activity
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -42,6 +43,7 @@ const adminNavItems = [
   { name: 'Billing', href: '/admin/billing', icon: CreditCard },
   { name: 'Theme', href: '/admin/customization', icon: Palette },
   { name: 'Revenue', href: '/admin/fee-optimization', icon: PiggyBank, role: 'owner' },
+  { name: 'Activity', href: '/admin/activity', icon: Activity },
   { name: 'Global', href: '/admin/settings', icon: Settings },
 ];
 
