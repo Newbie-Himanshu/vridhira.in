@@ -7,14 +7,15 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Eye, Sparkles, Loader2 } from 'lucide-react';
-import { useUser, useFirestore } from '@/firebase';
+import { useUser } from '@/hooks/use-user';
+import { createClient } from '@/lib/supabase/client';
 import { addToCartAction } from '@/lib/cart-actions';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 export function ProductCard({ product }: { product: Product }) {
   const { user } = useUser();
-  const db = useFirestore();
+  const supabase = createClient();
   const { toast } = useToast();
   const [isAdding, setIsAdding] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -26,7 +27,7 @@ export function ProductCard({ product }: { product: Product }) {
   const handleAddToCart = async () => {
     setIsAdding(true);
     try {
-      await addToCartAction(db, user?.uid || null, {
+      await addToCartAction(supabase, user?.id || null, {
         productId: product.id,
         quantity: 1
       });
@@ -49,11 +50,11 @@ export function ProductCard({ product }: { product: Product }) {
     <Card className="overflow-hidden group hover:shadow-2xl transition-all duration-500 border-border/50 bg-card/50 backdrop-blur-sm rounded-[2rem] hover:-translate-y-2">
       <Link href={`/shop/${product.id}`}>
         <div className="relative aspect-[4/3] overflow-hidden">
-          <Image 
-            src={product.imageUrl} 
-            alt={product.title} 
-            fill 
-            className="object-cover transition-transform duration-700 group-hover:scale-110" 
+          <Image
+            src={product.image_url}
+            alt={product.title}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
           />
           <Badge className="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full border-none shadow-lg">
             {product.category}
@@ -91,9 +92,9 @@ export function ProductCard({ product }: { product: Product }) {
         </Badge>
       </CardContent>
       <CardFooter className="p-6 pt-0">
-        <Button 
-          className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold rounded-2xl h-12 animate-pulse-glow shadow-lg transition-transform active:scale-95" 
-          onClick={handleAddToCart} 
+        <Button
+          className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold rounded-2xl h-12 animate-pulse-glow shadow-lg transition-transform active:scale-95"
+          onClick={handleAddToCart}
           disabled={isAdding}
         >
           {isAdding ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <ShoppingCart className="mr-2 h-4 w-4" />}

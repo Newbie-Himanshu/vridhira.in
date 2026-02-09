@@ -1,8 +1,9 @@
 'use client';
 
 import { AdminSidebar } from '@/components/AdminSidebar';
-import { useUser } from '@/firebase';
-import { 
+import { useUser } from '@/hooks/use-user';
+import { createClient } from '@/lib/supabase/client';
+import {
   Home,
   ShoppingCart,
   ShoppingBag,
@@ -49,8 +50,11 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isUserLoading, userRole } = useUser();
+  const { user, loading: isUserLoading } = useUser();
+  const supabase = createClient();
   const pathname = usePathname();
+  const [userRole, setUserRole] = useState<string | null>(null);
+
   const [isFabExpanded, setIsFabExpanded] = useState(false);
   const [isExtended, setIsExtended] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -64,6 +68,16 @@ export default function AdminLayout({
   const [wasDragged, setWasDragged] = useState(false);
   const fabDragOffset = useRef(0);
   const dragStartPosition = useRef(0);
+
+  useEffect(() => {
+    if (user) {
+      const fetchRole = async () => {
+        const { data } = await supabase.from('customers').select('role').eq('id', user.id).single();
+        if (data) setUserRole(data.role);
+      };
+      fetchRole();
+    }
+  }, [user, supabase]);
 
   const effectiveRole = user?.email === 'hk8913114@gmail.com' ? 'owner' : userRole;
   const isAuthorized = effectiveRole === 'owner' || effectiveRole === 'store admin';
@@ -149,11 +163,11 @@ export default function AdminLayout({
     if (isFabExpanded) return;
     const touchX = e.targetTouches[0].clientX;
     const deltaX = Math.abs(touchX - dragStartPosition.current);
-    
+
     if (deltaX > 5) {
       setIsDraggingFab(true);
       setWasDragged(true);
-      
+
       let newX = touchX - fabDragOffset.current;
       const margin = 24;
       const fabSize = 64;
@@ -175,7 +189,10 @@ export default function AdminLayout({
     );
   }
 
-  if (!user || !isAuthorized) {
+  if (!user || (!isAuthorized && !isUserLoading)) {
+    // Only show access denied if we've checked loading and found no user or no auth
+    // Wait... if user is null, accessing /admin should redirect or show denied.
+    // The previous code had `!user || !isAuthorized`.
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4 text-center space-y-6 pt-24">
         <div className="bg-destructive/10 p-4 rounded-full">
@@ -183,7 +200,7 @@ export default function AdminLayout({
         </div>
         <h1 className="text-3xl font-headline font-bold text-secondary">Access Denied</h1>
         <p className="text-muted-foreground max-w-md">
-          This area is reserved for Vridhira Marketplace administrators. 
+          This area is reserved for Vridhira Marketplace administrators.
           If you believe this is an error, please contact the platform owner.
         </p>
         <Link href="/">
@@ -208,7 +225,7 @@ export default function AdminLayout({
         </div>
       </main>
 
-      <div 
+      <div
         className={cn(
           "fixed inset-0 z-[55] bg-white/5 md:hidden transition-all duration-700 ease-quint",
           isFabExpanded ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -219,7 +236,7 @@ export default function AdminLayout({
         }}
       />
 
-      <div 
+      <div
         ref={fabRef}
         style={{
           left: isFabExpanded ? '1rem' : (fabX !== undefined ? `${fabX}px` : undefined),
@@ -228,16 +245,16 @@ export default function AdminLayout({
         className={cn(
           "fixed bottom-6 z-[60] md:hidden",
           !isDraggingFab && "transition-all duration-700 ease-quint",
-          isFabExpanded 
-            ? "w-[calc(100%-2rem)]" 
+          isFabExpanded
+            ? "w-[calc(100%-2rem)]"
             : "w-16 h-16"
         )}
       >
-        <div 
+        <div
           className={cn(
             "bg-white/40 backdrop-blur-md border border-white/40 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden relative transition-all duration-700 ease-quint will-change-[height,width,padding,opacity]",
-            isFabExpanded 
-              ? (isExtended ? "p-6 h-[95vh] opacity-100" : "p-6 h-[61.8vh] opacity-100") 
+            isFabExpanded
+              ? (isExtended ? "p-6 h-[95vh] opacity-100" : "p-6 h-[61.8vh] opacity-100")
               : "p-0 h-16 opacity-100"
           )}
         >
@@ -245,7 +262,7 @@ export default function AdminLayout({
             "flex flex-col h-full transition-all duration-700 ease-quint",
             isFabExpanded ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 pointer-events-none"
           )}>
-            <div 
+            <div
               className="flex flex-col mb-6 shrink-0 cursor-grab active:cursor-grabbing"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
@@ -262,8 +279,8 @@ export default function AdminLayout({
                     <span className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.2em] mt-1">Registry Terminal</span>
                   </div>
                 </div>
-                <Link 
-                  href="/shop" 
+                <Link
+                  href="/shop"
                   onClick={() => {
                     setIsFabExpanded(false);
                     setIsExtended(false);
@@ -275,7 +292,7 @@ export default function AdminLayout({
               </div>
             </div>
 
-            <div 
+            <div
               ref={scrollContainerRef}
               className="flex-1 overflow-y-auto scrollbar-none pb-4 px-1 space-y-2 overscroll-contain"
               style={{ WebkitOverflowScrolling: 'touch' }}
@@ -284,8 +301,8 @@ export default function AdminLayout({
                 if (item.role && item.role !== effectiveRole) return null;
                 const isActive = pathname === item.href;
                 return (
-                  <Link 
-                    key={item.href} 
+                  <Link
+                    key={item.href}
                     href={item.href}
                     onClick={() => {
                       setIsFabExpanded(false);
@@ -322,7 +339,7 @@ export default function AdminLayout({
             </div>
           </div>
 
-          <button 
+          <button
             onClick={() => {
               if (!wasDragged) setIsFabExpanded(true);
             }}

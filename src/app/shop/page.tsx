@@ -2,26 +2,41 @@
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
 import { CATEGORIES, Category, Product } from '@/lib/mock-data';
 import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, SlidersHorizontal, Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { createClient } from '@/lib/supabase/client';
 
 function ShopContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const db = useFirestore();
-  
+  const supabase = createClient();
+
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch products from Firestore
-  const productsQuery = useMemoFirebase(() => query(collection(db, 'products'), orderBy('title', 'asc')), [db]);
-  const { data: products, isLoading } = useCollection<Product>(productsQuery);
+  // Fetch products from Supabase
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('title', { ascending: true });
+
+      if (data) {
+        setProducts(data as Product[]);
+      }
+      setIsLoading(false);
+    };
+
+    fetchProducts();
+  }, [supabase]);
 
   // Sync search state with URL query parameter
   useEffect(() => {

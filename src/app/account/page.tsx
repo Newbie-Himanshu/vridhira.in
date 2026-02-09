@@ -1,8 +1,6 @@
 'use client';
 
-import { useUser, useDoc, useMemoFirebase, useFirestore, updateDocumentNonBlocking, useCollection } from '@/firebase';
-import { doc, collection, query, where, orderBy } from 'firebase/firestore';
-import { Customer, Order } from '@/lib/mock-data';
+import { useUser } from '@/hooks/use-user';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AccountLayout from '@/components/account/AccountLayout';
@@ -13,7 +11,7 @@ import NotificationsTab from '@/components/account/NotificationsTab';
 import { Loader2 } from 'lucide-react';
 
 export default function AccountPage() {
-  const { user, isUserLoading } = useUser();
+  const { user, loading: isUserLoading } = useUser();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mounted, setMounted] = useState(false);

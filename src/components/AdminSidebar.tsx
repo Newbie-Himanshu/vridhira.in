@@ -1,13 +1,13 @@
 'use client';
 
-import { 
-  ShoppingBag, 
-  ShoppingCart, 
-  Users, 
-  Tags, 
-  Palette, 
-  PiggyBank, 
-  Settings, 
+import {
+  ShoppingBag,
+  ShoppingCart,
+  Users,
+  Tags,
+  Palette,
+  PiggyBank,
+  Settings,
   ArrowLeft,
   Command,
   Layers,
@@ -20,7 +20,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useUser } from '@/firebase';
+import { useUser } from '@/hooks/use-user';
+import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import {
   Tooltip,
@@ -29,6 +30,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
 
 const navItems = [
   { name: 'Home', href: '/admin/dashboard', icon: <Home className="h-4 w-4" /> },
@@ -53,7 +55,20 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps) {
   const pathname = usePathname();
-  const { userRole, isUserLoading, user } = useUser();
+  const { user, loading: isUserLoading } = useUser();
+  const supabase = createClient();
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      // Fetch role
+      const fetchRole = async () => {
+        const { data } = await supabase.from('customers').select('role').eq('id', user.id).single();
+        if (data) setUserRole(data.role);
+      };
+      fetchRole();
+    }
+  }, [user, supabase]);
 
   if (isUserLoading) {
     return (
@@ -77,9 +92,9 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
         isCollapsed ? "w-20" : "w-64"
       )}>
         {/* Toggle Button */}
-        <Button 
-          variant="default" 
-          size="icon" 
+        <Button
+          variant="default"
+          size="icon"
           className={cn(
             "absolute -right-4 top-6 h-8 w-8 rounded-full border-2 border-background shadow-lg bg-primary text-white hover:bg-primary/90 z-50 transition-transform duration-700",
             isCollapsed ? "rotate-180" : ""
@@ -112,15 +127,15 @@ export function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps)
             if (item.roles && !item.roles.includes(effectiveRole as string)) {
               return null;
             }
-            const isActive = pathname === item.href;
-            
+            const isActive = pathname.startsWith(item.href); // Slightly looser matching for sub-routes
+
             const linkContent = (
               <Link
                 href={item.href}
                 className={cn(
                   "flex items-center gap-3 rounded-2xl px-4 py-3 transition-all duration-300 group relative",
-                  isActive 
-                    ? 'bg-primary/5 text-primary border-l-4 border-primary' 
+                  isActive
+                    ? 'bg-primary/5 text-primary border-l-4 border-primary'
                     : 'text-muted-foreground hover:bg-primary/5 hover:text-primary border-l-4 border-transparent',
                   isCollapsed && "px-0 justify-center border-l-0"
                 )}

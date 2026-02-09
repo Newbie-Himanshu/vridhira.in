@@ -1,129 +1,228 @@
-
 'use client';
 
-import { Firestore, doc, getDoc, serverTimestamp } from 'firebase/firestore';
-import { setDocumentNonBlocking } from '@/firebase';
-
-export interface CartItem {
-  productId: string;
-  variantId?: string;
-  quantity: number;
-}
-
-export interface CartData {
-  userId: string;
-  items: CartItem[];
-  updatedAt: any;
-}
+import { SupabaseClient } from '@supabase/supabase-js';
+import { CartItem, CartData } from '@/types/index';
 
 const LOCAL_CART_KEY = 'vridhira_local_cart';
 
 export function getLocalCart(): CartItem[] {
   if (typeof window === 'undefined') return [];
   const stored = localStorage.getItem(LOCAL_CART_KEY);
-  return stored ? JSON.parse(stored) : [];
+  try {
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    console.error('[getLocalCart] Failed to parse local cart:', e);
+    return [];
+  }
 }
 
 export function setLocalCart(items: CartItem[]) {
   if (typeof window === 'undefined') return;
-  localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(items));
-  window.dispatchEvent(new Event('cart-updated'));
+  try {
+    localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(items));
+    window.dispatchEvent(new Event('cart-updated'));
+  } catch (e) {
+    console.error('[setLocalCart] Failed to save local cart:', e);
+  }
 }
 
-export async function addToCartAction(db: Firestore, userId: string | null, item: CartItem) {
-  if (!userId) {
-    const items = getLocalCart();
+export async function addToCartAction(supabase: SupabaseClient, userId: string | null, item: CartItem) {
+  try {
+    if (!userId) {
+      const items = getLocalCart();
+      const existingIdx = items.findIndex(i => i.productId === item.productId && i.variantId === item.variantId);
+      if (existingIdx > -1) {
+        items[existingIdx].quantity += item.quantity;
+      } else {
+        items.push(item);
+      }
+      setLocalCart(items);
+      return;
+    }
+
+    const { data: cartData, error: fetchError } = await supabase
+      .from('carts')
+      .select('items')
+      .eq('user_id', userId)
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is "Row not found"
+      console.error('[addToCartAction] Error fetching cart:', fetchError);
+      throw new Error(fetchError.message);
+    }
+
+    let items: CartItem[] = [];
+    if (cartData && cartData.items) {
+      // Validate that items is an array before casting
+      if (Array.isArray(cartData.items)) {
+        items = cartData.items as unknown as CartItem[];
+      }
+    }
+
     const existingIdx = items.findIndex(i => i.productId === item.productId && i.variantId === item.variantId);
     if (existingIdx > -1) {
       items[existingIdx].quantity += item.quantity;
     } else {
       items.push(item);
     }
-    setLocalCart(items);
-    return;
+
+    const { error: upsertError } = await supabase
+      .from('carts')
+      .upsert({
+        user_id: userId,
+        items: items as unknown as any, // Supabase expects JSON, we give it typed object
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+
+    if (upsertError) {
+      console.error('[addToCartAction] Error saving cart:', upsertError);
+      throw new Error(upsertError.message);
+    }
+
+  } catch (error) {
+    console.error('[addToCartAction] Unexpected error:', error);
+    throw error;
   }
-
-  const cartRef = doc(db, 'carts', userId);
-  const cartSnap = await getDoc(cartRef);
-
-  let items: CartItem[] = [];
-  if (cartSnap.exists()) {
-    items = (cartSnap.data() as CartData).items || [];
-  }
-
-  const existingIdx = items.findIndex(i => i.productId === item.productId && i.variantId === item.variantId);
-  if (existingIdx > -1) {
-    items[existingIdx].quantity += item.quantity;
-  } else {
-    items.push(item);
-  }
-
-  setDocumentNonBlocking(cartRef, { userId, items, updatedAt: serverTimestamp() }, { merge: true });
 }
 
-export async function syncLocalCartToCloud(db: Firestore, userId: string) {
-  const localItems = getLocalCart();
-  if (localItems.length === 0) return;
+export async function syncLocalCartToCloud(supabase: SupabaseClient, userId: string) {
+  try {
+    const localItems = getLocalCart();
+    if (localItems.length === 0) return;
 
-  const cartRef = doc(db, 'carts', userId);
-  const cartSnap = await getDoc(cartRef);
-  let cloudItems: CartItem[] = [];
-  
-  if (cartSnap.exists()) {
-    cloudItems = (cartSnap.data() as CartData).items || [];
-  }
+    const { data: cartData, error: fetchError } = await supabase
+      .from('carts')
+      .select('items')
+      .eq('user_id', userId)
+      .single();
 
-  localItems.forEach(localItem => {
-    const existingIdx = cloudItems.findIndex(ci => ci.productId === localItem.productId && ci.variantId === localItem.variantId);
-    if (existingIdx > -1) {
-      cloudItems[existingIdx].quantity += localItem.quantity;
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error('[syncLocalCartToCloud] Error fetching cart:', fetchError);
+      return; // Don't throw here to avoid blocking login flow
+    }
+
+    let cloudItems: CartItem[] = [];
+
+    if (cartData && Array.isArray(cartData.items)) {
+      cloudItems = cartData.items as unknown as CartItem[];
+    }
+
+    localItems.forEach(localItem => {
+      const existingIdx = cloudItems.findIndex(ci => ci.productId === localItem.productId && ci.variantId === localItem.variantId);
+      if (existingIdx > -1) {
+        cloudItems[existingIdx].quantity += localItem.quantity;
+      } else {
+        cloudItems.push(localItem);
+      }
+    });
+
+    const { error: upsertError } = await supabase
+      .from('carts')
+      .upsert({
+        user_id: userId,
+        items: cloudItems as unknown as any,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+
+    if (upsertError) {
+      console.error('[syncLocalCartToCloud] Error syncing cart:', upsertError);
     } else {
-      cloudItems.push(localItem);
+      setLocalCart([]); // Clear local cart after sync only on success
     }
-  });
 
-  setDocumentNonBlocking(cartRef, { userId, items: cloudItems, updatedAt: serverTimestamp() }, { merge: true });
-  setLocalCart([]); // Clear local cart after sync
+  } catch (error) {
+    console.error('[syncLocalCartToCloud] Unexpected error:', error);
+  }
 }
 
-export function updateCartItemQuantityAction(db: Firestore, userId: string | null, productId: string, variantId: string | undefined, newQuantity: number) {
-  if (!userId) {
-    const items = getLocalCart();
-    const idx = items.findIndex(i => i.productId === productId && i.variantId === variantId);
+export async function updateCartItemQuantityAction(supabase: SupabaseClient, userId: string | null, productId: string, variantId: string | undefined, newQuantity: number) {
+  try {
+    if (!userId) {
+      const items = getLocalCart();
+      const idx = items.findIndex(i => i.productId === productId && i.variantId === variantId);
+      if (idx > -1) {
+        if (newQuantity <= 0) items.splice(idx, 1);
+        else items[idx].quantity = newQuantity;
+        setLocalCart(items);
+      }
+      return;
+    }
+
+    const { data: cartData, error: fetchError } = await supabase
+      .from('carts')
+      .select('items')
+      .eq('user_id', userId)
+      .single();
+
+    if (fetchError || !cartData) return;
+
+    let items: CartItem[] = [];
+    if (Array.isArray(cartData.items)) {
+      items = cartData.items as unknown as CartItem[];
+    }
+
+    const idx = items.findIndex((i: CartItem) => i.productId === productId && i.variantId === variantId);
+
     if (idx > -1) {
       if (newQuantity <= 0) items.splice(idx, 1);
       else items[idx].quantity = newQuantity;
-      setLocalCart(items);
-    }
-    return;
-  }
 
-  const cartRef = doc(db, 'carts', userId);
-  getDoc(cartRef).then(snap => {
-    if (!snap.exists()) return;
-    const items = (snap.data() as CartData).items;
-    const idx = items.findIndex(i => i.productId === productId && i.variantId === variantId);
-    if (idx > -1) {
-      if (newQuantity <= 0) items.splice(idx, 1);
-      else items[idx].quantity = newQuantity;
-      setDocumentNonBlocking(cartRef, { items, updatedAt: serverTimestamp() }, { merge: true });
+      const { error: updateError } = await supabase
+        .from('carts')
+        .update({
+          items: items as unknown as any,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', userId);
+
+      if (updateError) {
+        console.error('[updateCartItemQuantityAction] Error updating cart:', updateError);
+        throw new Error(updateError.message);
+      }
     }
-  });
+  } catch (error) {
+    console.error('[updateCartItemQuantityAction] Unexpected error:', error);
+  }
 }
 
-export function removeCartItemAction(db: Firestore, userId: string | null, productId: string, variantId?: string) {
-  if (!userId) {
-    const items = getLocalCart();
-    const newItems = items.filter(i => !(i.productId === productId && i.variantId === variantId));
-    setLocalCart(newItems);
-    return;
-  }
+export async function removeCartItemAction(supabase: SupabaseClient, userId: string | null, productId: string, variantId?: string) {
+  try {
+    if (!userId) {
+      const items = getLocalCart();
+      const newItems = items.filter(i => !(i.productId === productId && i.variantId === variantId));
+      setLocalCart(newItems);
+      return;
+    }
 
-  const cartRef = doc(db, 'carts', userId);
-  getDoc(cartRef).then(snap => {
-    if (!snap.exists()) return;
-    const items = (snap.data() as CartData).items;
-    const newItems = items.filter(i => !(i.productId === productId && i.variantId === variantId));
-    setDocumentNonBlocking(cartRef, { items: newItems, updatedAt: serverTimestamp() }, { merge: true });
-  });
+    const { data: cartData, error: fetchError } = await supabase
+      .from('carts')
+      .select('items')
+      .eq('user_id', userId)
+      .single();
+
+    if (fetchError || !cartData) return;
+
+    let items: CartItem[] = [];
+    if (Array.isArray(cartData.items)) {
+      items = cartData.items as unknown as CartItem[];
+    }
+
+    const newItems = items.filter((i: CartItem) => !(i.productId === productId && i.variantId === variantId));
+
+    const { error: updateError } = await supabase
+      .from('carts')
+      .update({
+        items: newItems as unknown as any,
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', userId);
+
+    if (updateError) {
+      console.error('[removeCartItemAction] Error updating cart:', updateError);
+      throw new Error(updateError.message);
+    }
+
+  } catch (error) {
+    console.error('[removeCartItemAction] Unexpected error:', error);
+  }
 }

@@ -1,8 +1,8 @@
-import type {Metadata} from 'next';
+import type { Metadata } from 'next';
 import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Toaster } from '@/components/ui/toaster';
-import { FirebaseClientProvider } from '@/firebase';
+
 import { ThemeProvider } from '@/components/theme-provider';
 import { Suspense } from 'react';
 
@@ -31,15 +31,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <FirebaseClientProvider>
-            <Suspense fallback={null}>
-              <Navbar />
-            </Suspense>
-            <main className="animate-in fade-in duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]">
-              {children}
-            </main>
-            <Toaster />
-          </FirebaseClientProvider>
+          <Suspense fallback={null}>
+            <Navbar />
+          </Suspense>
+          <main className="animate-in fade-in duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]">
+            {children}
+          </main>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

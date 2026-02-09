@@ -1,25 +1,25 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
-import { useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, useUser, useDoc } from '@/firebase';
-import { collection, query, limit, orderBy, doc } from 'firebase/firestore';
-import { MOCK_ORDERS, MOCK_PRODUCTS, MOCK_CUSTOMERS, Product, Order, Customer } from '@/lib/mock-data';
+import { createClient } from '@/lib/supabase/client';
+import { useUser } from '@/hooks/use-user';
+import { Product, Order, Customer } from '@/lib/mock-data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Users, 
-  ShoppingBag, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Users,
+  ShoppingBag,
   DollarSign,
   ArrowUpRight,
   Loader2,
@@ -27,9 +27,9 @@ import {
   Database,
   CheckCircle2
 } from 'lucide-react';
-import { 
-  ChartContainer, 
-  ChartTooltip, 
+import {
+  ChartContainer,
+  ChartTooltip,
   ChartTooltipContent,
   type ChartConfig
 } from '@/components/ui/chart';
@@ -37,6 +37,7 @@ import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid } fro
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { MOCK_PRODUCTS, MOCK_ORDERS, MOCK_CUSTOMERS } from '@/lib/mock-data';
 
 const chartData = [
   { month: "Jan", sales: 4500 },
@@ -55,24 +56,39 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function AdminDashboard() {
-  const db = useFirestore();
+  const supabase = createClient();
   const { user } = useUser();
   const { toast } = useToast();
   const [seeding, setSeeding] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [customer, setCustomer] = useState<Customer | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const productsQuery = useMemoFirebase(() => collection(db, 'products'), [db]);
-  const { data: products, isLoading: productsLoading } = useCollection<Product>(productsQuery);
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      const [productsRes, ordersRes] = await Promise.all([
+        supabase.from('products').select('*'),
+        supabase.from('orders').select('*').order('date', { ascending: false }).limit(10)
+      ]);
 
-  const ordersQuery = useMemoFirebase(() => query(collection(db, 'orders'), orderBy('date', 'desc'), limit(10)), [db]);
-  const { data: orders, isLoading: ordersLoading } = useCollection<Order>(ordersQuery);
+      if (productsRes.data) setProducts(productsRes.data as Product[]);
+      if (ordersRes.data) setOrders(ordersRes.data as Order[]);
 
-  const customerRef = useMemoFirebase(() => user ? doc(db, 'customers', user.uid) : null, [db, user]);
-  const { data: customer } = useDoc<Customer>(customerRef);
+      if (user) {
+        const customerRes = await supabase.from('customers').select('*').eq('id', user.id).single();
+        if (customerRes.data) setCustomer(customerRes.data as Customer);
+      }
+      setIsLoading(false);
+    };
+    fetchData();
+  }, [user, supabase]);
 
   const stats = useMemo(() => {
     if (!orders) return { totalRevenue: 0, orderCount: 0, avgOrderValue: 0 };
@@ -85,35 +101,36 @@ export default function AdminDashboard() {
   const handleSeedData = async () => {
     setSeeding(true);
     try {
-      MOCK_PRODUCTS.forEach(p => {
-        const pRef = doc(db, 'products', p.id);
-        setDocumentNonBlocking(pRef, p, { merge: true });
-      });
+      // Seed Products
+      for (const p of MOCK_PRODUCTS) {
+        await supabase.from('products').upsert(p);
+      }
 
-      MOCK_ORDERS.forEach(o => {
-        const oRef = doc(db, 'orders', o.id);
-        setDocumentNonBlocking(oRef, o, { merge: true });
-      });
+      // Seed Customers
+      for (const c of MOCK_CUSTOMERS) {
+        await supabase.from('customers').upsert(c);
+      }
 
-      MOCK_CUSTOMERS.forEach(c => {
-        const cRef = doc(db, 'customers', c.id);
-        setDocumentNonBlocking(cRef, c, { merge: true });
-        
-        const uRef = doc(db, 'users', c.id);
-        setDocumentNonBlocking(uRef, {
-          id: c.id,
-          email: c.email,
-          displayName: `${c.firstName} ${c.lastName}`,
-          photoURL: `https://picsum.photos/seed/${c.id}/200`,
-          creationTime: new Date().toISOString()
-        }, { merge: true });
-      });
+      // Seed Orders
+      for (const o of MOCK_ORDERS) {
+        await supabase.from('orders').upsert({
+          id: o.id,
+          user_id: o.userId,
+          customer_name: o.customerName,
+          items: o.items,
+          total_amount: o.totalAmount,
+          status: o.status,
+          created_at: o.date,
+          platform_fee: o.platformFee
+        });
+      }
 
       toast({
         title: "Database Seeded",
-        description: "Heritage catalog, demo transactions, and mock users have been added to your Firestore.",
+        description: "Heritage catalog, demo transactions, and mock users have been added to your Supabase.",
       });
     } catch (err) {
+      console.error(err);
       toast({
         variant: "destructive",
         title: "Seeding Failed",
@@ -124,7 +141,7 @@ export default function AdminDashboard() {
     }
   };
 
-  if (productsLoading || ordersLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -139,16 +156,16 @@ export default function AdminDashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div className="space-y-1">
           <Badge variant="outline" className="bg-primary/10 text-primary border-none font-bold px-3 py-1 uppercase tracking-widest text-[10px]">
-             Live Marketplace Stats
+            Live Marketplace Stats
           </Badge>
           <h1 className="text-4xl font-headline font-bold text-secondary">Dashboard Overview</h1>
           <p className="text-muted-foreground italic font-medium">Monitoring the pulse of artisanal heritage.</p>
         </div>
         <div className="flex gap-3 w-full sm:w-auto">
           {isOwner && (
-            <Button 
-              variant="outline" 
-              onClick={handleSeedData} 
+            <Button
+              variant="outline"
+              onClick={handleSeedData}
               disabled={seeding}
               className="flex-1 sm:flex-none h-10 md:h-12 lg:h-14 px-4 md:px-8 lg:px-12 rounded-full bg-primary/5 border-primary/20 hover:bg-primary/10 text-primary font-bold text-xs md:text-sm lg:text-base"
             >
@@ -168,7 +185,7 @@ export default function AdminDashboard() {
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Total Revenue</CardTitle>
             <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
-                <DollarSign className="h-5 w-5" />
+              <DollarSign className="h-5 w-5" />
             </div>
           </CardHeader>
           <CardContent>
@@ -186,7 +203,7 @@ export default function AdminDashboard() {
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Total Orders</CardTitle>
             <div className="h-10 w-10 rounded-2xl bg-secondary/10 flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-all">
-                <ShoppingBag className="h-5 w-5" />
+              <ShoppingBag className="h-5 w-5" />
             </div>
           </CardHeader>
           <CardContent>
@@ -202,7 +219,7 @@ export default function AdminDashboard() {
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Avg. Basket</CardTitle>
             <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
-                <TrendingUp className="h-5 w-5" />
+              <TrendingUp className="h-5 w-5" />
             </div>
           </CardHeader>
           <CardContent>
@@ -239,26 +256,26 @@ export default function AdminDashboard() {
             <ChartContainer config={chartConfig} className="h-full w-full">
               <LineChart data={chartData}>
                 <CartesianGrid vertical={false} strokeDasharray="3 3" opacity={0.2} />
-                <XAxis 
-                  dataKey="month" 
-                  tickLine={false} 
-                  axisLine={false} 
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  axisLine={false}
                   tickMargin={12}
                   className="font-bold text-muted-foreground"
                 />
-                <YAxis 
-                  tickLine={false} 
-                  axisLine={false} 
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
                   tickFormatter={(val) => `$${val}`}
                   className="font-bold text-muted-foreground"
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Line 
-                  type="monotone" 
-                  dataKey="sales" 
-                  stroke="hsl(var(--primary))" 
-                  strokeWidth={4} 
-                  dot={{ r: 4, fill: 'hsl(var(--primary))', strokeWidth: 2, stroke: '#fff' }} 
+                <Line
+                  type="monotone"
+                  dataKey="sales"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={4}
+                  dot={{ r: 4, fill: 'hsl(var(--primary))', strokeWidth: 2, stroke: '#fff' }}
                   activeDot={{ r: 8, strokeWidth: 0 }}
                 />
               </LineChart>
@@ -301,8 +318,8 @@ export default function AdminDashboard() {
           </div>
           <Link href="/admin/orders">
             <Button variant="outline" className="gap-2 w-full sm:w-auto rounded-full px-6 border-primary/20 hover:bg-primary/10">
-                View Ledger
-                <ArrowUpRight className="h-4 w-4" />
+              View Ledger
+              <ArrowUpRight className="h-4 w-4" />
             </Button>
           </Link>
         </CardHeader>
@@ -326,8 +343,8 @@ export default function AdminDashboard() {
                     <TableCell className="text-center">
                       <Badge className={cn(
                         "rounded-full px-4 py-1 text-[10px] font-black uppercase tracking-widest border-none",
-                        order.status === 'Delivered' ? "bg-green-100 text-green-700" : 
-                        order.status === 'Cancelled' ? "bg-destructive/10 text-destructive" : "bg-blue-100 text-blue-700"
+                        order.status === 'Delivered' ? "bg-green-100 text-green-700" :
+                          order.status === 'Cancelled' ? "bg-destructive/10 text-destructive" : "bg-blue-100 text-blue-700"
                       )}>
                         {order.status}
                       </Badge>

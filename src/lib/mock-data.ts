@@ -1,70 +1,6 @@
+import { Category, Product, Order, Customer, PageSettings } from '@/types/index';
 
-export type Category = 'Pottery' | 'Textiles' | 'Decor' | 'Art' | 'Fashion';
-export type ProductType = 'single' | 'variable' | 'group';
-export type UserRole = 'owner' | 'store admin' | 'user';
-
-export interface ProductVariant {
-  id: string;
-  name: string;
-  price: number;
-  salePrice?: number;
-  stock: number;
-}
-
-export interface Product {
-  id: string;
-  sku?: string;
-  brand?: string;
-  title: string;
-  price: number;
-  salePrice?: number;
-  discountPercentage?: number;
-  stock: number;
-  category: Category;
-  description: string;
-  imageUrl: string;
-  type: ProductType;
-  variants?: ProductVariant[];
-  relatedProducts?: string[];
-  specs?: Record<string, string>;
-  tags?: string[];
-}
-
-export interface Order {
-  id: string;
-  customerName: string;
-  userId: string;
-  items: { productId: string; quantity: number; price: number }[];
-  totalAmount: number;
-  status: 'Pending' | 'Shipped' | 'Delivered' | 'Cancelled';
-  date: string;
-  platformFee: number;
-}
-
-export interface PageSettings {
-  template: 'v0' | 'modern';
-  showBreadcrumbs: boolean;
-  showRelatedProducts: boolean;
-  enableZoom: boolean;
-  accentColor: string;
-}
-
-export interface Customer {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  username?: string;
-  bio?: string;
-  address?: string;
-  phoneNumber?: string;
-  phoneNumberVerified?: boolean;
-  role: UserRole;
-  isVerified?: boolean;
-  failedAttempts?: number;
-  resendAttempts?: number;
-  banUntil?: string;
-}
+// Re-export specific mock data constants but use the imported types
 
 export const CATEGORIES: Category[] = ['Pottery', 'Textiles', 'Decor', 'Art', 'Fashion'];
 
@@ -75,12 +11,12 @@ export const MOCK_PRODUCTS: Product[] = [
     brand: 'Vridhira Heritage',
     title: 'Terracotta Hand-Painted Pot',
     price: 45.0,
-    salePrice: 39.0,
-    discountPercentage: 13,
+    sale_price: 39.0,
+    discount_percentage: 13,
     stock: 12,
     category: 'Pottery',
     description: 'Beautiful hand-painted pot using traditional earthy pigments. Perfect for indoor decor.',
-    imageUrl: 'https://picsum.photos/seed/pot1/600/400',
+    image_url: 'https://picsum.photos/seed/pot1/600/400',
     type: 'single',
     specs: { Material: 'Clay', Origin: 'Rajasthan', Weight: '1.2kg' },
     tags: ['handmade', 'clay', 'decor']
@@ -94,7 +30,7 @@ export const MOCK_PRODUCTS: Product[] = [
     stock: 5,
     category: 'Textiles',
     description: 'A masterpiece of Banarasi weaving, featuring pure silk and intricate zari work.',
-    imageUrl: 'https://picsum.photos/seed/saree1/600/400',
+    image_url: 'https://picsum.photos/seed/saree1/600/400',
     type: 'variable',
     variants: [
       { id: 'v1', name: 'Crimson Red', price: 250, stock: 2 },
@@ -112,7 +48,7 @@ export const MOCK_PRODUCTS: Product[] = [
     stock: 8,
     category: 'Decor',
     description: 'Hand-carved sandalwood elephant representing wisdom and strength.',
-    imageUrl: 'https://picsum.photos/seed/elephant1/600/400',
+    image_url: 'https://picsum.photos/seed/elephant1/600/400',
     type: 'single',
     specs: { Material: 'Sandalwood', Origin: 'Karnataka' }
   },
@@ -125,7 +61,7 @@ export const MOCK_PRODUCTS: Product[] = [
     stock: 25,
     category: 'Decor',
     description: 'Traditional solid brass lamp with a majestic peacock motif. Sold as a set of two.',
-    imageUrl: 'https://picsum.photos/seed/lamp1/600/400',
+    image_url: 'https://picsum.photos/seed/lamp1/600/400',
     type: 'group',
     specs: { Material: 'Brass', Count: 'Set of 2' }
   },
@@ -138,7 +74,7 @@ export const MOCK_PRODUCTS: Product[] = [
     stock: 3,
     category: 'Art',
     description: 'Authentic Madhubani folk art on stretched canvas, signed by the artist.',
-    imageUrl: 'https://picsum.photos/seed/mural1/600/400',
+    image_url: 'https://picsum.photos/seed/mural1/600/400',
     type: 'single',
     specs: { Technique: 'Madhubani', Surface: 'Canvas' }
   },
@@ -151,7 +87,7 @@ export const MOCK_PRODUCTS: Product[] = [
     stock: 15,
     category: 'Fashion',
     description: 'Comfortable hand-stitched leather footwear with colorful Zardosi embroidery.',
-    imageUrl: 'https://picsum.photos/seed/shoes1/600/400',
+    image_url: 'https://picsum.photos/seed/shoes1/600/400',
     type: 'variable',
     variants: [
       { id: 's1', name: 'UK 7', price: 55, stock: 5 },
