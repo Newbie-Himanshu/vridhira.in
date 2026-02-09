@@ -1,15 +1,35 @@
 "use client"
 
-import React from 'react';
-import { useUser } from '@/firebase';
+import React, { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useUser } from '@/hooks/use-user';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { Customer } from '@/lib/mock-data';
 
 export default function FeeOptimizationPage() {
-  const { user, userRole, isUserLoading } = useUser();
+  const supabase = createClient();
+  const { user } = useUser();
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [loadingRole, setLoadingRole] = useState(true);
 
-  if (isUserLoading) {
-    return <div className="p-4">Loading user permissions...</div>;
+  useEffect(() => {
+    async function checkRole() {
+      if (!user) {
+        setLoadingRole(false);
+        return;
+      }
+      const { data } = await supabase.from('customers').select('role').eq('id', user.id).single();
+      if (data) {
+        setUserRole(data.role);
+      }
+      setLoadingRole(false);
+    }
+    checkRole();
+  }, [user]);
+
+  if (loadingRole) {
+    return <div className="p-4">Loading permissions...</div>;
   }
 
   const isOwner = userRole === 'owner' || user?.email === 'hk8913114@gmail.com';

@@ -1,18 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { 
-  Search, 
-  Receipt, 
-  Truck, 
-  Store, 
-  CreditCard, 
-  Settings, 
-  Users, 
-  FileText, 
-  ChevronRight, 
-  Headset, 
+import { createClient } from '@/lib/supabase/client';
+import {
+  Search,
+  Receipt,
+  Truck,
+  Store,
+  CreditCard,
+  Settings,
+  Users,
+  FileText,
+  ChevronRight,
+  Headset,
   MessageSquare,
   ArrowRight,
   Home,
@@ -23,12 +24,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { MOCK_PRODUCTS } from '@/lib/mock-data';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
 
 export default function HelpCenterPage() {
+  const supabase = createClient();
   const [searchQuery, setSearchQuery] = useState('');
-  const db = useFirestore();
+  const [liveCategories, setLiveCategories] = useState<any[]>([]);
 
   const categories = [
     { icon: Receipt, title: 'Buying & Orders', desc: 'Tracking, returns, cancellations and order issues.', href: '#' },
@@ -46,16 +46,21 @@ export default function HelpCenterPage() {
     { icon: CreditCard, title: 'Understanding artisan fees', desc: 'Breakdown of listing fees, transaction costs, and VAT.' },
   ];
 
-  const categoriesQuery = useMemoFirebase(() => query(collection(db, 'categories'), where('isActive', '==', true)), [db]);
-  const { data: liveCategories } = useCollection<any>(categoriesQuery);
+  useEffect(() => {
+    async function fetchCategories() {
+      const { data } = await supabase.from('categories').select('*').eq('is_active', true); // Assuming snake_case
+      if (data) setLiveCategories(data);
+    }
+    fetchCategories();
+  }, []);
 
-  const filteredCategories = categories.filter(cat => 
-    cat.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredCategories = categories.filter(cat =>
+    cat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     cat.desc.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredArticles = articles.filter(art => 
-    art.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredArticles = articles.filter(art =>
+    art.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     art.desc.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -80,9 +85,9 @@ export default function HelpCenterPage() {
           <div className="w-full max-w-2xl relative">
             <form onSubmit={handleSearchSubmit} className="relative flex items-center bg-card rounded-2xl border border-border shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden transition-all focus-within:border-primary/50">
               <Search className="ml-6 h-5 w-5 text-muted-foreground" />
-              <Input 
-                className="h-16 md:h-20 border-none bg-transparent text-lg text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 px-4" 
-                placeholder="Search articles, policies, or topics..." 
+              <Input
+                className="h-16 md:h-20 border-none bg-transparent text-lg text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 px-4"
+                placeholder="Search articles, policies, or topics..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -124,14 +129,14 @@ export default function HelpCenterPage() {
                     { icon: MessageSquare, label: 'Trust & Safety', href: '#' },
                     { icon: FileText, label: 'Store Policies', href: '/help-center/store-policies' },
                   ].map((item, i) => (
-                    <Link 
-                      key={i} 
+                    <Link
+                      key={i}
                       className={cn(
                         "group flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all duration-500",
-                        item.active 
-                          ? "bg-primary/10 text-primary font-bold shadow-sm border-l-4 border-primary" 
+                        item.active
+                          ? "bg-primary/10 text-primary font-bold shadow-sm border-l-4 border-primary"
                           : "text-muted-foreground hover:bg-card hover:text-primary"
-                      )} 
+                      )}
                       href={item.href}
                     >
                       <item.icon className="h-4 w-4" />
@@ -165,7 +170,7 @@ export default function HelpCenterPage() {
                   <p className="text-muted-foreground mt-2 font-light">Select a collection to find solutions.</p>
                 </div>
               </div>
-              
+
               {filteredCategories.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredCategories.map((cat, i) => (
@@ -191,7 +196,7 @@ export default function HelpCenterPage() {
                 <h2 className="font-headline text-3xl font-bold text-foreground">Frequent Articles</h2>
                 <Link className="text-sm font-bold text-primary hover:underline flex items-center gap-2" href="#">View Archive <ArrowRight className="h-4 w-4" /></Link>
               </div>
-              
+
               {filteredArticles.length > 0 ? (
                 <div className="space-y-4">
                   {filteredArticles.map((art, i) => (

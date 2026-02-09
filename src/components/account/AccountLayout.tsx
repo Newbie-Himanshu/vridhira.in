@@ -2,27 +2,33 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  User, 
-  Package, 
-  Bell, 
-  Heart, 
-  Store, 
-  MapPin, 
-  CreditCard, 
-  Settings, 
-  Gift, 
-  ChevronRight, 
+import {
+  User,
+  Package,
+  Bell,
+  Heart,
+  Store,
+  MapPin,
+  CreditCard,
+  Settings,
+  Gift,
+  ChevronRight,
   LogOut,
   Star
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/firebase';
-import { signOut } from 'firebase/auth';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
 
 const AccountLayout = ({ children }: { children: React.ReactNode }) => {
   const searchParams = useSearchParams();
-  const auth = useAuth();
+  const supabase = createClient();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+  };
   const activeTab = searchParams.get('tab') || 'overview';
 
   const menuItems = [
@@ -68,8 +74,8 @@ const AccountLayout = ({ children }: { children: React.ReactNode }) => {
                   href={`/account?tab=${item.id}`}
                   className={cn(
                     "flex items-center justify-between p-5 rounded-2xl transition-all duration-500 group relative",
-                    isActive 
-                      ? "bg-white/60 shadow-xl border border-white/40 translate-x-2" 
+                    isActive
+                      ? "bg-white/60 shadow-xl border border-white/40 translate-x-2"
                       : "hover:bg-white/20 text-muted-foreground hover:text-secondary"
                   )}
                 >
@@ -104,9 +110,9 @@ const AccountLayout = ({ children }: { children: React.ReactNode }) => {
                 </Link>
               );
             })}
-            
-            <button 
-              onClick={() => signOut(auth)}
+
+            <button
+              onClick={handleSignOut}
               className="mt-6 flex items-center gap-4 p-5 rounded-2xl text-destructive hover:bg-destructive/5 transition-all font-bold group"
             >
               <div className="p-2.5 rounded-xl bg-destructive/10 text-destructive group-hover:bg-destructive group-hover:text-white transition-colors duration-500">

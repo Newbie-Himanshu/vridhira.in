@@ -1,9 +1,7 @@
-
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
-import { collection, query, orderBy, doc } from 'firebase/firestore';
+import { createClient } from '@/lib/supabase/client';
 import { Product, CATEGORIES, Category, ProductType, ProductVariant } from '@/lib/mock-data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -13,30 +11,30 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
   DialogFooter,
   DialogClose
 } from '@/components/ui/dialog';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select';
-import { 
-  Loader2, 
-  Package, 
-  Plus, 
-  Search, 
-  Edit, 
-  Trash2, 
-  Download, 
+import {
+  Loader2,
+  Package,
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Download,
   Upload,
   FileSpreadsheet,
   Settings2,
@@ -51,21 +49,32 @@ import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
 export default function ProductsManagementPage() {
-  const db = useFirestore();
+  const supabase = createClient();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageUploadRef = useRef<HTMLInputElement>(null);
 
-  const productsQuery = useMemoFirebase(() => query(collection(db, 'products'), orderBy('title', 'asc')), [db]);
-  const { data: products, isLoading } = useCollection<Product>(productsQuery);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    setIsLoading(true);
+    const { data } = await supabase.from('products').select('*').order('title', { ascending: true });
+    if (data) setProducts(data as Product[]);
+    setIsLoading(false);
+  };
+
   const filteredProducts = useMemo(() => {
     if (!products) return [];
-    return products.filter(p => 
+    return products.filter(p =>
       p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.sku?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -74,10 +83,10 @@ export default function ProductsManagementPage() {
 
   const handlePriceChange = (field: 'price' | 'salePrice' | 'discountPercentage', value: number) => {
     if (!editingProduct) return;
-    
+
     let updates: Partial<Product> = { [field]: value };
     const price = field === 'price' ? value : Number(editingProduct.price || 0);
-    
+
     if (field === 'price' || field === 'salePrice') {
       const sPrice = field === 'salePrice' ? value : Number(editingProduct.salePrice || 0);
       if (price > 0 && sPrice > 0) {
@@ -111,41 +120,67 @@ export default function ProductsManagementPage() {
     }
   };
 
-  const handleSaveProduct = (e: React.FormEvent) => {
+  const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProduct?.title) {
-        toast({ variant: "destructive", title: "Validation Error", description: "Product title is required." });
-        return;
+      toast({ variant: "destructive", title: "Validation Error", description: "Product title is required." });
+      return;
     }
 
-    const id = editingProduct.id || doc(collection(db, 'products')).id;
-    const productRef = doc(db, 'products', id);
-    
-    const finalData: Product = {
-      ...editingProduct as Product,
-      id,
+    // Generate ID only if we don't have one? No, Supabase can let us specify ID, but usually it generates it.
+    // existing logic used `doc(collection(db, 'products')).id` if no ID.
+    // For Supabase, if we insert without ID it's usually auto-generated if column is UUID default gen_random_uuid().
+    // But here `id` is part of our `Product` interface and logic.
+    // I'll check if ID exists. If not, I'll let Supabase generate it or generate one myself.
+    // For upserting with explicit ID, I should valid UUID.
+    // The previous code generated random ID.
+    // I'll use crypto.randomUUID() if environment updates allow it, or just let Supabase handle it if I omit it?
+    // But `setDocumentNonBlocking` used upsert like logic.
+
+    // Simplest: if (editingProduct.id), update. Else insert.
+
+    const productData = {
+      ...editingProduct,
       price: editingProduct.price !== undefined ? Number(editingProduct.price) : 0,
       salePrice: editingProduct.salePrice !== undefined ? Number(editingProduct.salePrice) : undefined,
       discountPercentage: editingProduct.discountPercentage !== undefined ? Number(editingProduct.discountPercentage) : undefined,
       stock: editingProduct.stock !== undefined ? Number(editingProduct.stock) : 0,
       type: (editingProduct.type || 'single') as ProductType,
       category: (editingProduct.category || 'Decor') as Category,
-      tags: typeof editingProduct.tags === 'string' 
-        ? (editingProduct.tags as string).split(',').map(t => t.trim()).filter(Boolean) 
+      tags: typeof editingProduct.tags === 'string'
+        ? (editingProduct.tags as string).split(',').map(t => t.trim()).filter(Boolean)
         : (editingProduct.tags || []),
       variants: editingProduct.variants || [],
       specs: editingProduct.specs || {},
     };
 
-    setDocumentNonBlocking(productRef, finalData, { merge: true });
-    
+    // Remove ID if it's undefined/null so Supabase generates it? 
+    // Wait, the interface expects ID.
+    // If I'm editing, ID is present.
+    // If new, ID is missing.
+
+    // But I'm mapping `Product` which has `id` string.
+    // I'll try to just upsert.
+
+    const { error } = await supabase.from('products').upsert(productData as any);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error Saving",
+        description: error.message
+      });
+      return;
+    }
+
     toast({
       title: editingProduct.id ? "Listing Updated" : "New Listing Created",
-      description: `"${finalData.title}" has been saved to the heritage catalog.`,
+      description: `"${productData.title}" has been saved to the heritage catalog.`,
     });
-    
+
     setIsDialogOpen(false);
     setEditingProduct(null);
+    fetchProducts();
   };
 
   const handleAddVariant = () => {
@@ -184,15 +219,21 @@ export default function ProductsManagementPage() {
     setEditingProduct({ ...editingProduct, specs });
   };
 
-  const handleDeleteProduct = (id: string) => {
+  const handleDeleteProduct = async (id: string) => {
     if (confirm('Are you sure you want to remove this piece from the catalog?')) {
-      const productRef = doc(db, 'products', id);
-      deleteDocumentNonBlocking(productRef);
+      const { error } = await supabase.from('products').delete().eq('id', id);
+
+      if (error) {
+        toast({ variant: "destructive", title: "Error", description: "Could not delete product." });
+        return;
+      }
+
       toast({
         variant: "destructive",
         title: "Product Removed",
         description: "The item has been deleted from the database.",
       });
+      setProducts(prev => prev.filter(p => p.id !== id));
     }
   };
 
@@ -235,21 +276,21 @@ export default function ProductsManagementPage() {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       const text = event.target?.result as string;
       const rows = text.split('\n');
       const headers = rows[0].split(',');
-      
+
       let importCount = 0;
-      
-      rows.slice(1).forEach(row => {
-        if (!row.trim()) return;
-        
+
+      for (const row of rows.slice(1)) {
+        if (!row.trim()) continue;
+
         const values = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-        if (!values) return;
+        if (!values) continue;
 
         const cleanValues = values.map(v => v.replace(/^"|"$/g, '').replace(/""/g, '"'));
-        
+
         const productData: any = {};
         headers.forEach((header, i) => {
           const key = header.trim();
@@ -257,26 +298,26 @@ export default function ProductsManagementPage() {
         });
 
         if (productData.title) {
-          const id = productData.id || doc(collection(db, 'products')).id;
-          const productRef = doc(db, 'products', id);
-          
-          setDocumentNonBlocking(productRef, {
+          // Construct product object
+          const finalData = {
             ...productData,
-            id,
             price: Number(productData.price || 0),
             salePrice: productData.salePrice ? Number(productData.salePrice) : undefined,
             discountPercentage: productData.discountPercentage ? Number(productData.discountPercentage) : undefined,
             stock: Number(productData.stock || 0),
             tags: productData.tags ? productData.tags.split(',') : []
-          }, { merge: true });
-          importCount++;
+          };
+
+          const { error } = await supabase.from('products').upsert(finalData);
+          if (!error) importCount++;
         }
-      });
+      }
 
       toast({
         title: "Import Successful",
         description: `Imported/Updated ${importCount} products in the catalog.`,
       });
+      fetchProducts();
       if (fileInputRef.current) fileInputRef.current.value = '';
     };
     reader.readAsText(file);
@@ -298,23 +339,23 @@ export default function ProductsManagementPage() {
           <p className="text-muted-foreground italic">Manage your handcrafted treasures and platform listings.</p>
         </div>
         <div className="flex flex-wrap gap-3 w-full md:w-auto">
-          <input 
-            type="file" 
-            accept=".csv" 
-            ref={fileInputRef} 
-            onChange={handleImportCSV} 
-            className="hidden" 
+          <input
+            type="file"
+            accept=".csv"
+            ref={fileInputRef}
+            onChange={handleImportCSV}
+            className="hidden"
           />
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="rounded-full gap-2 border-primary/20 hover:bg-primary/5 text-primary"
             onClick={() => fileInputRef.current?.click()}
           >
             <Upload className="h-4 w-4" />
             Import CSV
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="rounded-full gap-2 border-primary/20 hover:bg-primary/5 text-primary"
             onClick={handleExportCSV}
           >
@@ -323,7 +364,7 @@ export default function ProductsManagementPage() {
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button 
+              <Button
                 className="rounded-full bg-primary text-white hover:bg-primary/90 shadow-lg gap-2"
                 onClick={() => setEditingProduct({ type: 'single', category: 'Decor', stock: 0, price: 0, specs: {}, variants: [], tags: [], imageUrl: '' })}
               >
@@ -338,7 +379,7 @@ export default function ProductsManagementPage() {
                 </DialogTitle>
                 <p className="text-sm text-muted-foreground italic">Comprehensive marketplace listing details.</p>
               </DialogHeader>
-              
+
               <ScrollArea className="flex-1 px-6 sm:px-8 py-4 overflow-y-auto">
                 <form id="product-form" onSubmit={handleSaveProduct} className="space-y-8 pb-10">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -346,9 +387,9 @@ export default function ProductsManagementPage() {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="title" className="text-xs font-bold uppercase tracking-wider">Product Title</Label>
-                        <Input 
-                          id="title" 
-                          value={editingProduct?.title || ''} 
+                        <Input
+                          id="title"
+                          value={editingProduct?.title || ''}
                           onChange={(e) => setEditingProduct({ ...editingProduct, title: e.target.value })}
                           placeholder="e.g., Hand-Painted Terracotta Vase"
                           required
@@ -357,18 +398,18 @@ export default function ProductsManagementPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="sku" className="text-xs font-bold uppercase tracking-wider">SKU</Label>
-                          <Input 
-                            id="sku" 
-                            value={editingProduct?.sku || ''} 
+                          <Input
+                            id="sku"
+                            value={editingProduct?.sku || ''}
                             onChange={(e) => setEditingProduct({ ...editingProduct, sku: e.target.value })}
                             placeholder="VRD-001"
                           />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="brand" className="text-xs font-bold uppercase tracking-wider">Brand / Origin</Label>
-                          <Input 
-                            id="brand" 
-                            value={editingProduct?.brand || ''} 
+                          <Input
+                            id="brand"
+                            value={editingProduct?.brand || ''}
                             onChange={(e) => setEditingProduct({ ...editingProduct, brand: e.target.value })}
                             placeholder="Vridhira Heritage"
                           />
@@ -377,8 +418,8 @@ export default function ProductsManagementPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="category" className="text-xs font-bold uppercase tracking-wider">Category</Label>
-                          <Select 
-                            value={editingProduct?.category} 
+                          <Select
+                            value={editingProduct?.category}
                             onValueChange={(val) => setEditingProduct({ ...editingProduct, category: val as Category })}
                           >
                             <SelectTrigger>
@@ -393,8 +434,8 @@ export default function ProductsManagementPage() {
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="type" className="text-xs font-bold uppercase tracking-wider">Listing Type</Label>
-                          <Select 
-                            value={editingProduct?.type} 
+                          <Select
+                            value={editingProduct?.type}
                             onValueChange={(val) => setEditingProduct({ ...editingProduct, type: val as ProductType })}
                           >
                             <SelectTrigger>
@@ -417,16 +458,16 @@ export default function ProductsManagementPage() {
                         <div className="flex flex-col gap-4">
                           {editingProduct?.imageUrl ? (
                             <div className="relative aspect-video rounded-xl overflow-hidden border bg-muted group">
-                              <Image 
-                                src={editingProduct.imageUrl} 
-                                alt="Preview" 
-                                fill 
+                              <Image
+                                src={editingProduct.imageUrl}
+                                alt="Preview"
+                                fill
                                 className="object-cover"
                               />
                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <Button 
-                                  type="button" 
-                                  variant="destructive" 
+                                <Button
+                                  type="button"
+                                  variant="destructive"
                                   size="sm"
                                   className="rounded-full"
                                   onClick={() => setEditingProduct({ ...editingProduct, imageUrl: '' })}
@@ -436,7 +477,7 @@ export default function ProductsManagementPage() {
                               </div>
                             </div>
                           ) : (
-                            <div 
+                            <div
                               className="aspect-video rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-muted/50 transition-colors border-primary/20"
                               onClick={() => imageUploadRef.current?.click()}
                             >
@@ -449,36 +490,36 @@ export default function ProductsManagementPage() {
                               </div>
                             </div>
                           )}
-                          <input 
-                            type="file" 
-                            accept="image/*" 
-                            ref={imageUploadRef} 
-                            className="hidden" 
+                          <input
+                            type="file"
+                            accept="image/*"
+                            ref={imageUploadRef}
+                            className="hidden"
                             onChange={handleImageUpload}
                           />
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="price" className="text-xs font-bold uppercase tracking-wider flex items-center gap-1">
                             Original Price ($) <DollarSign className="h-3 w-3" />
                           </Label>
-                          <Input 
-                            id="price" 
-                            type="number" 
+                          <Input
+                            id="price"
+                            type="number"
                             step="0.01"
-                            value={editingProduct?.price !== undefined ? editingProduct.price : ''} 
+                            value={editingProduct?.price !== undefined ? editingProduct.price : ''}
                             onChange={(e) => handlePriceChange('price', Number(e.target.value))}
                             required
                           />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="stock" className="text-xs font-bold uppercase tracking-wider">Total Inventory</Label>
-                          <Input 
-                            id="stock" 
-                            type="number" 
-                            value={editingProduct?.stock !== undefined ? editingProduct.stock : ''} 
+                          <Input
+                            id="stock"
+                            type="number"
+                            value={editingProduct?.stock !== undefined ? editingProduct.stock : ''}
                             onChange={(e) => setEditingProduct({ ...editingProduct, stock: Number(e.target.value) })}
                             required
                           />
@@ -490,11 +531,11 @@ export default function ProductsManagementPage() {
                           <Label htmlFor="salePrice" className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1">
                             Sale Price ($) <DollarSign className="h-3 w-3" />
                           </Label>
-                          <Input 
-                            id="salePrice" 
-                            type="number" 
+                          <Input
+                            id="salePrice"
+                            type="number"
                             step="0.01"
-                            value={editingProduct?.salePrice !== undefined ? editingProduct.salePrice : ''} 
+                            value={editingProduct?.salePrice !== undefined ? editingProduct.salePrice : ''}
                             onChange={(e) => handlePriceChange('salePrice', Number(e.target.value))}
                             className="border-primary/20 focus:border-primary bg-white"
                             placeholder="Optional"
@@ -504,10 +545,10 @@ export default function ProductsManagementPage() {
                           <Label htmlFor="discount" className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1">
                             Discount (%) <Percent className="h-3 w-3" />
                           </Label>
-                          <Input 
-                            id="discount" 
-                            type="number" 
-                            value={editingProduct?.discountPercentage !== undefined ? editingProduct.discountPercentage : ''} 
+                          <Input
+                            id="discount"
+                            type="number"
+                            value={editingProduct?.discountPercentage !== undefined ? editingProduct.discountPercentage : ''}
                             onChange={(e) => handlePriceChange('discountPercentage', Number(e.target.value))}
                             className="border-primary/20 focus:border-primary bg-white"
                             placeholder="Auto-calc"
@@ -520,9 +561,9 @@ export default function ProductsManagementPage() {
                       <Label htmlFor="tags" className="text-xs font-bold uppercase tracking-wider">Search Tags (Comma separated)</Label>
                       <div className="relative">
                         <Tags className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          id="tags" 
-                          value={Array.isArray(editingProduct?.tags) ? editingProduct.tags.join(', ') : editingProduct?.tags || ''} 
+                        <Input
+                          id="tags"
+                          value={Array.isArray(editingProduct?.tags) ? editingProduct.tags.join(', ') : editingProduct?.tags || ''}
                           onChange={(e) => setEditingProduct({ ...editingProduct, tags: e.target.value })}
                           placeholder="handmade, vintage, gift"
                           className="pl-10"
@@ -532,10 +573,10 @@ export default function ProductsManagementPage() {
 
                     <div className="col-span-1 md:col-span-2 space-y-2">
                       <Label htmlFor="description" className="text-xs font-bold uppercase tracking-wider">Heritage Story (Description)</Label>
-                      <Textarea 
-                        id="description" 
+                      <Textarea
+                        id="description"
                         className="min-h-[100px] rounded-xl"
-                        value={editingProduct?.description || ''} 
+                        value={editingProduct?.description || ''}
                         onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
                         placeholder="Tell the story of this craft, its history and significance..."
                       />
@@ -597,16 +638,16 @@ export default function ProductsManagementPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {Object.entries(editingProduct?.specs || {}).map(([key, value], idx) => (
                           <div key={idx} className="flex gap-2 items-center bg-muted/20 p-2 rounded-lg border">
-                            <Input 
-                              className="h-9 text-xs font-bold bg-white" 
-                              value={key} 
-                              onChange={(e) => handleUpdateSpec(key, e.target.value, value)} 
+                            <Input
+                              className="h-9 text-xs font-bold bg-white"
+                              value={key}
+                              onChange={(e) => handleUpdateSpec(key, e.target.value, value)}
                               placeholder="e.g., Material"
                             />
-                            <Input 
-                              className="h-9 text-xs bg-white" 
-                              value={value} 
-                              onChange={(e) => handleUpdateSpec(key, key, e.target.value)} 
+                            <Input
+                              className="h-9 text-xs bg-white"
+                              value={value}
+                              onChange={(e) => handleUpdateSpec(key, key, e.target.value)}
                               placeholder="e.g., Silk"
                             />
                             <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveSpec(key)} className="h-9 w-9 text-destructive shrink-0">
@@ -636,8 +677,8 @@ export default function ProductsManagementPage() {
       <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-2xl shadow-sm">
         <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search catalog by SKU, name or category..." 
+          <Input
+            placeholder="Search catalog by SKU, name or category..."
             className="pl-10 rounded-xl"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -709,9 +750,9 @@ export default function ProductsManagementPage() {
                     </TableCell>
                     <TableCell className="text-right px-8">
                       <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           className="rounded-full hover:bg-primary/10 hover:text-primary"
                           onClick={() => {
                             setEditingProduct({
@@ -725,9 +766,9 @@ export default function ProductsManagementPage() {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           className="rounded-full hover:bg-destructive/10 hover:text-destructive"
                           onClick={() => handleDeleteProduct(product.id)}
                         >

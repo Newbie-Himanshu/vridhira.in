@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -8,13 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Star, ShieldCheck, Truck, RefreshCcw, Loader2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useUser, useFirestore } from '@/firebase';
+import { useUser } from '@/hooks/use-user';
+import { createClient } from '@/lib/supabase/client';
 import { addToCartAction } from '@/lib/cart-actions';
 import { useToast } from '@/hooks/use-toast';
 
 export function ModernTemplate({ product }: { product: Product }) {
   const { user } = useUser();
-  const db = useFirestore();
+  const supabase = createClient();
   const { toast } = useToast();
 
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(product.variants?.[0] || null);
@@ -25,7 +25,7 @@ export function ModernTemplate({ product }: { product: Product }) {
   const handleAddToCart = async () => {
     setIsAdding(true);
     try {
-      await addToCartAction(db, user?.uid || null, {
+      await addToCartAction(supabase, user?.id || null, {
         productId: product.id,
         variantId: selectedVariant?.id,
         quantity: 1
@@ -42,7 +42,7 @@ export function ModernTemplate({ product }: { product: Product }) {
     <div className="flex flex-col gap-12 animate-in fade-in duration-700">
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
         <div className="lg:col-span-3 relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl">
-          <Image src={product.imageUrl} alt={product.title} fill className="object-cover" priority />
+          <Image src={product.image_url} alt={product.title} fill className="object-cover" priority />
         </div>
         <div className="lg:col-span-2 space-y-8">
           <div className="space-y-4">

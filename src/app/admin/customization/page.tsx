@@ -1,9 +1,7 @@
-
 'use client';
 
-import { useState } from 'react';
-import { useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { PageSettings } from '@/lib/mock-data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,35 +12,63 @@ import { Layout, Palette, CheckCircle2, Loader2, Sparkles, Monitor } from 'lucid
 import { useToast } from '@/hooks/use-toast';
 
 export default function CustomizationPage() {
-  const db = useFirestore();
+  const supabase = createClient();
   const { toast } = useToast();
-  const settingsRef = useMemoFirebase(() => doc(db, 'page_customizations', 'global-settings'), [db]);
-  const { data: settings, isLoading } = useDoc<PageSettings>(settingsRef);
 
+  const [settings, setSettings] = useState<PageSettings | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const handleUpdate = (updates: Partial<PageSettings>) => {
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    setIsLoading(true);
+    const { data } = await supabase.from('page_customizations').select('*').eq('id', 'global-settings').single();
+    if (data) {
+      setSettings(data as any);
+    } else {
+      setSettings({
+        id: 'global-settings',
+        template: 'v0',
+        show_breadcrumbs: true,
+        show_related_products: true,
+        enable_zoom: false,
+        accent_color: '#E07C54'
+      } as any);
+    }
+    setIsLoading(false);
+  };
+
+  const handleUpdate = async (updates: any) => {
     setSaving(true);
+
+    // Transform updates if they come in as camelCase, but here likely already handling any
+    // We assume the settings state will now track snake_case
     const newSettings = {
       template: 'v0',
-      showBreadcrumbs: true,
-      showRelatedProducts: true,
-      enableZoom: false,
-      accentColor: '#E07C54',
-      ...settings,
-      ...updates
+      show_breadcrumbs: true,
+      show_related_products: true,
+      enable_zoom: false,
+      accent_color: '#E07C54',
+      ...(settings || {}),
+      ...updates,
+      id: 'global-settings'
     };
 
-    setDocumentNonBlocking(settingsRef, newSettings, { merge: true });
-    
-    // Simulate feedback
-    setTimeout(() => {
-      setSaving(false);
+    const { error } = await supabase.from('page_customizations').upsert(newSettings);
+
+    if (error) {
+      toast({ variant: "destructive", title: "Update Failed", description: "Could not update settings." });
+    } else {
+      setSettings(newSettings as PageSettings);
       toast({
         title: "Settings updated",
         description: "The marketplace template has been successfully updated.",
       });
-    }, 500);
+    }
+    setSaving(false);
   };
 
   if (isLoading) {
@@ -82,8 +108,8 @@ export default function CustomizationPage() {
             <CardDescription>Choose the primary layout for your individual product listings.</CardDescription>
           </CardHeader>
           <CardContent>
-            <RadioGroup 
-              value={currentTemplate} 
+            <RadioGroup
+              value={currentTemplate}
               onValueChange={(val) => handleUpdate({ template: val as 'v0' | 'modern' })}
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
@@ -91,9 +117,8 @@ export default function CustomizationPage() {
                 <RadioGroupItem value="v0" id="t-v0" className="sr-only" />
                 <Label
                   htmlFor="t-v0"
-                  className={`block border-2 rounded-2xl p-6 cursor-pointer transition-all ${
-                    currentTemplate === 'v0' ? 'border-primary bg-primary/5 shadow-inner' : 'border-border bg-white hover:border-primary/40'
-                  }`}
+                  className={`block border-2 rounded-2xl p-6 cursor-pointer transition-all ${currentTemplate === 'v0' ? 'border-primary bg-primary/5 shadow-inner' : 'border-border bg-white hover:border-primary/40'
+                    }`}
                 >
                   <div className="flex justify-between items-start mb-4">
                     <span className="font-headline font-bold text-xl">v0 Minimalist</span>
@@ -113,9 +138,8 @@ export default function CustomizationPage() {
                 <RadioGroupItem value="modern" id="t-modern" className="sr-only" />
                 <Label
                   htmlFor="t-modern"
-                  className={`block border-2 rounded-2xl p-6 cursor-pointer transition-all ${
-                    currentTemplate === 'modern' ? 'border-primary bg-primary/5 shadow-inner' : 'border-border bg-white hover:border-primary/40'
-                  }`}
+                  className={`block border-2 rounded-2xl p-6 cursor-pointer transition-all ${currentTemplate === 'modern' ? 'border-primary bg-primary/5 shadow-inner' : 'border-border bg-white hover:border-primary/40'
+                    }`}
                 >
                   <div className="flex justify-between items-start mb-4">
                     <span className="font-headline font-bold text-xl">Modern Bold</span>
@@ -123,7 +147,7 @@ export default function CustomizationPage() {
                   </div>
                   <div className="aspect-video rounded-lg bg-secondary/5 border border-border/50 mb-4 overflow-hidden relative">
                     <div className="absolute inset-0 flex items-center justify-center">
-                       <Layout className="h-10 w-10 text-secondary/10" />
+                      <Layout className="h-10 w-10 text-secondary/10" />
                     </div>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">
@@ -150,8 +174,8 @@ export default function CustomizationPage() {
                 <Label className="text-base">Breadcrumb Navigation</Label>
                 <p className="text-sm text-muted-foreground">Show path from Home to current Category.</p>
               </div>
-              <Switch 
-                checked={settings?.showBreadcrumbs ?? true} 
+              <Switch
+                checked={settings?.showBreadcrumbs ?? true}
                 onCheckedChange={(val) => handleUpdate({ showBreadcrumbs: val })}
               />
             </div>
@@ -160,8 +184,8 @@ export default function CustomizationPage() {
                 <Label className="text-base">Related Products</Label>
                 <p className="text-sm text-muted-foreground">Display similar items at the bottom of the page.</p>
               </div>
-              <Switch 
-                checked={settings?.showRelatedProducts ?? true} 
+              <Switch
+                checked={settings?.showRelatedProducts ?? true}
                 onCheckedChange={(val) => handleUpdate({ showRelatedProducts: val })}
               />
             </div>
@@ -170,8 +194,8 @@ export default function CustomizationPage() {
                 <Label className="text-base">Image Hover Zoom</Label>
                 <p className="text-sm text-muted-foreground">Allow customers to magnify product images.</p>
               </div>
-              <Switch 
-                checked={settings?.enableZoom ?? false} 
+              <Switch
+                checked={settings?.enableZoom ?? false}
                 onCheckedChange={(val) => handleUpdate({ enableZoom: val })}
               />
             </div>

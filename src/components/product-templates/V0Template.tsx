@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -9,15 +8,16 @@ import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Heart, Share2, Info, Loader2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { useUser, useFirestore } from '@/firebase';
+import { useUser } from '@/hooks/use-user';
+import { createClient } from '@/lib/supabase/client';
 import { addToCartAction } from '@/lib/cart-actions';
 import { useToast } from '@/hooks/use-toast';
 
 export function V0Template({ product }: { product: Product }) {
   const { user } = useUser();
-  const db = useFirestore();
+  const supabase = createClient();
   const { toast } = useToast();
-  
+
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(product.variants?.[0] || null);
   const [isAdding, setIsAdding] = useState(false);
 
@@ -26,7 +26,7 @@ export function V0Template({ product }: { product: Product }) {
   const handleAddToCart = async () => {
     setIsAdding(true);
     try {
-      await addToCartAction(db, user?.uid || null, {
+      await addToCartAction(supabase, user?.id || null, {
         productId: product.id,
         variantId: selectedVariant?.id,
         quantity: 1
@@ -42,7 +42,7 @@ export function V0Template({ product }: { product: Product }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 bg-background p-6 rounded-xl border animate-in fade-in duration-700">
       <div className="relative aspect-square overflow-hidden rounded-lg bg-muted shadow-inner">
-        <Image src={product.imageUrl} alt={product.title} fill className="object-cover" priority />
+        <Image src={product.image_url} alt={product.title} fill className="object-cover" priority />
       </div>
       <div className="flex flex-col gap-6">
         <div className="space-y-2">

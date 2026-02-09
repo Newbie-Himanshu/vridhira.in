@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc, addDoc, collection, updateDoc, increment } from 'firebase/firestore';
-import { MOCK_PRODUCTS, Customer } from '@/lib/mock-data';
+import { useState, useEffect, useCallback } from 'react';
+import { useUser } from '@/hooks/use-user';
+import { Customer } from '@/lib/mock-data';
 import { updateCartItemQuantityAction, removeCartItemAction, getLocalCart, CartData, CartItem } from '@/lib/cart-actions';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,15 +14,29 @@ import { useRouter } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { createClient } from '@/lib/supabase/client';
+import { Product } from '@/types/index';
+
+interface DetailedCartItem extends CartItem {
+  product?: Product;
+  price: number;
+}
 
 export default function CartPage() {
-  const { user, isUserLoading } = useUser();
-  const db = useFirestore();
+  const { user, loading: isUserLoading } = useUser();
+  const supabase = createClient();
   const router = useRouter();
   const { toast } = useToast();
   const [localCart, setLocalCart] = useState<CartItem[]>([]);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
+  const [cloudCart, setCloudCart] = useState<CartData | null>(null);
+  const [isCartLoading, setIsCartLoading] = useState(true);
+  const [products, setProducts] = useState<Map<string, Product>>(new Map());
+  const [customer, setCustomer] = useState<Customer | null>(null);
+  const [platformSettings, setPlatformSettings] = useState<any>(null);
+
+  // Sync local cart
   useEffect(() => {
     const updateLocal = () => setLocalCart(getLocalCart());
     updateLocal();
@@ -31,22 +44,128 @@ export default function CartPage() {
     return () => window.removeEventListener('cart-updated', updateLocal);
   }, []);
 
-  const cartRef = useMemoFirebase(() => user ? doc(db, 'carts', user.uid) : null, [db, user]);
-  const { data: cloudCart, isLoading: isCartLoading } = useDoc<CartData>(cartRef);
+  // Fetch Cloud Cart
+  useEffect(() => {
+    if (!user) {
+      setCloudCart(null);
+      setIsCartLoading(false);
+      return;
+    }
 
-  const customerRef = useMemoFirebase(() => user ? doc(db, 'customers', user.uid) : null, [db, user]);
-  const { data: customer } = useDoc<Customer>(customerRef);
+    const fetchCart = async () => {
+      setIsCartLoading(true);
+      const { data } = await supabase
+        .from('carts')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
 
-  const settingsRef = useMemoFirebase(() => doc(db, 'platform_settings', 'global'), [db]);
-  const { data: platformSettings } = useDoc<any>(settingsRef);
+      if (data) setCloudCart(data as unknown as CartData);
+      setIsCartLoading(false);
+    };
 
-  if (isUserLoading || (user && isCartLoading)) return <div className="container mx-auto px-4 py-32 flex justify-center"><Loader2 className="animate-spin text-primary h-12 w-12" /></div>;
+    fetchCart();
+  }, [user, supabase]);
 
-  const items = user ? (cloudCart?.items || []) : localCart;
-  const cartDetailedItems = items.map(item => {
-    const product = MOCK_PRODUCTS.find(p => p.id === item.productId);
+  // Get all cart items (cloud or local)
+  const cartItems = user ? (cloudCart?.items || []) : localCart;
+
+  // Fetch Products from Supabase based on cart items
+  const fetchProducts = useCallback(async () => {
+    if (cartItems.length === 0) {
+      setProducts(new Map());
+      return;
+    }
+
+    const productIds = cartItems.map(item => item.productId);
+
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .in('id', productIds);
+
+    if (error) {
+      console.error('[CartPage] Error fetching products:', error);
+      return;
+    }
+
+    if (data) {
+      const productMap = new Map<string, Product>();
+      data.forEach((p: any) => {
+        productMap.set(p.id, {
+          id: p.id,
+          sku: p.sku,
+          brand: p.brand,
+          title: p.title,
+          price: p.price,
+          sale_price: p.sale_price,
+          discount_percentage: p.discount_percentage,
+          stock: p.stock,
+          category: p.category,
+          description: p.description,
+          image_url: p.image_url || '/placeholder.svg',
+          type: p.type,
+          variants: p.variants,
+          specs: p.specs,
+          tags: p.tags,
+          is_featured: p.is_featured,
+        });
+      });
+      setProducts(productMap);
+    }
+  }, [cartItems, supabase]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  // Fetch Customer
+  useEffect(() => {
+    if (!user) {
+      setCustomer(null);
+      return;
+    }
+
+    const fetchCustomer = async () => {
+      const { data } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      if (data) setCustomer(data as Customer);
+    };
+
+    fetchCustomer();
+  }, [user, supabase]);
+
+  // Fetch Platform Settings
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const { data } = await supabase
+        .from('platform_settings')
+        .select('*')
+        .eq('id', 'global')
+        .single();
+      if (data) setPlatformSettings(data);
+    };
+
+    fetchSettings();
+  }, [supabase]);
+
+  if (isUserLoading || (user && isCartLoading)) {
+    return (
+      <div className="container mx-auto px-4 py-32 flex justify-center">
+        <Loader2 className="animate-spin text-primary h-12 w-12" />
+      </div>
+    );
+  }
+
+  // Build detailed cart items with product data from Supabase
+  const cartDetailedItems: DetailedCartItem[] = cartItems.map(item => {
+    const product = products.get(item.productId);
     const variant = product?.variants?.find(v => v.id === item.variantId);
-    return { ...item, product, variant, price: variant ? variant.price : (product?.price || 0) };
+    const price = variant ? variant.price : (product?.sale_price || product?.price || 0);
+    return { ...item, product, price };
   });
 
   const subtotal = cartDetailedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
@@ -63,54 +182,20 @@ export default function CartPage() {
       return;
     }
     if (isUnverified) {
-      toast({ 
-        variant: "destructive", 
-        title: "Certification Pending", 
-        description: "Please certify your heritage identity in My Account before completing acquisitions." 
+      toast({
+        variant: "destructive",
+        title: "Certification Pending",
+        description: "Please certify your heritage identity in My Account before completing acquisitions."
       });
       router.push('/account');
       return;
     }
 
-    setCheckoutLoading(true);
-    try {
-      // 1. Create Order
-      await addDoc(collection(db, 'orders'), {
-        userId: user.uid,
-        customerName: `${customer?.firstName} ${customer?.lastName}` || user.displayName || 'Heritage Collector',
-        items: cartDetailedItems.map(i => ({ 
-          productId: i.productId, 
-          variantId: i.variantId || null, 
-          quantity: i.quantity, 
-          price: i.price 
-        })),
-        totalAmount: total,
-        status: 'Pending',
-        date: new Date().toISOString(),
-        platformFee
-      });
-
-      // 2. Decrement Stock (Simplified for Prototype)
-      for (const item of cartDetailedItems) {
-        const prodRef = doc(db, 'products', item.productId);
-        updateDoc(prodRef, { stock: increment(-item.quantity) });
-      }
-
-      // 3. Clear Cart
-      if (cartRef) {
-        updateDoc(cartRef, { items: [] });
-      }
-
-      toast({ title: "Acquisition Confirmed", description: "Your handcrafted treasure has been secured." });
-      router.push('/account?tab=orders');
-    } catch (e) {
-      toast({ variant: "destructive", title: "Checkout Failed", description: "A system error occurred during processing." });
-    } finally {
-      setCheckoutLoading(false);
-    }
+    // Redirect to the new checkout page
+    router.push('/checkout');
   };
 
-  if (items.length === 0) {
+  if (cartItems.length === 0) {
     return (
       <div className="container mx-auto px-4 py-48 text-center space-y-10 animate-in fade-in duration-700">
         <div className="bg-primary/5 w-32 h-32 rounded-full flex items-center justify-center mx-auto">
@@ -156,24 +241,59 @@ export default function CartPage() {
             <Card key={`${item.productId}-${item.variantId}`} className="border-none shadow-xl rounded-[2.5rem] bg-card/60 backdrop-blur-xl p-8 hover:bg-card/80 transition-all">
               <div className="flex flex-col sm:grid sm:grid-cols-12 gap-8 items-center">
                 <div className="sm:col-span-3 relative aspect-square w-full rounded-3xl overflow-hidden shadow-inner border border-border/20">
-                  <Image src={item.product?.imageUrl || ''} alt={item.product?.title || ''} fill className="object-cover" />
+                  <Image
+                    src={item.product?.image_url || '/placeholder.svg'}
+                    alt={item.product?.title || 'Product'}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
                 <div className="sm:col-span-9 flex flex-col justify-between h-full w-full py-2">
                   <div className="flex justify-between items-start">
                     <div className="space-y-1">
-                      <Badge variant="secondary" className="bg-primary/10 text-primary border-none text-[10px] font-bold uppercase tracking-widest">{item.product?.category}</Badge>
-                      <h3 className="text-2xl font-headline font-bold text-secondary">{item.product?.title}</h3>
-                      {item.variant && <p className="text-sm font-bold text-primary opacity-80 uppercase tracking-tighter">Variant: {item.variant.name}</p>}
+                      <Badge variant="secondary" className="bg-primary/10 text-primary border-none text-[10px] font-bold uppercase tracking-widest">
+                        {item.product?.category || 'Unknown'}
+                      </Badge>
+                      <h3 className="text-2xl font-headline font-bold text-secondary">
+                        {item.product?.title || 'Product Not Found'}
+                      </h3>
+                      {item.product?.variants?.find(v => v.id === item.variantId) && (
+                        <p className="text-sm font-bold text-primary opacity-80 uppercase tracking-tighter">
+                          Variant: {item.product.variants.find(v => v.id === item.variantId)?.name}
+                        </p>
+                      )}
                     </div>
-                    <p className="text-2xl font-black text-secondary">${(item.price * item.quantity).toFixed(2)}</p>
+                    <p className="text-2xl font-black text-secondary">
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </p>
                   </div>
                   <div className="flex items-center justify-between mt-8">
                     <div className="flex items-center gap-6 bg-muted/30 rounded-2xl px-6 py-2 border border-black/5">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-background" onClick={() => updateCartItemQuantityAction(db, user?.uid || null, item.productId, item.variantId, item.quantity - 1)}><Minus className="h-4 w-4" /></Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full hover:bg-background"
+                        onClick={() => updateCartItemQuantityAction(supabase, user?.id || null, item.productId, item.variantId, item.quantity - 1)}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
                       <span className="font-black text-lg w-4 text-center">{item.quantity}</span>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-background" onClick={() => updateCartItemQuantityAction(db, user?.uid || null, item.productId, item.variantId, item.quantity + 1)}><Plus className="h-4 w-4" /></Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full hover:bg-background"
+                        onClick={() => updateCartItemQuantityAction(supabase, user?.id || null, item.productId, item.variantId, item.quantity + 1)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <Button variant="ghost" className="text-destructive/60 hover:text-destructive hover:bg-destructive/5 rounded-full" onClick={() => removeCartItemAction(db, user?.uid || null, item.productId, item.variantId)}><Trash2 className="h-5 w-5" /></Button>
+                    <Button
+                      variant="ghost"
+                      className="text-destructive/60 hover:text-destructive hover:bg-destructive/5 rounded-full"
+                      onClick={() => removeCartItemAction(supabase, user?.id || null, item.productId, item.variantId)}
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -200,12 +320,12 @@ export default function CartPage() {
                   <span className="text-5xl font-black text-primary drop-shadow-sm">${total.toFixed(2)}</span>
                 </div>
               </div>
-              <Button 
+              <Button
                 onClick={handleCheckout}
                 disabled={isMaintenance || checkoutLoading}
                 className="w-full h-16 rounded-2xl bg-primary text-white font-black text-xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all duration-500 shine-effect border-none"
               >
-                {checkoutLoading ? <Loader2 className="animate-spin h-6 w-6" /> : isUnverified ? "Complete Verification" : "Confirm Purchase"}
+                {checkoutLoading ? <Loader2 className="animate-spin h-6 w-6" /> : isUnverified ? "Complete Verification" : "Proceed to Checkout"}
               </Button>
               <p className="text-[10px] text-center opacity-40 uppercase tracking-[0.2em] font-bold">Secure Heritage Transaction Protected</p>
             </div>

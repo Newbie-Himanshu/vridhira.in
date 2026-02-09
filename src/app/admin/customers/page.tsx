@@ -1,9 +1,7 @@
-
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useFirestore, useCollection, useUser, useDoc, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { useState, useMemo, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { Customer, UserRole } from '@/lib/mock-data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -12,21 +10,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
   DialogFooter,
-  DialogClose
+  DialogClose,
+  DialogDescription
 } from '@/components/ui/dialog';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select';
 import {
   DropdownMenu,
@@ -36,18 +35,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { 
-  Loader2, 
-  ShieldCheck, 
-  ShieldAlert, 
-  UserCog, 
-  Search, 
-  Download, 
-  MoreVertical, 
-  Ban, 
-  CheckCircle2, 
-  XCircle, 
-  Eye, 
+import {
+  Loader2,
+  ShieldCheck,
+  ShieldAlert,
+  UserCog,
+  Search,
+  Download,
+  MoreVertical,
+  Ban,
+  CheckCircle2,
+  XCircle,
+  Eye,
   EyeOff,
   Edit2,
   MapPin,
@@ -58,22 +57,42 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useUser } from '@/hooks/use-user';
 
 export default function AdminManagementPage() {
-  const db = useFirestore();
+  const supabase = createClient();
   const { user } = useUser();
   const { toast } = useToast();
 
+  const [allUsers, setAllUsers] = useState<Customer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [editingUser, setEditingUser] = useState<Partial<Customer> | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  const currentUserRef = useMemoFirebase(() => user ? doc(db, 'customers', user.uid) : null, [db, user]);
-  const { data: currentCustomer } = useDoc<Customer>(currentUserRef);
-  
-  const customersQuery = useMemoFirebase(() => collection(db, 'customers'), [db]);
-  const { data: allUsers, isLoading } = useCollection<Customer>(customersQuery);
+  // Fetch current user details for role check
+  // Actually useUser hook already provides basic info, but we need role from DB "customers" table or metadata
+  // The useUser hook we made fetches profile from 'users' table or similar?
+  // Let's assume useUser returns { user, profile } where profile has role.
+  // But wait, the previous code fetched `currentCustomer` from `customers` collection.
+
+  const [currentCustomer, setCurrentCustomer] = useState<Customer | null>(null);
+
+  useEffect(() => {
+    async function init() {
+      setIsLoading(true);
+      if (user) {
+        const { data } = await supabase.from('customers').select('*').eq('id', user.id).single();
+        if (data) setCurrentCustomer(data as Customer);
+      }
+
+      const { data: users } = await supabase.from('customers').select('*');
+      if (users) setAllUsers(users as Customer[]);
+      setIsLoading(false);
+    }
+    init();
+  }, [user]);
 
   // Owners and Special Admins have full access
   const isOwner = currentCustomer?.role === 'owner' || user?.email === 'hk8913114@gmail.com';
@@ -84,20 +103,27 @@ export default function AdminManagementPage() {
       const matchesSearch = `${u.firstName} ${u.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
         u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
         u.username?.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
       const matchesRole = roleFilter === 'all' || u.role === roleFilter;
-      
+
       return matchesSearch && matchesRole;
     });
   }, [allUsers, searchQuery, roleFilter]);
 
-  const handleUpdateUser = (userId: string, updates: Partial<Customer>) => {
+  const handleUpdateUser = async (userId: string, updates: Partial<Customer>) => {
     if (!isOwner) {
       toast({ variant: "destructive", title: "Unauthorized", description: "Only the Owner can modify users." });
       return;
     }
-    const targetRef = doc(db, 'customers', userId);
-    updateDocumentNonBlocking(targetRef, updates);
+
+    const { error } = await supabase.from('customers').update(updates).eq('id', userId);
+
+    if (error) {
+      toast({ variant: "destructive", title: "Update Failed", description: error.message });
+      return;
+    }
+
+    setAllUsers(prev => prev.map(u => u.id === userId ? { ...u, ...updates } : u));
     toast({ title: "User Updated", description: "The changes have been applied to the account." });
   };
 
@@ -113,7 +139,7 @@ export default function AdminManagementPage() {
   const toggleBan = (targetUser: Customer) => {
     const isBanned = !!targetUser.banUntil && new Date(targetUser.banUntil) > new Date();
     if (isBanned) {
-      handleUpdateUser(targetUser.id, { banUntil: null, failedAttempts: 0 });
+      handleUpdateUser(targetUser.id, { banUntil: undefined, failedAttempts: 0 }); // undefined or null
     } else {
       const banDate = new Date();
       banDate.setFullYear(banDate.getFullYear() + 10);
@@ -125,7 +151,7 @@ export default function AdminManagementPage() {
     if (!allUsers || allUsers.length === 0) return;
     const headers = ['id', 'email', 'firstName', 'lastName', 'username', 'role', 'isVerified', 'address', 'phoneNumber'];
     const csvRows = [headers.join(',')];
-    
+
     allUsers.forEach(u => {
       const values = [
         u.id,
@@ -155,7 +181,7 @@ export default function AdminManagementPage() {
   if (isLoading) return <div className="p-20 flex justify-center"><Loader2 className="animate-spin text-primary" /></div>;
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-8 space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-3xl font-headline font-bold text-secondary">User Command Center</h1>
@@ -169,11 +195,11 @@ export default function AdminManagementPage() {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 bg-white p-4 rounded-3xl shadow-sm border">
         <div className="md:col-span-7 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search by name, email, or username..." 
-            className="pl-10 h-12 rounded-2xl border-none shadow-none focus-visible:ring-1" 
-            value={searchQuery} 
-            onChange={e => setSearchQuery(e.target.value)} 
+          <Input
+            placeholder="Search by name, email, or username..."
+            className="pl-10 h-12 rounded-2xl border-none shadow-none focus-visible:ring-1"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
           />
         </div>
         <div className="md:col-span-5 flex gap-2">
@@ -256,8 +282,8 @@ export default function AdminManagementPage() {
                           <ShieldCheck className="h-4 w-4" /> {u.isVerified ? 'Revoke Certification' : 'Certify Identity'}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem 
-                          className={cn("rounded-xl cursor-pointer py-2 px-3 gap-2 font-bold", isBanned ? "text-green-600" : "text-destructive")} 
+                        <DropdownMenuItem
+                          className={cn("rounded-xl cursor-pointer py-2 px-3 gap-2 font-bold", isBanned ? "text-green-600" : "text-destructive")}
                           onClick={() => toggleBan(u)}
                         >
                           <Ban className="h-4 w-4" /> {isBanned ? 'Unban Account' : 'Restrict (Ban) User'}
@@ -289,14 +315,14 @@ export default function AdminManagementPage() {
           </DialogHeader>
           <form onSubmit={handleSaveEdit} className="space-y-6 py-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>First Name</Label><Input value={editingUser?.firstName || ''} onChange={e => setEditingUser({...editingUser!, firstName: e.target.value})} /></div>
-              <div className="space-y-2"><Label>Last Name</Label><Input value={editingUser?.lastName || ''} onChange={e => setEditingUser({...editingUser!, lastName: e.target.value})} /></div>
-              <div className="space-y-2 col-span-2"><Label>Email Address</Label><Input value={editingUser?.email || ''} onChange={e => setEditingUser({...editingUser!, email: e.target.value})} /></div>
-              <div className="space-y-2 col-span-2"><Label>Username</Label><Input value={editingUser?.username || ''} onChange={e => setEditingUser({...editingUser!, username: e.target.value})} placeholder="@heritage_member" /></div>
-              <div className="space-y-2 col-span-2"><Label>Shipping Address</Label><Textarea value={editingUser?.address || ''} onChange={e => setEditingUser({...editingUser!, address: e.target.value})} className="min-h-[100px] rounded-2xl" /></div>
-              <div className="space-y-2"><Label>Phone Number</Label><Input value={editingUser?.phoneNumber || ''} onChange={e => setEditingUser({...editingUser!, phoneNumber: e.target.value})} /></div>
+              <div className="space-y-2"><Label>First Name</Label><Input value={editingUser?.firstName || ''} onChange={e => setEditingUser({ ...editingUser!, firstName: e.target.value })} /></div>
+              <div className="space-y-2"><Label>Last Name</Label><Input value={editingUser?.lastName || ''} onChange={e => setEditingUser({ ...editingUser!, lastName: e.target.value })} /></div>
+              <div className="space-y-2 col-span-2"><Label>Email Address</Label><Input value={editingUser?.email || ''} onChange={e => setEditingUser({ ...editingUser!, email: e.target.value })} /></div>
+              <div className="space-y-2 col-span-2"><Label>Username</Label><Input value={editingUser?.username || ''} onChange={e => setEditingUser({ ...editingUser!, username: e.target.value })} placeholder="@heritage_member" /></div>
+              <div className="space-y-2 col-span-2"><Label>Shipping Address</Label><Textarea value={editingUser?.address || ''} onChange={e => setEditingUser({ ...editingUser!, address: e.target.value })} className="min-h-[100px] rounded-2xl" /></div>
+              <div className="space-y-2"><Label>Phone Number</Label><Input value={editingUser?.phoneNumber || ''} onChange={e => setEditingUser({ ...editingUser!, phoneNumber: e.target.value })} /></div>
               <div className="space-y-2"><Label>Role Access</Label>
-                <Select value={editingUser?.role} onValueChange={val => setEditingUser({...editingUser!, role: val as UserRole})}>
+                <Select value={editingUser?.role} onValueChange={val => setEditingUser({ ...editingUser!, role: val as UserRole })}>
                   <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="user">User</SelectItem>

@@ -2,15 +2,14 @@
 
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn, setDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
+import { useUser } from '@/hooks/use-user';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, Lock, User, Loader2, PhoneIncoming, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
-import { doc, serverTimestamp } from 'firebase/firestore';
 import { syncLocalCartToCloud } from '@/lib/cart-actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Customer } from '@/lib/mock-data';
@@ -20,11 +19,10 @@ export default function LoginPage(props: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const searchParams = use(props.searchParams);
-  const { user, isUserLoading } = useUser();
-  const auth = useAuth();
-  const db = useFirestore();
+  const { user, isLoading: isUserLoading } = useUser();
+  const supabase = createClient();
   const router = useRouter();
-  
+
   const returnTo = (searchParams.returnTo as string) || '/';
 
   const [mounted, setMounted] = useState(false);
@@ -42,119 +40,126 @@ export default function LoginPage(props: {
     setMounted(true);
   }, []);
 
-  const customerRef = useMemoFirebase(() => 
-    user ? doc(db, 'customers', user.uid) : null,
-    [db, user]
-  );
-  
-  const { data: customer, isLoading: isCustomerLoading } = useDoc<Customer>(customerRef);
+  const [customer, setCustomer] = useState<Customer | null>(null);
+  const [isCustomerLoading, setIsCustomerLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) {
+      setCustomer(null);
+      setIsCustomerLoading(false);
+      return;
+    }
+
+    const fetchCustomer = async () => {
+      setIsCustomerLoading(true);
+      const { data } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (data) setCustomer(data as Customer);
+      setIsCustomerLoading(false);
+    };
+
+    fetchCustomer();
+  }, [user, supabase]);
 
   useEffect(() => {
     if (user && customer && !loading) {
       const isSpecial = user.email === 'hk8913114@gmail.com';
-      if (customer.isVerified || isSpecial) {
-        if (isSpecial && !customer.isVerified) {
-          updateDocumentNonBlocking(doc(db, 'customers', user.uid), { isVerified: true });
+      // Check is_verified (snake_case from DB)
+      const isVerified = (customer as any).is_verified || (customer as any).isVerified;
+      if (isVerified || isSpecial) {
+        if (isSpecial && !isVerified) {
+          supabase.from('customers').update({ is_verified: true }).eq('id', user.id);
         }
-        syncLocalCartToCloud(db, user.uid).then(() => {
+        syncLocalCartToCloud(supabase, user.id).then(() => {
           router.push(returnTo);
         });
       } else if (!showOtpStep) {
         setShowOtpStep(true);
       }
     }
-  }, [user, customer, loading, router, db, returnTo, showOtpStep]);
+  }, [user, customer, loading, router, supabase, returnTo, showOtpStep]);
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    initiateEmailSignIn(auth, email, password)
-      .then(() => setLoading(false))
-      .catch((err: any) => {
-        setError({ message: 'Authentication Error', hint: err.message });
-        setLoading(false);
-      });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+    if (error) {
+      setError({ message: 'Authentication Error', hint: error.message });
+      setLoading(false);
+    } else {
+      // Auth state change will trigger useEffect
+    }
   };
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     setError(null);
-    initiateGoogleSignIn(auth)
-      .then((cred) => {
-        const u = cred.user;
-        const isSpecial = u.email === 'hk8913114@gmail.com';
-        
-        // Initial setup for Google users
-        setDocumentNonBlocking(doc(db, 'users', u.uid), {
-          id: u.uid,
-          email: u.email,
-          displayName: u.displayName || 'Artisan Enthusiast',
-          creationTime: serverTimestamp(),
-        });
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`
+      }
+    });
 
-        // We check if customer already exists, if not create it
-        const cRef = doc(db, 'customers', u.uid);
-        setDocumentNonBlocking(cRef, {
-          id: u.uid,
-          email: u.email,
-          firstName: u.displayName?.split(' ')[0] || 'Artisan',
-          lastName: u.displayName?.split(' ')[1] || 'Enthusiast',
-          role: isSpecial ? 'owner' : 'user',
-          isVerified: true, // Google accounts are auto-verified for this prototype
-        }, { merge: true });
-
-        setGoogleLoading(false);
-      })
-      .catch((err: any) => {
-        setError({ message: 'Google Sign In Failed', hint: err.message });
-        setGoogleLoading(false);
-      });
+    if (error) {
+      setError({ message: 'Google Sign In Failed', hint: error.message });
+      setGoogleLoading(false);
+    }
   };
 
-  const handleSignUp = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    initiateEmailSignUp(auth, email, password)
-      .then((cred) => {
-        const u = cred.user;
-        const isSpecial = u.email === 'hk8913114@gmail.com';
-        
-        setDocumentNonBlocking(doc(db, 'users', u.uid), {
-          id: u.uid,
-          email: u.email,
-          displayName: displayName || 'Artisan Enthusiast',
-          creationTime: serverTimestamp(),
-        });
 
-        setDocumentNonBlocking(doc(db, 'customers', u.uid), {
-          id: u.uid,
-          email: u.email,
-          firstName: displayName.split(' ')[0] || 'Artisan',
-          lastName: displayName.split(' ')[1] || 'Enthusiast',
-          role: isSpecial ? 'owner' : 'user',
-          isVerified: isSpecial,
-          failedAttempts: 0,
-          resendAttempts: 0
-        });
-        
-        setLoading(false);
-        if (!isSpecial) setShowOtpStep(true);
-      })
-      .catch((err: any) => {
-        setError({ message: 'Registration Failed', hint: err.message });
-        setLoading(false);
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: displayName }
+      }
+    });
+
+    if (error) {
+      setError({ message: 'Registration Failed', hint: error.message });
+      setLoading(false);
+      return;
+    }
+
+    if (data.user) {
+      const u = data.user;
+      const isSpecial = u.email === 'hk8913114@gmail.com';
+
+      // Create customer profile (no separate users table needed)
+      const { error: profileError } = await supabase.from('customers').insert({
+        id: u.id,
+        email: u.email,
+        first_name: displayName.split(' ')[0] || 'Artisan',
+        last_name: displayName.split(' ')[1] || 'Enthusiast',
+        role: isSpecial ? 'owner' : 'user',
+        is_verified: isSpecial
       });
+
+      setLoading(false);
+      if (!isSpecial) setShowOtpStep(true);
+    }
   };
 
-  const handleVerifyOtp = (e: React.FormEvent) => {
+  const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     setLoading(true);
-    
+
     if (otp === '123456') {
-      updateDocumentNonBlocking(doc(db, 'customers', user.uid), { isVerified: true, failedAttempts: 0 });
+      await supabase.from('customers').update({ is_verified: true }).eq('id', user.id);
     } else {
       const newCount = failedOtpCount + 1;
       setFailedOtpCount(newCount);
@@ -200,9 +205,9 @@ export default function LoginPage(props: {
             <form onSubmit={handleVerifyOtp} className="space-y-8">
               <div className="space-y-3">
                 <Label className="uppercase tracking-[0.2em] text-[10px] font-black opacity-40">6-Digit Access Key</Label>
-                <Input 
-                  maxLength={6} 
-                  className="h-24 text-center text-5xl font-black tracking-[0.4em] rounded-[2rem] border-none bg-muted/30 focus:ring-2 focus:ring-primary shadow-inner" 
+                <Input
+                  maxLength={6}
+                  className="h-24 text-center text-5xl font-black tracking-[0.4em] rounded-[2rem] border-none bg-muted/30 focus:ring-2 focus:ring-primary shadow-inner"
                   placeholder="000000"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
@@ -213,7 +218,7 @@ export default function LoginPage(props: {
                 {loading ? <Loader2 className="animate-spin" /> : "Verify & Enter Marketplace"}
               </Button>
             </form>
-            
+
             {failedOtpCount >= 2 && (
               <div className="pt-2 animate-in fade-in slide-in-from-bottom-2 duration-1000">
                 <p className="text-xs text-muted-foreground mb-4 italic font-light">Trouble accessing? Skip for a limited guest preview.</p>
@@ -264,19 +269,19 @@ export default function LoginPage(props: {
                     <AlertDescription className="text-[10px] font-medium uppercase">{error.hint}</AlertDescription>
                   </Alert>
                 )}
-                
+
                 <form onSubmit={handleSignIn} className="space-y-6">
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Email Address</Label>
                     <div className="relative group">
                       <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                      <Input 
-                        type="email" 
+                      <Input
+                        type="email"
                         placeholder="collector@heritage.com"
-                        className="h-14 pl-12 rounded-2xl bg-white/50 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all text-sm" 
-                        value={email} 
-                        onChange={(e) => setEmail(e.target.value)} 
-                        required 
+                        className="h-14 pl-12 rounded-2xl bg-white/50 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
                       />
                     </div>
                   </div>
@@ -284,13 +289,13 @@ export default function LoginPage(props: {
                     <Label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Secret Key</Label>
                     <div className="relative group">
                       <Lock className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                      <Input 
-                        type="password" 
+                      <Input
+                        type="password"
                         placeholder="••••••••"
-                        className="h-14 pl-12 rounded-2xl bg-white/50 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all text-sm" 
-                        value={password} 
-                        onChange={(e) => setPassword(e.target.value)} 
-                        required 
+                        className="h-14 pl-12 rounded-2xl bg-white/50 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
                       />
                     </div>
                   </div>
@@ -304,10 +309,10 @@ export default function LoginPage(props: {
                   <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest text-muted-foreground"><span className="bg-white/60 px-4 backdrop-blur-sm">Alternative Access</span></div>
                 </div>
 
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  className="w-full h-14 rounded-2xl border-black/5 bg-white hover:bg-black/5 font-bold text-xs uppercase tracking-widest gap-3 shadow-md transition-all active:scale-95" 
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full h-14 rounded-2xl border-black/5 bg-white hover:bg-black/5 font-bold text-xs uppercase tracking-widest gap-3 shadow-md transition-all active:scale-95"
                   onClick={handleGoogleSignIn}
                   disabled={googleLoading}
                 >
@@ -316,10 +321,10 @@ export default function LoginPage(props: {
                   ) : (
                     <>
                       <svg className="h-4 w-4" viewBox="0 0 24 24">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.18 1-.78 1.85-1.63 2.42v2.77h2.64c1.54-1.42 2.43-3.5 2.43-5.2z" fill="#4285F4"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-2.64-2.27c-.73.49-1.66.78-2.64.78-2.03 0-3.75-1.37-4.36-3.22H4.11v2.32C5.92 21.01 8.76 23 12 23z" fill="#34A853"/>
-                        <path d="M7.64 15.63c-.16-.49-.25-1.01-.25-1.55s.09-1.06.25-1.55V10.2H4.11c-.54 1.1-.86 2.33-.86 3.65s.32 2.55.86 3.65l3.53-2.87z" fill="#FBBC05"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 8.76 1 5.92 2.99 4.11 5.68l3.53 2.32c.61-1.85 2.33-3.22 4.36-3.22z" fill="#EA4335"/>
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.18 1-.78 1.85-1.63 2.42v2.77h2.64c1.54-1.42 2.43-3.5 2.43-5.2z" fill="#4285F4" />
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-2.64-2.27c-.73.49-1.66.78-2.64.78-2.03 0-3.75-1.37-4.36-3.22H4.11v2.32C5.92 21.01 8.76 23 12 23z" fill="#34A853" />
+                        <path d="M7.64 15.63c-.16-.49-.25-1.01-.25-1.55s.09-1.06.25-1.55V10.2H4.11c-.54 1.1-.86 2.33-.86 3.65s.32 2.55.86 3.65l3.53-2.87z" fill="#FBBC05" />
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 8.76 1 5.92 2.99 4.11 5.68l3.53 2.32c.61-1.85 2.33-3.22 4.36-3.22z" fill="#EA4335" />
                       </svg>
                       Sign In with Google
                     </>
@@ -337,35 +342,35 @@ export default function LoginPage(props: {
                     <Label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Full Identity</Label>
                     <div className="relative group">
                       <User className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                      <Input 
-                        placeholder="Arjun Verma" 
-                        className="h-14 pl-12 rounded-2xl bg-white/50 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all text-sm" 
-                        value={displayName} 
-                        onChange={(e) => setDisplayName(e.target.value)} 
-                        required 
+                      <Input
+                        placeholder="Arjun Verma"
+                        className="h-14 pl-12 rounded-2xl bg-white/50 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        required
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Email Address</Label>
-                    <Input 
-                      type="email" 
+                    <Input
+                      type="email"
                       placeholder="arjun@heritage.com"
-                      className="h-14 px-6 rounded-2xl bg-white/50 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all text-sm" 
-                      value={email} 
-                      onChange={(e) => setEmail(e.target.value)} 
-                      required 
+                      className="h-14 px-6 rounded-2xl bg-white/50 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Registry Password</Label>
-                    <Input 
-                      type="password" 
+                    <Input
+                      type="password"
                       placeholder="••••••••"
-                      className="h-14 px-6 rounded-2xl bg-white/50 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all text-sm" 
-                      value={password} 
-                      onChange={(e) => setPassword(e.target.value)} 
-                      required 
+                      className="h-14 px-6 rounded-2xl bg-white/50 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
                     />
                   </div>
                   <Button className="w-full h-16 bg-secondary text-white rounded-[2rem] font-black text-lg shadow-xl hover:scale-[1.02] active:scale-95 transition-all shine-effect overflow-hidden" disabled={loading}>

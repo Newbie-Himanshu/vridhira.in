@@ -1,9 +1,7 @@
-
 'use client';
 
-import { useState } from 'react';
-import { useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -11,13 +9,12 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  ShieldAlert, 
-  Megaphone, 
-  DollarSign, 
-  Settings2, 
-  Loader2, 
-  Save, 
+import {
+  ShieldAlert,
+  Megaphone,
+  DollarSign,
+  Settings2,
+  Loader2,
   Zap,
   Lock,
   Unlock,
@@ -27,24 +24,63 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function GlobalSettingsPage() {
-  const db = useFirestore();
+  const supabase = createClient();
   const { toast } = useToast();
-  
-  const settingsRef = useMemoFirebase(() => doc(db, 'platform_settings', 'global'), [db]);
-  const { data: settings, isLoading } = useDoc<any>(settingsRef);
 
+  const [settings, setSettings] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const handleSave = (updates: any) => {
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    setIsLoading(true);
+    const { data } = await supabase.from('platform_settings').select('*').eq('id', 'global').single();
+    if (data) {
+      setSettings({
+        ...data,
+        // Map DB snake_case to matched camelCase for local state consistency if needed, 
+        // BUT simpler to just use DB structure directly. Let's adapt state to DB structure.
+        maintenance_mode: data.maintenance_mode,
+        platform_fee_percentage: data.platform_fee_percentage,
+        show_announcement: data.show_announcement,
+        announcement_message: data.announcement_message,
+        announcement_type: data.announcement_type
+      });
+    } else {
+      // Init default if not exists
+      setSettings({
+        id: 'global',
+        maintenance_mode: false,
+        platform_fee_percentage: 0.10,
+        show_announcement: false,
+        announcement_message: "",
+        announcement_type: "info"
+      });
+    }
+    setIsLoading(false);
+  };
+
+  const handleSave = async (updates: any) => {
     setSaving(true);
-    setDocumentNonBlocking(settingsRef, updates, { merge: true });
-    setTimeout(() => {
-      setSaving(false);
+    // If it's a strongly typed table:
+    // maintenance_mode, platform_fee_percentage, etc.
+    // I'll stick to generic object for now.
+
+    const { error } = await supabase.from('platform_settings').upsert(newSettings);
+
+    if (error) {
+      toast({ variant: "destructive", title: "Update Failed", description: "Could not update settings." });
+    } else {
+      setSettings(newSettings);
       toast({
         title: "Platform Updated",
         description: "Global settings have been applied to the marketplace."
       });
-    }, 500);
+    }
+    setSaving(false);
   };
 
   if (isLoading) {
@@ -81,8 +117,8 @@ export default function GlobalSettingsPage() {
                   <CardDescription className="text-destructive/70">Instantly stop all customer checkouts.</CardDescription>
                 </div>
               </div>
-              <Switch 
-                checked={currentSettings.maintenanceMode} 
+              <Switch
+                checked={currentSettings.maintenanceMode}
                 onCheckedChange={(val) => handleSave({ maintenanceMode: val })}
                 className="data-[state=checked]:bg-destructive"
               />
@@ -118,8 +154,8 @@ export default function GlobalSettingsPage() {
               <div className="space-y-2 flex-1">
                 <Label>Platform Fee (%)</Label>
                 <div className="relative">
-                  <Input 
-                    type="number" 
+                  <Input
+                    type="number"
                     step="0.1"
                     defaultValue={currentSettings.platformFeePercentage * 100}
                     onBlur={(e) => handleSave({ platformFeePercentage: Number(e.target.value) / 100 })}
@@ -148,8 +184,8 @@ export default function GlobalSettingsPage() {
                 <Megaphone className="h-5 w-5 text-primary" />
                 <CardTitle>Broadcast Banner</CardTitle>
               </div>
-              <Switch 
-                checked={currentSettings.showAnnouncement} 
+              <Switch
+                checked={currentSettings.showAnnouncement}
                 onCheckedChange={(val) => handleSave({ showAnnouncement: val })}
               />
             </div>
@@ -158,18 +194,18 @@ export default function GlobalSettingsPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Banner Message</Label>
-              <Textarea 
+              <Textarea
                 placeholder="e.g., Free shipping on all silk sarees this weekend!"
                 value={currentSettings.announcementMessage}
-                onChange={(e) => setDocumentNonBlocking(settingsRef, { announcementMessage: e.target.value }, { merge: true })}
-                onBlur={() => handleSave({})}
+                onChange={(e) => setSettings({ ...currentSettings, announcementMessage: e.target.value })}
+                onBlur={() => handleSave({ announcementMessage: currentSettings.announcementMessage })}
                 className="min-h-[80px]"
               />
             </div>
             <div className="space-y-2">
               <Label>Message Style</Label>
-              <Select 
-                value={currentSettings.announcementType} 
+              <Select
+                value={currentSettings.announcementType}
                 onValueChange={(val) => handleSave({ announcementType: val })}
               >
                 <SelectTrigger>

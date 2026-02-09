@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useFirestore, useCollection, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
-import { collection, query, orderBy, doc } from 'firebase/firestore';
-import { Order } from '@/lib/mock-data';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { createClient } from '@/lib/supabase/client';
+// import { Order } from '@/types/index'; // Using local interface to match DB exactly for now to avoid conflicts
+import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,24 +12,42 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { 
-  Loader2, 
-  ShoppingBag, 
-  CheckCircle2, 
-  Truck, 
-  XCircle, 
+import {
+  Loader2,
+  ShoppingBag,
+  CheckCircle2,
+  Truck,
+  XCircle,
   Calendar as CalendarIcon,
   RotateCcw,
-  Search
+  Search,
+  Eye
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { format, isAfter, isBefore, startOfDay, endOfDay } from 'date-fns';
 
+// Define the exact shape we expect from Supabase + our mapping
+interface AdminOrder {
+  id: string;
+  user_id: string;
+  customerName: string;
+  created_at: string;
+  total_amount: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  items: any[];
+  platform_fee: number;
+  payment_method: string;
+  payment_status: string;
+  shipping_address: any;
+}
+
 export default function OrdersManagementPage() {
-  const db = useFirestore();
+  const supabase = createClient();
   const { toast } = useToast();
   const [mounted, setMounted] = useState(false);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // State for filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -40,17 +57,71 @@ export default function OrdersManagementPage() {
 
   useEffect(() => {
     setMounted(true);
+    fetchOrders();
   }, []);
 
-  const ordersQuery = useMemoFirebase(() => query(collection(db, 'orders'), orderBy('date', 'desc')), [db]);
-  const { data: orders, isLoading } = useCollection<Order>(ordersQuery);
+  const fetchOrders = async () => {
+    setIsLoading(true);
 
-  const updateOrderStatus = (orderId: string, newStatus: Order['status']) => {
-    const orderRef = doc(db, 'orders', orderId);
-    updateDocumentNonBlocking(orderRef, { status: newStatus });
+    // Fetch orders with RLS (Admins can view all)
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching orders:', error);
+      toast({
+        variant: "destructive",
+        title: "Error fetching orders",
+        description: error.message
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    if (data) {
+      // Map Supabase fields
+      const mappedOrders: AdminOrder[] = data.map((o: any) => ({
+        id: o.id,
+        user_id: o.user_id,
+        // Extract customer name from shipping address or fallback to "Unknown"
+        customerName: o.shipping_address?.fullName || 'Guest/Unknown',
+        created_at: o.created_at,
+        total_amount: o.total_amount,
+        status: o.status,
+        items: o.items || [],
+        platform_fee: o.platform_fee,
+        payment_method: o.payment_method,
+        payment_status: o.payment_status,
+        shipping_address: o.shipping_address
+      }));
+      setOrders(mappedOrders);
+    }
+    setIsLoading(false);
+  };
+
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    const { error } = await supabase
+      .from('orders')
+      .update({ status: newStatus })
+      .eq('id', orderId);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: error.message,
+      });
+      return;
+    }
+
+    // Optimistic update
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus as any } : o));
+
     toast({
       title: "Order Updated",
-      description: `Order ${orderId} status set to ${newStatus}.`,
+      description: `Order successfully marked as ${newStatus}.`,
     });
   };
 
@@ -62,24 +133,28 @@ export default function OrdersManagementPage() {
 
   const filteredOrders = useMemo(() => {
     if (!orders) return [];
-    
+
     let result = orders.filter(order => {
-      const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase());
-      const orderDate = new Date(order.date);
+      const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.customerName.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const orderDate = new Date(order.created_at);
       let matchesDate = true;
-      
+
       if (dateFrom) {
         matchesDate = matchesDate && (isAfter(orderDate, startOfDay(dateFrom)) || orderDate.getTime() === startOfDay(dateFrom).getTime());
       }
       if (dateTo) {
         matchesDate = matchesDate && (isBefore(orderDate, endOfDay(dateTo)) || orderDate.getTime() === endOfDay(dateTo).getTime());
       }
-      
+
       return matchesSearch && matchesDate;
     });
 
     return result.slice(0, parseInt(pageSize));
   }, [orders, searchQuery, dateFrom, dateTo, pageSize]);
+
+  if (!mounted) return null;
 
   if (isLoading) {
     return (
@@ -96,6 +171,9 @@ export default function OrdersManagementPage() {
           <h1 className="text-3xl font-headline font-bold text-secondary tracking-tight">Acquisitions Ledger</h1>
           <p className="text-muted-foreground italic">Monitor and fulfill every handcrafted dream across the globe.</p>
         </div>
+        <Button onClick={() => fetchOrders()} variant="outline" size="sm" className="gap-2">
+          <RotateCcw className="h-4 w-4" /> Refresh
+        </Button>
       </div>
 
       {/* Advanced Filters Section */}
@@ -106,8 +184,8 @@ export default function OrdersManagementPage() {
               <Label className="text-sm font-semibold text-secondary">Search</Label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Search by Order ID..." 
+                <Input
+                  placeholder="Order ID or Customer Name..."
                   className="pl-10 h-11 rounded-xl"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -127,7 +205,7 @@ export default function OrdersManagementPage() {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateFrom ? format(dateFrom, "PPP") : <span>mm/dd/yyyy</span>}
+                    {dateFrom ? format(dateFrom, "PPP") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -153,7 +231,7 @@ export default function OrdersManagementPage() {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateTo ? format(dateTo, "PPP") : <span>mm/dd/yyyy</span>}
+                    {dateTo ? format(dateTo, "PPP") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -169,12 +247,12 @@ export default function OrdersManagementPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row justify-between items-center pt-4 border-t gap-4">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="rounded-lg gap-2 h-10 border-input"
               onClick={clearFilters}
             >
-              <RotateCcw className="h-4 w-4" />
+              <XCircle className="h-4 w-4" />
               Clear Filters
             </Button>
 
@@ -208,6 +286,7 @@ export default function OrdersManagementPage() {
                   <TableHead className="h-14 font-bold text-secondary">Customer</TableHead>
                   <TableHead className="h-14 font-bold text-secondary">Date</TableHead>
                   <TableHead className="h-14 font-bold text-secondary">Total</TableHead>
+                  <TableHead className="h-14 font-bold text-secondary">Itms</TableHead>
                   <TableHead className="h-14 font-bold text-secondary">Status</TableHead>
                   <TableHead className="text-right px-8 h-14 font-bold text-secondary">Actions</TableHead>
                 </TableRow>
@@ -215,74 +294,92 @@ export default function OrdersManagementPage() {
               <TableBody>
                 {filteredOrders.map((order) => (
                   <TableRow key={order.id} className="hover:bg-muted/10 transition-colors border-b last:border-0">
-                    <TableCell className="px-8 py-5 font-black text-primary">{order.id}</TableCell>
-                    <TableCell className="font-bold text-secondary">{order.customerName}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {mounted ? new Date(order.date).toLocaleDateString() : '---'}
+                    <TableCell className="px-8 py-5 font-mono text-xs text-muted-foreground">
+                      {order.id.slice(0, 8)}...
                     </TableCell>
                     <TableCell className="font-bold text-secondary">
-                      {mounted ? `$${order.totalAmount.toFixed(2)}` : '---'}
+                      <div className="flex flex-col">
+                        <span>{order.customerName}</span>
+                        {/* Optional: Add email if needed from join or extra fetch */}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                      {new Date(order.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="font-bold text-secondary">
+                      ${order.total_amount.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {order.items?.length || 0}
                     </TableCell>
                     <TableCell>
-                      <Badge className={cn(
-                        "rounded-full px-4 py-1 text-[10px] font-black uppercase tracking-widest border-none",
-                        order.status === 'Delivered' ? "bg-green-100 text-green-700" : 
-                        order.status === 'Shipped' ? "bg-blue-100 text-blue-700" :
-                        order.status === 'Cancelled' ? "bg-destructive/10 text-destructive" : "bg-yellow-100 text-yellow-700"
-                      )}>
-                        {order.status}
-                      </Badge>
+                      <StatusBadge status={order.status} />
                     </TableCell>
                     <TableCell className="text-right px-8">
                       <div className="flex justify-end gap-2">
-                        {order.status === 'Pending' && (
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
+                        {order.status === 'pending' && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             className="rounded-full text-blue-600 hover:bg-blue-50"
-                            onClick={() => updateOrderStatus(order.id, 'Shipped')}
+                            onClick={() => updateOrderStatus(order.id, 'processing')}
+                            title="Mark as Processing"
+                          >
+                            <Truck className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {order.status === 'processing' && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="rounded-full text-blue-600 hover:bg-blue-50"
+                            onClick={() => updateOrderStatus(order.id, 'shipped')}
                             title="Mark as Shipped"
                           >
                             <Truck className="h-4 w-4" />
                           </Button>
                         )}
-                        {order.status === 'Shipped' && (
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
+                        {order.status === 'shipped' && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             className="rounded-full text-green-600 hover:bg-green-50"
-                            onClick={() => updateOrderStatus(order.id, 'Delivered')}
+                            onClick={() => updateOrderStatus(order.id, 'delivered')}
                             title="Mark as Delivered"
                           >
                             <CheckCircle2 className="h-4 w-4" />
                           </Button>
                         )}
-                        {order.status !== 'Cancelled' && order.status !== 'Delivered' && (
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
+                        {/* Always show Cancel if not delivered/cancelled */}
+                        {['pending', 'processing'].includes(order.status) && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             className="rounded-full text-destructive hover:bg-destructive/5"
-                            onClick={() => updateOrderStatus(order.id, 'Cancelled')}
+                            onClick={() => updateOrderStatus(order.id, 'cancelled')}
                             title="Cancel Order"
                           >
                             <XCircle className="h-4 w-4" />
                           </Button>
                         )}
+                        <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground" title="View Details">
+                          <Eye className="h-4 w-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-            
+
             {filteredOrders.length === 0 && (
               <div className="flex flex-col items-center justify-center py-24 text-center">
                 <div className="bg-primary/5 p-8 rounded-full mb-6">
                   <ShoppingBag className="h-16 w-16 text-primary/20" />
                 </div>
-                <h3 className="text-2xl font-bold text-secondary mb-2">No All Orders</h3>
+                <h3 className="text-2xl font-bold text-secondary mb-2">No Matches Found</h3>
                 <p className="text-muted-foreground text-lg max-w-sm mx-auto">
-                  There are currently no all orders in your store.
+                  {orders.length === 0 ? "No orders have been placed yet." : "Try adjusting your filters."}
                 </p>
               </div>
             )}
@@ -290,5 +387,22 @@ export default function OrdersManagementPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const s = status.toLowerCase();
+  let styles = "bg-gray-100 text-gray-700";
+
+  if (s === 'delivered') styles = "bg-green-100 text-green-700";
+  else if (s === 'shipped') styles = "bg-blue-100 text-blue-700";
+  else if (s === 'processing') styles = "bg-orange-100 text-orange-700";
+  else if (s === 'cancelled') styles = "bg-red-100 text-red-700";
+  else if (s === 'pending') styles = "bg-yellow-100 text-yellow-800";
+
+  return (
+    <Badge className={cn("rounded-full px-4 py-1 text-[10px] font-black uppercase tracking-widest border-none", styles)}>
+      {status}
+    </Badge>
   );
 }

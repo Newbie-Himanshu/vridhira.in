@@ -1,35 +1,50 @@
 'use client';
 
 import { use, useState, useEffect } from 'react';
-import { useDoc, useMemoFirebase, useFirestore } from '@/firebase';
-import { doc } from 'firebase/firestore';
 import { Product, PageSettings } from '@/lib/mock-data';
 import { V0Template } from '@/components/product-templates/V0Template';
 import { ModernTemplate } from '@/components/product-templates/ModernTemplate';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
 
-export default function ProductPage(props: { 
+export default function ProductPage(props: {
   params: Promise<{ productId: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  // Next.js 15 requires unwrapping params and searchParams promises in Client Components
   const params = use(props.params);
-  const searchParams = use(props.searchParams);
   const productId = params.productId;
-  
-  const db = useFirestore();
 
-  // Fetch page settings from Firestore to demonstrate dynamic template switching.
-  const settingsRef = useMemoFirebase(() => doc(db, 'page_customizations', 'global-settings'), [db]);
-  const { data: settings, isLoading: settingsLoading } = useDoc<PageSettings>(settingsRef);
+  const supabase = createClient();
 
-  // Fetch product from Firestore
-  const productRef = useMemoFirebase(() => doc(db, 'products', productId), [db, productId]);
-  const { data: product, isLoading: productLoading } = useDoc<Product>(productRef);
+  const [settings, setSettings] = useState<PageSettings | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (productLoading || settingsLoading) {
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+
+      // Parallel fetch
+      const [settingsRes, productRes] = await Promise.all([
+        supabase.from('page_customizations').select('*').eq('id', 'global-settings').single(),
+        supabase.from('products').select('*').eq('id', productId).single()
+      ]);
+
+      if (settingsRes.data) setSettings(settingsRes.data as PageSettings);
+      if (productRes.data) setProduct(productRes.data as Product);
+
+      // If product not found in DB, check mock data (optional fallback if migration is partial)
+      // but strictly we should rely on DB now.
+
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, [supabase, productId]);
+
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-32 flex justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -49,7 +64,6 @@ export default function ProductPage(props: {
     );
   }
 
-  // Default to v0 if no settings found
   const template = settings?.template || 'v0';
 
   return (
