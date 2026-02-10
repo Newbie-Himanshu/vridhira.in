@@ -4,20 +4,20 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { z } from 'zod'; // Import z from zod
 import { Loader2, ShieldCheck, Truck } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'; // Assuming this exists or using standard input
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
-import { AddressSchema, CreateOrderSchema } from '@/lib/validators';
-import { getLocalCart, CartItem } from '@/lib/cart-actions';
+import { AddressSchema } from '@/lib/validators'; // Removed CreateOrderSchema
+import { getLocalCart } from '@/lib/cart-actions';
+import { CartItem } from '@/types/index';
 import { createClient } from '@/lib/supabase/client';
-// We need to fetch product details to show title/price in summary since LocalCart only has IDs
-// For MVP, we'll fetch details on mount.
+import Script from 'next/script';
 
 type CheckoutFormValues = z.infer<typeof AddressSchema>;
 
@@ -40,16 +40,12 @@ export default function CheckoutPage() {
     // 1. Fetch Cart & Product Details
     useEffect(() => {
         async function fetchCart() {
-            // Logic: Prefer Cloud Cart if logged in, else Local Cart (but Checkout requires login usually)
-            // For now, let's assume we sync local to cloud on login, so we fetch from cloud if auth.
-
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 router.push('/login?next=/checkout');
                 return;
             }
 
-            // Fetch cloud cart
             const { data: cartData } = await supabase
                 .from('carts')
                 .select('items')
@@ -60,7 +56,6 @@ export default function CheckoutPage() {
             if (cartData && cartData.items && Array.isArray(cartData.items)) {
                 items = cartData.items as unknown as CartItem[];
             } else {
-                // Fallback to local if nothing in cloud (edge case)
                 items = getLocalCart();
             }
 
@@ -71,7 +66,6 @@ export default function CheckoutPage() {
                 return;
             }
 
-            // Fetch Product Details for UI
             const productIds = items.map(i => i.productId);
             const { data: products } = await supabase
                 .from('products')
@@ -85,7 +79,7 @@ export default function CheckoutPage() {
                         ...item,
                         product,
                     };
-                }).filter(i => i.product); // Filter out if product blocked/deleted
+                }).filter(i => i.product);
                 setCartDetails(details);
             }
 
@@ -101,30 +95,112 @@ export default function CheckoutPage() {
         return acc + (price * item.quantity);
     }, 0);
 
-    const shipping = 0; // Free shipping for now
+    const shipping = 0;
     const total = subtotal + shipping;
 
-    // 3. Handle Submit
+    // 3. Handle Razopay Flow
+    const handleRazorpayPayment = async (orderId: string, userDetails: any) => {
+        try {
+            // A. Create Razorpay Order
+            const response = await fetch('/api/payments/create-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId }),
+            });
+
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || 'Failed to initiate payment');
+
+            const { razorpayOrderId, amount, currency, key, name, description } = result.data;
+
+            // B. Open Razorpay Modal
+            const options = {
+                key, // Enter the Key ID generated from the Dashboard
+                amount,
+                currency,
+                name,
+                description,
+                order_id: razorpayOrderId,
+                handler: async function (response: any) {
+                    // C. Verify Payment
+                    try {
+                        const verifyRes = await fetch('/api/payments/verify', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                orderId: orderId
+                            }),
+                        });
+
+                        const verifyData = await verifyRes.json();
+                        if (!verifyRes.ok) throw new Error(verifyData.error || 'Verification failed');
+
+                        toast({
+                            title: "Payment Successful!",
+                            description: "Your order has been placed successfully.",
+                        });
+                        router.push('/checkout/success');
+
+                    } catch (error: any) {
+                        toast({
+                            variant: "destructive",
+                            title: "Payment Verification Failed",
+                            description: error.message,
+                        });
+                        // Order remains pending, user can try again or contact support
+                    }
+                },
+                prefill: {
+                    name: userDetails.fullName,
+                    email: userDetails.email,
+                    contact: userDetails.phone,
+                },
+                theme: {
+                    color: "#0F172A" // primary color
+                }
+            };
+
+            const rzp = new (window as any).Razorpay(options);
+            rzp.on('payment.failed', function (response: any) {
+                toast({
+                    variant: "destructive",
+                    title: "Payment Failed",
+                    description: response.error.description,
+                });
+            });
+            rzp.open();
+
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Payment Initialization Failed",
+                description: error.message,
+            });
+        }
+    };
+
+    // 4. Handle Submit
     async function onSubmit(data: CheckoutFormValues) {
         setSubmitting(true);
         try {
-            // Construct the payload matching CreateOrderSchema
+            // A. Create DB Order (Single Source of Truth)
             const payload = {
                 items: cartDetails.map(item => ({
                     productId: item.productId,
                     quantity: item.quantity,
-                    price: item.product.sale_price || item.product.price // Client side price for schema, backend verifies
+                    price: item.product.sale_price || item.product.price
                 })),
                 shippingAddress: data,
                 totalAmount: total,
-                paymentMethod: paymentMethod
+                paymentMethod: paymentMethod // API logs this but doesn't auto-initiate payment unless logic changed
             };
 
             const response = await fetch('/api/orders', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
 
@@ -134,12 +210,18 @@ export default function CheckoutPage() {
                 throw new Error(result.error || 'Failed to place order');
             }
 
-            toast({
-                title: "Order Placed Successfully!",
-                description: `Order ID: ${result.data.id}`,
-            });
+            const orderId = result.data.id;
 
-            router.push('/checkout/success'); // Create this page next
+            if (paymentMethod === 'cod') {
+                toast({
+                    title: "Order Placed Successfully!",
+                    description: `Order ID: ${orderId}`,
+                });
+                router.push('/checkout/success');
+            } else {
+                // Trigger Razorpay Flow
+                await handleRazorpayPayment(orderId, data);
+            }
 
         } catch (error: any) {
             console.error(error);
@@ -172,6 +254,10 @@ export default function CheckoutPage() {
 
     return (
         <div className="container mx-auto px-4 py-12">
+            <Script
+                id="razorpay-checkout-js"
+                src="https://checkout.razorpay.com/v1/checkout.js"
+            />
             <h1 className="text-3xl font-headline font-bold mb-8">Checkout</h1>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -249,13 +335,16 @@ export default function CheckoutPage() {
                         </CardHeader>
                         <CardContent>
                             <RadioGroup defaultValue="cod" onValueChange={(val) => setPaymentMethod(val as any)} className="space-y-3">
-                                <div className="flex items-center space-x-2 border p-4 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+                                <div className={`flex items-center space-x-2 border p-4 rounded-lg cursor-pointer transition-colors ${paymentMethod === 'cod' ? 'bg-primary/5 border-primary' : 'hover:bg-muted/50'}`}>
                                     <RadioGroupItem value="cod" id="cod" />
                                     <Label htmlFor="cod" className="flex-1 cursor-pointer font-medium">Cash on Delivery (COD)</Label>
                                 </div>
-                                <div className="flex items-center space-x-2 border p-4 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors opacity-50 relative">
-                                    <RadioGroupItem value="razorpay" id="razorpay" disabled />
-                                    <Label htmlFor="razorpay" className="flex-1 cursor-pointer font-medium">Online Payment (Coming Soon)</Label>
+                                <div className={`flex items-center space-x-2 border p-4 rounded-lg cursor-pointer transition-colors ${paymentMethod === 'razorpay' ? 'bg-primary/5 border-primary' : 'hover:bg-muted/50'}`}>
+                                    <RadioGroupItem value="razorpay" id="razorpay" />
+                                    <Label htmlFor="razorpay" className="flex-1 cursor-pointer font-medium">
+                                        Online Payment (UPI, Cards, Netbanking)
+                                        <span className="block text-xs text-muted-foreground mt-1">Secured by Razorpay</span>
+                                    </Label>
                                 </div>
                             </RadioGroup>
                         </CardContent>
@@ -320,7 +409,7 @@ export default function CheckoutPage() {
                                         Processing...
                                     </>
                                 ) : (
-                                    'Place Order'
+                                    paymentMethod === 'razorpay' ? 'Proceed to Pay' : 'Place Order'
                                 )}
                             </Button>
                         </CardFooter>
